@@ -1,0 +1,36 @@
+import { useState } from "react";
+import TopHeader from "@/components/TopHeader";
+import TabNavigation from "@/components/TabNavigation";
+import FilterBar from "@/components/FilterBar";
+import SearchBar from "@/components/SearchBar";
+import NFTGrid from "@/components/NFTGrid";
+import BottomNav from "@/components/BottomNav";
+import MyAds from "./MyAds";
+import Tasks from "./Tasks";
+
+type Page = "store" | "myads" | "tasks";
+
+export default function Home() {
+  const [currentPage, setCurrentPage] = useState<Page>("store");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [giftFilter, setGiftFilter] = useState("");
+
+  if (currentPage === "myads") {
+    return <MyAds />;
+  }
+
+  if (currentPage === "tasks") {
+    return <Tasks />;
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <TopHeader />
+      <TabNavigation />
+      <FilterBar onGiftFilterChange={setGiftFilter} />
+      <SearchBar onSearchChange={setSearchQuery} />
+      <NFTGrid searchQuery={searchQuery} giftFilter={giftFilter} />
+      <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
+    </div>
+  );
+}
