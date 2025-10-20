@@ -4,6 +4,26 @@
 
 LootGifts is a mobile-first NFT marketplace application built with React, Express, and PostgreSQL. The application enables users to browse, create, and manage NFT listings with a dark-themed interface optimized for TON blockchain integration. The platform features a three-tab navigation system (Store, My Ads, Tasks) and provides filtering, searching, and CRUD operations for NFT items.
 
+## Recent Changes (October 20, 2025)
+
+**Design Improvements**
+- Replaced blue gradient card backgrounds with elegant dark design using zinc color palette
+- Added subtle borders and hover effects (border-zinc-800/50, hover:border-zinc-700/70)
+- Implemented smooth transitions and scale effects on cards (group-hover:scale-105 on images)
+- Updated search bar to blend with background (bg-zinc-900/30, border-zinc-800/50)
+- Removed bright accent colors in favor of cohesive dark theme
+
+**Multi-Gift Support**
+- Extended channel creation to support multiple gifts with individual quantities
+- Added `gifts` field to Channel schema (JSON text field storing array of {giftId, quantity})
+- Created new UI for adding/removing multiple gifts in CreateAd form
+- Added quantity input controls for each selected gift
+- Maintained backward compatibility with single `giftId` field
+
+**Data Cleanup**
+- Replaced Russian channel names in seed data with English equivalents
+- Standardized all user-facing text to English (excluding UI labels)
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -68,8 +88,10 @@ Preferred communication style: Simple, everyday language.
 
 **Schema Design**
 - `users` table: id (UUID), username (unique), password
-- `nft_items` table: id (UUID), name, itemId, price, image, backgroundColor, collection, model, category
+- `channels` table: id (UUID), channelName, telegramLink, giftId, price, ownerId, gifts (JSON text)
+- `gifts` table: id, name, image
 - Zod schemas generated from Drizzle tables for runtime validation
+- Multi-gift support via JSON-serialized array in `gifts` field: [{giftId: string, quantity: number}]
 
 ### Authentication & Authorization
 
@@ -86,10 +108,11 @@ Preferred communication style: Simple, everyday language.
 
 **Color Palette**
 - Dark background: HSL(18 8% 12%)
-- Card backgrounds: HSL(220 8% 16%)
-- Primary accent: HSL(200 100% 45%) - bright cyan blue
-- Border colors: HSL(220 8% 20%)
-- NFT card backgrounds: Pink, Yellow, Blue, Purple variants for visual variety
+- Card backgrounds: zinc-900/50 (semi-transparent dark gray)
+- Card borders: zinc-800/50 with hover state zinc-700/70
+- Text colors: zinc-100 (headings), zinc-400 (secondary text), zinc-500 (icons)
+- Search input: bg-zinc-900/30, border-zinc-800/50
+- Price badges: bg-zinc-800/60 with border-zinc-700/50
 
 **Typography**
 - System font stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif
@@ -100,9 +123,11 @@ Preferred communication style: Simple, everyday language.
 - Fixed top header with balance display and add button
 - Tab-based navigation with visual active state indicators
 - Filter bar with dropdown and expandable toggle
-- Search bar with icon prefix
-- Grid layout for NFT cards (2 columns on mobile)
+- Search bar with icon prefix, themed to match background
+- Grid layout for NFT cards (2 columns on mobile) with hover effects
 - Fixed bottom navigation with three primary sections
+- Multi-gift selector with add/remove controls and quantity inputs
+- Dashed border "Add Gift" button for visual clarity
 
 ### External Dependencies
 
