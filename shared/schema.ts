@@ -32,6 +32,7 @@ export const channels = pgTable("channels", {
   giftId: varchar("gift_id").notNull().references(() => gifts.id),
   price: text("price").notNull(),
   ownerId: varchar("owner_id"),
+  gifts: text("gifts"),
 });
 
 export const insertChannelSchema = createInsertSchema(channels).omit({
@@ -40,3 +41,10 @@ export const insertChannelSchema = createInsertSchema(channels).omit({
 
 export type InsertChannel = z.infer<typeof insertChannelSchema>;
 export type Channel = typeof channels.$inferSelect;
+
+export const giftItemSchema = z.object({
+  giftId: z.string(),
+  quantity: z.number().int().positive(),
+});
+
+export type GiftItem = z.infer<typeof giftItemSchema>;

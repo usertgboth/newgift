@@ -41,35 +41,39 @@ export class MemStorage implements IStorage {
     const seedData: Channel[] = [
       {
         id: randomUUID(),
-        channelName: "Магазин мишек",
+        channelName: "Bear Shop",
         telegramLink: "https://t.me/bears_shop",
         giftId: "box-of-chocolates",
         price: "29",
         ownerId: null,
+        gifts: JSON.stringify([{ giftId: "box-of-chocolates", quantity: 1 }]),
       },
       {
         id: randomUUID(),
-        channelName: "Сладости от Анны",
+        channelName: "Anna's Sweets",
         telegramLink: "https://t.me/anna_sweets",
         giftId: "cherry-cake",
         price: "10.49",
         ownerId: null,
+        gifts: JSON.stringify([{ giftId: "cherry-cake", quantity: 1 }]),
       },
       {
         id: randomUUID(),
-        channelName: "Подарки на праздник",
+        channelName: "Holiday Gifts",
         telegramLink: "https://t.me/holiday_gifts",
         giftId: "gift-bag",
         price: "15.99",
         ownerId: null,
+        gifts: JSON.stringify([{ giftId: "gift-bag", quantity: 1 }]),
       },
       {
         id: randomUUID(),
-        channelName: "Мороженое и радость",
+        channelName: "Ice Cream Joy",
         telegramLink: "https://t.me/icecream_joy",
         giftId: "ice-cream-cone",
         price: "22.50",
         ownerId: null,
+        gifts: JSON.stringify([{ giftId: "ice-cream-cone", quantity: 1 }]),
       },
     ];
 
@@ -132,6 +136,7 @@ export class MemStorage implements IStorage {
       ...insertChannel,
       id,
       ownerId: insertChannel.ownerId ?? null,
+      gifts: insertChannel.gifts ?? null,
     };
     this.channels.set(id, channel);
     

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,11 @@ interface Gift {
   image: string;
 }
 
+interface SelectedGift {
+  giftId: string;
+  quantity: number;
+}
+
 export default function CreateAd() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
@@ -24,9 +29,10 @@ export default function CreateAd() {
   const [formData, setFormData] = useState({
     channelName: "",
     telegramLink: "",
-    giftId: "",
     price: "",
   });
+
+  const [selectedGifts, setSelectedGifts] = useState<SelectedGift[]>([]);
 
   const { data: gifts = [] } = useQuery<Gift[]>({
     queryKey: ["/api/gifts"],
@@ -36,14 +42,8 @@ export default function CreateAd() {
     },
   });
 
-  useEffect(() => {
-    if (gifts.length > 0 && !formData.giftId) {
-      setFormData(prev => ({ ...prev, giftId: gifts[0].id }));
-    }
-  }, [gifts, formData.giftId]);
-
   const createChannelMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
+    mutationFn: async (data: any) => {
       const res = await apiRequest("POST", "/api/channels", data);
       return await res.json();
     },
@@ -67,19 +67,48 @@ export default function CreateAd() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.channelName || !formData.telegramLink || !formData.giftId || !formData.price) {
+    if (!formData.channelName || !formData.telegramLink || selectedGifts.length === 0 || !formData.price) {
       toast({
         title: "Ошибка",
-        description: "Заполните все обязательные поля",
+        description: "Заполните все обязательные поля и добавьте хотя бы один подарок",
         variant: "destructive",
       });
       return;
     }
 
-    createChannelMutation.mutate(formData);
+    const submitData = {
+      ...formData,
+      giftId: selectedGifts[0].giftId,
+      gifts: JSON.stringify(selectedGifts),
+    };
+
+    createChannelMutation.mutate(submitData);
   };
 
-  const selectedGift = gifts.find(g => g.id === formData.giftId);
+  const addGift = (giftId: string) => {
+    if (selectedGifts.find(g => g.giftId === giftId)) {
+      toast({
+        title: "Внимание",
+        description: "Этот подарок уже добавлен",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setSelectedGifts([...selectedGifts, { giftId, quantity: 1 }]);
+    setIsGiftPickerOpen(false);
+  };
+
+  const removeGift = (giftId: string) => {
+    setSelectedGifts(selectedGifts.filter(g => g.giftId !== giftId));
+  };
+
+  const updateQuantity = (giftId: string, quantity: number) => {
+    if (quantity < 1) return;
+    setSelectedGifts(selectedGifts.map(g => 
+      g.giftId === giftId ? { ...g, quantity } : g
+    ));
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-6">
@@ -125,31 +154,64 @@ export default function CreateAd() {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label className="text-sm font-medium text-foreground">
-            Выберите подарок *
+            Подарки *
           </Label>
-          <button
-            type="button"
-            onClick={() => setIsGiftPickerOpen(true)}
-            className="w-full flex items-center justify-between p-4 bg-card border border-card-border rounded-lg hover:bg-card/80 transition-colors"
-            data-testid="button-select-gift"
-          >
-            {selectedGift ? (
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg overflow-hidden bg-white">
+          
+          {selectedGifts.map((selected) => {
+            const gift = gifts.find(g => g.id === selected.giftId);
+            if (!gift) return null;
+            
+            return (
+              <div 
+                key={selected.giftId}
+                className="flex items-center gap-3 p-3 bg-zinc-900/30 border border-zinc-800/50 rounded-lg"
+              >
+                <div className="w-12 h-12 rounded-lg overflow-hidden bg-white flex-shrink-0">
                   <img
-                    src={selectedGift.image}
-                    alt={selectedGift.name}
+                    src={gift.image}
+                    alt={gift.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-foreground">{selectedGift.name}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{gift.name}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor={`quantity-${gift.id}`} className="text-xs text-zinc-400 whitespace-nowrap">
+                    Кол-во:
+                  </Label>
+                  <Input
+                    id={`quantity-${gift.id}`}
+                    type="number"
+                    min="1"
+                    value={selected.quantity}
+                    onChange={(e) => updateQuantity(selected.giftId, parseInt(e.target.value) || 1)}
+                    className="w-16 h-8 text-center bg-zinc-800/50 border-zinc-700/50 text-sm"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 flex-shrink-0"
+                  onClick={() => removeGift(selected.giftId)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
-            ) : (
-              <span className="text-muted-foreground">Выберите подарок</span>
-            )}
-            <span className="text-muted-foreground">›</span>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => setIsGiftPickerOpen(true)}
+            className="w-full flex items-center justify-center gap-2 p-4 bg-zinc-900/30 border border-zinc-800/50 border-dashed rounded-lg hover:bg-zinc-900/50 hover:border-zinc-700/70 transition-all text-zinc-400 hover:text-zinc-300"
+            data-testid="button-add-gift"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Добавить подарок</span>
           </button>
         </div>
 
@@ -200,8 +262,8 @@ export default function CreateAd() {
         open={isGiftPickerOpen}
         onClose={() => setIsGiftPickerOpen(false)}
         gifts={gifts}
-        selectedGiftId={formData.giftId}
-        onSelectGift={(giftId) => setFormData({ ...formData, giftId })}
+        selectedGiftId=""
+        onSelectGift={addGift}
       />
     </div>
   );
