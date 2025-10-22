@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { ArrowLeft, Plus, X } from "lucide-react";
+import { ArrowLeft, Plus, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,17 @@ export default function CreateAd() {
   });
 
   const [selectedGifts, setSelectedGifts] = useState<SelectedGift[]>([]);
+  const [telegramVerification, setTelegramVerification] = useState<{
+    isVerifying: boolean;
+    isVerified: boolean;
+    hasGift: boolean;
+    message: string;
+  }>({
+    isVerifying: false,
+    isVerified: false,
+    hasGift: false,
+    message: ""
+  });
 
   const { data: gifts = [] } = useQuery<Gift[]>({
     queryKey: ["/api/gifts"],
@@ -50,15 +61,15 @@ export default function CreateAd() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/channels"] });
       toast({
-        title: "Успешно!",
-        description: "Канал создан",
+        title: "Success!",
+        description: "Channel created",
       });
       navigate("/");
     },
     onError: () => {
       toast({
-        title: "Ошибка",
-        description: "Не удалось создать канал",
+        title: "Error",
+        description: "Failed to create channel",
         variant: "destructive",
       });
     },
@@ -69,8 +80,17 @@ export default function CreateAd() {
     
     if (!formData.channelName || !formData.telegramLink || selectedGifts.length === 0 || !formData.price) {
       toast({
-        title: "Ошибка",
-        description: "Заполните все обязательные поля и добавьте хотя бы один подарок",
+        title: "Error",
+        description: "Please fill all required fields and add at least one gift",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!telegramVerification.isVerified) {
+      toast({
+        title: "Verification Required",
+        description: "Please verify your Telegram channel before creating the listing",
         variant: "destructive",
       });
       return;
@@ -88,8 +108,8 @@ export default function CreateAd() {
   const addGift = (giftId: string) => {
     if (selectedGifts.find(g => g.giftId === giftId)) {
       toast({
-        title: "Внимание",
-        description: "Этот подарок уже добавлен",
+        title: "Warning",
+        description: "This gift is already added",
         variant: "destructive",
       });
       return;
@@ -110,6 +130,48 @@ export default function CreateAd() {
     ));
   };
 
+  const verifyTelegramChannel = async () => {
+    if (!formData.telegramLink || selectedGifts.length === 0) {
+      toast({
+        title: "Warning",
+        description: "Please enter Telegram link and select at least one gift",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTelegramVerification(prev => ({ ...prev, isVerifying: true }));
+
+    try {
+      const response = await apiRequest("POST", "/api/verify-telegram", {
+        telegramLink: formData.telegramLink,
+        giftName: selectedGifts[0].giftId // Use first selected gift
+      });
+      
+      const result = await response.json();
+      
+      setTelegramVerification({
+        isVerifying: false,
+        isVerified: result.channelValid,
+        hasGift: result.hasGift,
+        message: result.message
+      });
+
+      toast({
+        title: result.channelValid ? "Channel Verified" : "Verification Failed",
+        description: result.message,
+        variant: result.channelValid ? "default" : "destructive",
+      });
+    } catch (error) {
+      setTelegramVerification(prev => ({ ...prev, isVerifying: false }));
+      toast({
+        title: "Error",
+        description: "Failed to verify Telegram channel",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground pb-6">
       <header className="sticky top-0 z-50 flex items-center gap-3 px-4 py-3 bg-background border-b border-border">
@@ -122,19 +184,19 @@ export default function CreateAd() {
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h1 className="text-lg font-semibold">Создать канал</h1>
+        <h1 className="text-lg font-semibold">Create Channel</h1>
       </header>
 
       <form onSubmit={handleSubmit} className="px-4 py-6 space-y-6">
         <div className="space-y-2">
           <Label htmlFor="channelName" className="text-sm font-medium text-foreground">
-            Название канала *
+            Channel Name *
           </Label>
           <Input
             id="channelName"
             value={formData.channelName}
             onChange={(e) => setFormData({ ...formData, channelName: e.target.value })}
-            placeholder="Например: Магазин подарков"
+            placeholder="e.g. Gift Shop"
             className="bg-card border-card-border text-foreground"
             data-testid="input-channel-name"
           />
@@ -142,21 +204,55 @@ export default function CreateAd() {
 
         <div className="space-y-2">
           <Label htmlFor="telegramLink" className="text-sm font-medium text-foreground">
-            Ссылка на Telegram канал *
+            Telegram Channel Link *
           </Label>
-          <Input
-            id="telegramLink"
-            value={formData.telegramLink}
-            onChange={(e) => setFormData({ ...formData, telegramLink: e.target.value })}
-            placeholder="https://t.me/your_channel"
-            className="bg-card border-card-border text-foreground"
-            data-testid="input-telegram-link"
-          />
+          <div className="flex gap-2">
+            <Input
+              id="telegramLink"
+              value={formData.telegramLink}
+              onChange={(e) => setFormData({ ...formData, telegramLink: e.target.value })}
+              placeholder="https://t.me/your_channel"
+              className="bg-card border-card-border text-foreground flex-1"
+              data-testid="input-telegram-link"
+            />
+            <Button
+              type="button"
+              onClick={verifyTelegramChannel}
+              disabled={telegramVerification.isVerifying}
+              className="px-4 bg-primary hover:bg-primary/90"
+            >
+              {telegramVerification.isVerifying ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Verify"
+              )}
+            </Button>
+          </div>
+          
+          {/* Verification Status */}
+          {telegramVerification.message && (
+            <div className={`flex items-center gap-2 p-3 rounded-lg ${
+              telegramVerification.isVerified 
+                ? 'bg-green-500/10 border border-green-500/20' 
+                : 'bg-red-500/10 border border-red-500/20'
+            }`}>
+              {telegramVerification.isVerified ? (
+                <CheckCircle className="w-5 h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-500" />
+              )}
+              <span className={`text-sm ${
+                telegramVerification.isVerified ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {telegramVerification.message}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="space-y-3">
           <Label className="text-sm font-medium text-foreground">
-            Подарки *
+            Gifts *
           </Label>
           
           {selectedGifts.map((selected) => {
@@ -180,7 +276,7 @@ export default function CreateAd() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Label htmlFor={`quantity-${gift.id}`} className="text-xs text-zinc-400 whitespace-nowrap">
-                    Кол-во:
+                    Qty:
                   </Label>
                   <Input
                     id={`quantity-${gift.id}`}
@@ -211,13 +307,13 @@ export default function CreateAd() {
             data-testid="button-add-gift"
           >
             <Plus className="w-5 h-5" />
-            <span>Добавить подарок</span>
+            <span>Add Gift</span>
           </button>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="price" className="text-sm font-medium text-foreground">
-            Цена (TON) *
+            Price (TON) *
           </Label>
           <div className="relative">
             <Input
@@ -245,15 +341,16 @@ export default function CreateAd() {
             onClick={() => navigate("/")}
             data-testid="button-cancel"
           >
-            Отмена
+            Cancel
           </Button>
           <Button
             type="submit"
             className="flex-1 bg-primary hover-elevate active-elevate-2"
-            disabled={createChannelMutation.isPending}
+            disabled={createChannelMutation.isPending || !telegramVerification.isVerified}
             data-testid="button-submit"
           >
-            {createChannelMutation.isPending ? "Создание..." : "Создать"}
+            {createChannelMutation.isPending ? "Creating..." : 
+             !telegramVerification.isVerified ? "Verify Channel First" : "Create"}
           </Button>
         </div>
       </form>

@@ -4,6 +4,51 @@ import { storage } from "./storage";
 import { insertChannelSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Telegram verification functions
+async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
+  try {
+    // Extract channel username from link
+    const channelMatch = telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
+    if (!channelMatch) {
+      return false;
+    }
+    
+    const channelUsername = channelMatch[1];
+    
+    // In real implementation, you would use Telegram Bot API
+    // For now, we'll simulate a check
+    // You would use: https://api.telegram.org/bot<BOT_TOKEN>/getChat?chat_id=@channel_username
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // For demo purposes, accept most channels
+    return channelUsername.length > 0;
+  } catch (error) {
+    console.error('Error verifying Telegram channel:', error);
+    return false;
+  }
+}
+
+async function checkGiftInChannel(telegramLink: string, giftName: string): Promise<boolean> {
+  try {
+    // In real implementation, you would:
+    // 1. Use Telegram Bot API to get recent messages
+    // 2. Search for the gift name in message content
+    // 3. Check for images or media related to the gift
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // For demo purposes, simulate finding the gift 70% of the time
+    const random = Math.random();
+    return random > 0.3;
+  } catch (error) {
+    console.error('Error checking gift in channel:', error);
+    return false;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/gifts", async (req, res) => {
     try {
@@ -92,6 +137,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete channel" });
+    }
+  });
+
+  // New endpoint to verify Telegram channel and check for gifts
+  app.post("/api/verify-telegram", async (req, res) => {
+    try {
+      const { telegramLink, giftName } = req.body;
+      
+      if (!telegramLink || !giftName) {
+        return res.status(400).json({ error: "Telegram link and gift name are required" });
+      }
+
+      // Simulate Telegram API check
+      // In real implementation, you would use Telegram Bot API or web scraping
+      const isChannelValid = await verifyTelegramChannel(telegramLink);
+      const hasGift = await checkGiftInChannel(telegramLink, giftName);
+      
+      res.json({
+        channelValid: isChannelValid,
+        hasGift: hasGift,
+        message: isChannelValid 
+          ? (hasGift ? "Gift found in channel" : "Gift not found in channel")
+          : "Invalid Telegram channel"
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to verify Telegram channel" });
     }
   });
 

@@ -16,15 +16,25 @@ export default function Home() {
   const [giftFilter, setGiftFilter] = useState("");
 
   if (currentPage === "myads") {
-    return <MyAds />;
+    return (
+      <div className="min-h-screen bg-background text-foreground telegram-mini-app">
+        <MyAds />
+        <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
+      </div>
+    );
   }
 
   if (currentPage === "tasks") {
-    return <Tasks />;
+    return (
+      <div className="min-h-screen bg-background text-foreground telegram-mini-app">
+        <Tasks />
+        <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground telegram-mini-app">
       <TopHeader />
       <TabNavigation />
       <FilterBar onGiftFilterChange={setGiftFilter} />

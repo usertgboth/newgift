@@ -33,29 +33,34 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
 
   return (
     <>
-      <div className="px-4 py-3">
+      <div className="px-4 py-2">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full flex items-center justify-between p-3 bg-card border border-card-border rounded-lg hover:bg-card/80 transition-colors"
+          className="w-full flex items-center justify-between p-4 bg-card border border-card-border rounded-xl hover:bg-card/80 active:scale-[0.98] transition-all duration-200 shadow-sm"
           data-testid="button-select-filter"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {selectedGift ? (
               <>
-                <div className="w-6 h-6 rounded overflow-hidden bg-white">
+                <div className="w-8 h-8 rounded-lg overflow-hidden bg-white shadow-sm">
                   <img
                     src={selectedGift.image}
                     alt={selectedGift.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-sm text-foreground">{selectedGift.name}</span>
+                <span className="text-sm font-medium text-foreground">{selectedGift.name}</span>
               </>
             ) : (
-              <span className="text-sm text-foreground">Все подарки</span>
+              <>
+                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                  <span className="text-lg">🎁</span>
+                </div>
+                <span className="text-sm font-medium text-foreground">Select Gift</span>
+              </>
             )}
           </div>
-          <span className="text-muted-foreground">›</span>
+          <span className="text-muted-foreground text-lg">›</span>
         </button>
       </div>
 

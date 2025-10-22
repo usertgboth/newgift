@@ -34,21 +34,21 @@ export default function MyAds() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/channels"] });
       toast({
-        title: "Успешно!",
-        description: "Канал удален",
+        title: "Success!",
+        description: "Channel deleted",
       });
     },
     onError: () => {
       toast({
-        title: "Ошибка",
-        description: "Не удалось удалить канал",
+        title: "Error",
+        description: "Failed to delete channel",
         variant: "destructive",
       });
     },
   });
 
   const handleDelete = (id: string, name: string) => {
-    if (confirm(`Удалить канал "${name}"?`)) {
+    if (confirm(`Delete channel "${name}"?`)) {
       deleteChannelMutation.mutate(id);
     }
   };
@@ -60,7 +60,7 @@ export default function MyAds() {
       <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between px-4 py-4 border-b border-border">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
-            Мои каналы
+            My Channels
           </h1>
           <Button
             size="icon"
@@ -93,20 +93,13 @@ export default function MyAds() {
               
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold text-foreground" data-testid="text-empty-title">
-                  Нет каналов
+                  No Channels
                 </h2>
                 <p className="text-sm text-muted-foreground" data-testid="text-empty-subtitle">
-                  Создайте ваш первый канал
+                  Create your first channel
                 </p>
               </div>
 
-              <Button
-                className="px-6 py-2 bg-primary text-primary-foreground hover-elevate active-elevate-2"
-                data-testid="button-create-ad"
-                onClick={() => navigate("/create-ad")}
-              >
-                Добавить канал
-              </Button>
             </div>
           </div>
         ) : (
