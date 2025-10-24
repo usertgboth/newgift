@@ -35,16 +35,16 @@ export default function NFTGrid({ searchQuery = "", giftFilter = "" }: NFTGridPr
 
   if (isLoading) {
     return (
-      <div className="px-4 pb-24 pt-2">
-        <div className="grid grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map((i) => (
+      <div className="px-3 sm:px-4 pb-24 pt-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="rounded-2xl p-4 bg-card animate-pulse border border-card-border"
+              className="rounded-2xl p-3 sm:p-4 bg-card animate-pulse border border-card-border"
             >
-              <div className="aspect-square rounded-xl bg-muted mb-4" />
+              <div className="aspect-square rounded-xl bg-muted mb-3 sm:mb-4" />
               <div className="h-4 bg-muted rounded mb-2" />
-              <div className="h-3 bg-muted rounded w-2/3 mb-4" />
+              <div className="h-3 bg-muted rounded w-2/3 mb-3 sm:mb-4" />
               <div className="flex justify-between items-center">
                 <div className="h-6 bg-muted rounded-full w-16" />
                 <div className="h-8 bg-muted rounded-lg w-8" />
@@ -69,8 +69,8 @@ export default function NFTGrid({ searchQuery = "", giftFilter = "" }: NFTGridPr
   }
 
   return (
-    <div className="px-4 pb-24 pt-2">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="px-3 sm:px-4 pb-24 pt-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
         {filteredChannels.map((channel) => {
           return (
             <NFTCard

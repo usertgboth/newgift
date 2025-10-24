@@ -33,34 +33,34 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
 
   return (
     <>
-      <div className="px-4 py-2">
+      <div className="px-3 sm:px-4 py-2">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full flex items-center justify-between p-4 bg-card border border-card-border rounded-xl hover:bg-card/80 active:scale-[0.98] transition-all duration-200 shadow-sm"
+          className="w-full flex items-center justify-between p-3 sm:p-4 bg-card border border-card-border rounded-xl hover:bg-card/80 active:scale-[0.98] transition-all duration-200 shadow-sm"
           data-testid="button-select-filter"
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             {selectedGift ? (
               <>
-                <div className="w-8 h-8 rounded-lg overflow-hidden bg-white shadow-sm">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
                   <img
                     src={selectedGift.image}
                     alt={selectedGift.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-sm font-medium text-foreground">{selectedGift.name}</span>
+                <span className="text-xs sm:text-sm font-medium text-foreground truncate">{selectedGift.name}</span>
               </>
             ) : (
               <>
-                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                  <span className="text-lg">🎁</span>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                  <span className="text-base sm:text-lg">🎁</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">Select Gift</span>
+                <span className="text-xs sm:text-sm font-medium text-foreground">Select Gift</span>
               </>
             )}
           </div>
-          <span className="text-muted-foreground text-lg">›</span>
+          <span className="text-muted-foreground text-lg flex-shrink-0">›</span>
         </button>
       </div>
 
