@@ -1,12 +1,15 @@
-import { Plus } from "lucide-react";
+import { Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import tonLogo from "@assets/toncoin_1760893904370.png";
 
 export default function TopHeader() {
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 bg-background/95 backdrop-blur-sm border-b border-border/50">
-      <div className="text-base sm:text-lg font-bold text-foreground" data-testid="text-title">
-        🎁 LootGifts
+    <header className="sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 bg-background/95 backdrop-blur-sm">
+      <div className="flex items-center gap-2 sm:gap-3" data-testid="text-title">
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+          <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+        </div>
+        <span className="text-base sm:text-lg font-semibold text-foreground">johndee</span>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
@@ -16,11 +19,11 @@ export default function TopHeader() {
         </div>
         <Button
           size="icon"
-          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary hover-elevate active-elevate-2 shadow-lg"
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-cyan-500 hover:bg-cyan-600 active-elevate-2 shadow-lg"
           data-testid="button-add-balance"
           onClick={() => console.log('Add balance clicked')}
         >
-          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </Button>
       </div>
     </header>

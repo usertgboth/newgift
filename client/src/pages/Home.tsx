@@ -1,6 +1,6 @@
 import { useState } from "react";
 import TopHeader from "@/components/TopHeader";
-import TabNavigation from "@/components/TabNavigation";
+import CashbackBanner from "@/components/CashbackBanner";
 import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
 import NFTGrid from "@/components/NFTGrid";
@@ -36,7 +36,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground telegram-mini-app pb-20 sm:pb-24">
       <TopHeader />
-      <TabNavigation />
+      <CashbackBanner />
       <FilterBar onGiftFilterChange={setGiftFilter} />
       <SearchBar onSearchChange={setSearchQuery} />
       <NFTGrid searchQuery={searchQuery} giftFilter={giftFilter} />

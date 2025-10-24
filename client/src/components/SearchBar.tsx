@@ -23,7 +23,7 @@ export default function SearchBar({ onSearchChange }: SearchBarProps) {
           value={searchQuery}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="Search gifts..."
-          className="w-full h-11 sm:h-12 pl-10 sm:pl-12 pr-3 sm:pr-4 text-sm bg-card border border-card-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-card/80 transition-all duration-200 shadow-sm"
+          className="w-full h-10 sm:h-11 pl-10 sm:pl-12 pr-3 sm:pr-4 text-sm bg-card/50 border border-card-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-card/80 transition-all duration-200"
           data-testid="input-search"
         />
       </div>
