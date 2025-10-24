@@ -1,23 +1,24 @@
 run = "vite"
 entrypoint = "index.html"
 hidden = [".config"]
-modules = ["nodejs-18", "web"]
+modules = ["web", "nodejs-20"]
 
 [nix]
 channel = "stable-23_05"
 
 [deployment]
-deploymentTarget = "static"
+deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
 publicDir = "dist"
+run = ["npm", "run", "start"]
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 41675
-externalPort = 3001
+localPort = 35015
+externalPort = 3000
 
 [agent]
 expertMode = true
@@ -32,10 +33,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Server"
+args = "Start application"
 
 [[workflows.workflow]]
-name = "Server"
+name = "Start application"
 author = "agent"
 
 [[workflows.workflow.tasks]]
