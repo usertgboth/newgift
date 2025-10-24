@@ -14,10 +14,10 @@ interface Channel {
 
 interface NFTGridProps {
   searchQuery?: string;
-  giftFilter?: string;
+  giftFilter?: string[];
 }
 
-export default function NFTGrid({ searchQuery = "", giftFilter = "" }: NFTGridProps) {
+export default function NFTGrid({ searchQuery = "", giftFilter = [] }: NFTGridProps) {
   const { data: channels, isLoading } = useQuery<Channel[]>({
     queryKey: searchQuery ? ["/api/channels", { search: searchQuery }] : ["/api/channels"],
     queryFn: async ({ queryKey }) => {
@@ -29,8 +29,8 @@ export default function NFTGrid({ searchQuery = "", giftFilter = "" }: NFTGridPr
   });
 
   const filteredChannels = (channels || []).filter(channel => {
-    if (!giftFilter) return true;
-    return channel.giftId === giftFilter;
+    if (!giftFilter || giftFilter.length === 0) return true;
+    return giftFilter.includes(channel.giftId);
   });
 
   if (isLoading) {

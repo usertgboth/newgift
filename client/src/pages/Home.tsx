@@ -13,7 +13,7 @@ type Page = "store" | "myads" | "tasks";
 export default function Home() {
   const [currentPage, setCurrentPage] = useState<Page>("store");
   const [searchQuery, setSearchQuery] = useState("");
-  const [giftFilter, setGiftFilter] = useState("");
+  const [giftFilter, setGiftFilter] = useState<string[]>([]);
 
   if (currentPage === "myads") {
     return (

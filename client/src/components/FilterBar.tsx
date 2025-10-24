@@ -9,11 +9,11 @@ interface Gift {
 }
 
 interface FilterBarProps {
-  onGiftFilterChange?: (giftId: string) => void;
+  onGiftFilterChange?: (giftIds: string[]) => void;
 }
 
 export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
-  const [selectedGiftId, setSelectedGiftId] = useState("");
+  const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: gifts = [] } = useQuery<Gift[]>({
@@ -24,11 +24,11 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
     },
   });
 
-  const selectedGift = gifts.find((g) => g.id === selectedGiftId);
+  const selectedGifts = gifts.filter((g) => selectedGiftIds.includes(g.id));
 
-  const handleGiftSelect = (giftId: string) => {
-    setSelectedGiftId(giftId);
-    onGiftFilterChange?.(giftId);
+  const handleGiftSelect = (giftIds: string[]) => {
+    setSelectedGiftIds(giftIds);
+    onGiftFilterChange?.(giftIds);
   };
 
   return (
@@ -39,17 +39,28 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
           className="w-full flex items-center justify-between p-3 sm:p-4 bg-card border border-card-border rounded-xl hover:bg-card/80 active:scale-[0.98] transition-all duration-200 shadow-sm"
           data-testid="button-select-filter"
         >
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            {selectedGift ? (
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+            {selectedGifts.length > 0 ? (
               <>
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
-                  <img
-                    src={selectedGift.image}
-                    alt={selectedGift.name}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="flex -space-x-2 flex-shrink-0">
+                  {selectedGifts.slice(0, 3).map((gift) => (
+                    <div key={gift.id} className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-white shadow-sm border-2 border-background">
+                      <img
+                        src={gift.image}
+                        alt={gift.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                  {selectedGifts.length > 3 && (
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/20 flex items-center justify-center border-2 border-background">
+                      <span className="text-xs font-bold text-primary">+{selectedGifts.length - 3}</span>
+                    </div>
+                  )}
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-foreground truncate">{selectedGift.name}</span>
+                <span className="text-xs sm:text-sm font-medium text-foreground truncate">
+                  {selectedGifts.length} {selectedGifts.length === 1 ? 'gift' : 'gifts'} selected
+                </span>
               </>
             ) : (
               <>
@@ -68,8 +79,8 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         gifts={gifts}
-        selectedGiftId={selectedGiftId}
-        onSelectGift={handleGiftSelect}
+        selectedGiftIds={selectedGiftIds}
+        onSelectGifts={handleGiftSelect}
       />
     </>
   );
