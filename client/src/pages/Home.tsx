@@ -17,7 +17,7 @@ export default function Home() {
 
   if (currentPage === "myads") {
     return (
-      <div className="min-h-screen bg-background text-foreground telegram-mini-app">
+      <div className="min-h-screen bg-background text-foreground telegram-mini-app pb-24">
         <MyAds />
         <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
       </div>
@@ -26,7 +26,7 @@ export default function Home() {
 
   if (currentPage === "tasks") {
     return (
-      <div className="min-h-screen bg-background text-foreground telegram-mini-app">
+      <div className="min-h-screen bg-background text-foreground telegram-mini-app pb-24">
         <Tasks />
         <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
       </div>
@@ -34,7 +34,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground telegram-mini-app">
+    <div className="min-h-screen bg-background text-foreground telegram-mini-app pb-24">
       <TopHeader />
       <TabNavigation />
       <FilterBar onGiftFilterChange={setGiftFilter} />
