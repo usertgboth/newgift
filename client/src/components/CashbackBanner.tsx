@@ -10,39 +10,39 @@ export default function CashbackBanner() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
-    }, 3000); // Change banner every 3 seconds
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [banners.length]);
 
   return (
     <div className="px-3 sm:px-4 pt-3 pb-2">
-      <div className="relative overflow-hidden rounded-2xl">
+      <div className="relative overflow-hidden rounded-2xl h-32 sm:h-40">
         <div
-          className="flex transition-transform duration-500 ease-in-out"
+          className="flex h-full transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${currentBanner * 100}%)` }}
         >
           {banners.map((banner, index) => (
-            <div key={index} className="min-w-full flex-shrink-0">
+            <div key={index} className="min-w-full flex-shrink-0 h-full">
               <img
                 src={banner}
                 alt={`Promotional banner ${index + 1}`}
-                className="w-full h-auto rounded-2xl object-cover"
+                className="w-full h-full rounded-2xl object-cover"
               />
             </div>
           ))}
         </div>
 
         {/* Dots indicator */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {banners.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentBanner(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`h-2 rounded-full transition-all ${
                 currentBanner === index
                   ? "bg-white w-4"
-                  : "bg-white/50"
+                  : "bg-white/50 w-2"
               }`}
               aria-label={`Go to banner ${index + 1}`}
             />
