@@ -42,7 +42,7 @@ export default function NFTCard({ giftName, channelName, price, image, locked = 
 
   return (
     <div
-      className="group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 bg-card border border-card-border hover:border-primary/30 active:scale-[0.98] shadow-sm hover:shadow-md"
+      className="group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 bg-card border border-card-border hover:border-primary/30 active:scale-[0.98] shadow-sm hover:shadow-md flex flex-col"
       onClick={() => console.log(`Channel clicked: ${channelName}`)}
       data-testid={`card-channel-${channelName}`}
     >
@@ -60,8 +60,8 @@ export default function NFTCard({ giftName, channelName, price, image, locked = 
         )}
       </div>
 
-      <div className="p-3 sm:p-4 space-y-3">
-        <div className="space-y-1">
+      <div className="p-3 sm:p-4 flex flex-col flex-1">
+        <div className="flex-1 space-y-1 mb-3">
           <h3 className="text-sm sm:text-base font-semibold text-foreground line-clamp-1" data-testid={`text-gift-name-${giftName}`}>
             {giftName} x{mainGift?.quantity || 1}
           </h3>
@@ -71,7 +71,7 @@ export default function NFTCard({ giftName, channelName, price, image, locked = 
         </div>
 
         <button
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 bg-blue-500 hover:bg-blue-600 rounded-xl transition-all active:scale-95"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 bg-blue-500 hover:bg-blue-600 rounded-xl transition-all active:scale-95 mt-auto"
           onClick={(e) => {
             e.stopPropagation();
             console.log(`Buy clicked: ${channelName}`);
