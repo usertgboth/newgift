@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
-import banner1 from "@assets/dzyajn_1761334897223.jpg";
-import banner2 from "@assets/dzyajn_1761390312644.jpg";
+import banner1 from "@assets/photo_2025-10-21_17-01-20_1761391349387.png";
+import banner2 from "@assets/photo_2025-10-21_17-01-23_1761391347603.png";
 
 export default function CashbackBanner() {
   const [currentBanner, setCurrentBanner] = useState(0);
