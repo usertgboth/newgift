@@ -62,7 +62,7 @@ export default function ChannelDetailsModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="p-0 gap-0 max-w-[90vw] w-full sm:max-w-sm max-h-[85vh] border-0 overflow-hidden flex flex-col">
+      <DialogContent className="p-0 gap-0 max-w-[85vw] w-full sm:max-w-xs max-h-[75vh] border-0 overflow-hidden flex flex-col">
         <VisuallyHidden>
           <DialogTitle>{giftName}</DialogTitle>
         </VisuallyHidden>
@@ -74,7 +74,7 @@ export default function ChannelDetailsModal({
           <X className="w-4 h-4 text-foreground" />
         </button>
 
-        <div className="flex flex-col sm:flex-row overflow-y-auto flex-1">
+        <div className="flex flex-col sm:flex-row flex-1 min-h-0">
           <div className="relative w-full sm:w-2/5 aspect-square sm:aspect-auto bg-gradient-to-br from-primary/10 to-primary/5 flex-shrink-0">
             <img
               src={image}
@@ -84,10 +84,10 @@ export default function ChannelDetailsModal({
             />
           </div>
 
-          <div className="flex-1 p-4 flex flex-col min-h-0">
-            <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+          <div className="flex-1 p-3 flex flex-col min-h-0 overflow-y-auto">
+            <div className="space-y-2.5">
               <div>
-                <h3 className="text-lg font-bold text-foreground line-clamp-1" data-testid="text-modal-gift-name">
+                <h3 className="text-base font-bold text-foreground line-clamp-1" data-testid="text-modal-gift-name">
                   {giftName}
                 </h3>
                 <p className="text-xs text-muted-foreground">x{mainGift?.quantity || 1}</p>
@@ -127,38 +127,38 @@ export default function ChannelDetailsModal({
               </a>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
+                <div className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
                   <span className="text-xs text-muted-foreground">{t.home.price}</span>
-                  <div className="flex items-center gap-1.5">
-                    <img src={tonLogo} alt="TON" className="w-4 h-4 rounded-full" />
-                    <span className="text-lg font-bold text-foreground" data-testid="text-modal-price">
+                  <div className="flex items-center gap-1">
+                    <img src={tonLogo} alt="TON" className="w-3.5 h-3.5 rounded-full" />
+                    <span className="text-base font-bold text-foreground" data-testid="text-modal-price">
                       {price}
                     </span>
                     <span className="text-xs font-medium text-muted-foreground">TON</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                  <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                  <div className="flex items-center gap-1">
                     <Gift className="w-3.5 h-3.5 text-blue-500" />
                     <span className="text-xs text-muted-foreground">{t.home.cashback} 7.5%</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <img src={tonLogo} alt="TON" className="w-3.5 h-3.5 rounded-full" />
                     <span className="text-sm font-bold text-blue-500">+{cashback}</span>
                     <span className="text-xs text-muted-foreground">TON</span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <Button
-              onClick={handleBuy}
-              className="w-full h-11 mt-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 shadow-lg shadow-blue-500/20 text-white font-bold transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
-              data-testid="button-modal-buy"
-            >
-              {t.home.buy}
-            </Button>
+              <Button
+                onClick={handleBuy}
+                className="w-full h-10 mt-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 shadow-lg shadow-blue-500/20 text-white font-bold transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                data-testid="button-modal-buy"
+              >
+                {t.home.buy}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
