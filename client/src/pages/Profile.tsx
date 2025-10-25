@@ -102,10 +102,11 @@ export default function Profile() {
             </div>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-4">
             <Button 
               onClick={() => setIsDepositOpen(true)}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              data-testid="button-deposit"
             >
               <Plus className="w-4 h-4 mr-2" />
               {t.profile.deposit}
@@ -113,7 +114,8 @@ export default function Profile() {
             <Button 
               onClick={() => setIsWithdrawOpen(true)}
               variant="outline"
-              className="flex-1 border-red-500/30 text-red-500 hover:bg-red-500/10"
+              className="flex-1 border-red-500/30 text-red-500 hover:bg-red-500/10 hover:text-red-400"
+              data-testid="button-withdraw"
             >
               <Minus className="w-4 h-4 mr-2" />
               {t.profile.withdraw}
@@ -212,13 +214,13 @@ export default function Profile() {
           <DialogHeader>
             <DialogTitle className="text-foreground">{t.profile.depositTitle}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 pt-2">
             <div>
               <Label htmlFor="deposit-amount" className="text-sm text-muted-foreground mb-2 block">
                 {t.profile.amount}
               </Label>
-              <div className="flex items-center gap-2">
-                <img src={tonLogo} alt="TON" className="w-5 h-5 rounded-full" />
+              <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-2 border border-border">
+                <img src={tonLogo} alt="TON" className="w-5 h-5 rounded-full flex-shrink-0" />
                 <Input
                   id="deposit-amount"
                   type="number"
@@ -227,7 +229,7 @@ export default function Profile() {
                   value={depositAmount}
                   onChange={(e) => setDepositAmount(e.target.value)}
                   placeholder="0.00"
-                  className="flex-1"
+                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
             </div>
@@ -240,11 +242,11 @@ export default function Profile() {
                 id="promo-code"
                 type="text"
                 value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                 placeholder="GIFT"
-                className="uppercase"
+                className="uppercase bg-muted/50 border-border"
               />
-              <p className="text-xs text-green-500 mt-1">{t.profile.promoCodeBonus}</p>
+              <p className="text-xs text-green-400 mt-1.5 font-medium">{t.profile.promoCodeBonus}</p>
             </div>
 
             <div className="flex gap-2 pt-2">
