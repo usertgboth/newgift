@@ -19,14 +19,14 @@ export default function SearchBar({ onSearchChange }: SearchBarProps) {
   return (
     <div className="px-3 sm:px-4 pb-3">
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/60 pointer-events-none z-10" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/60 pointer-events-none z-10" />
         <input
           type="text"
           inputMode="search"
           placeholder={t.home.searchPlaceholder}
           value={searchQuery}
           onChange={(e) => onSearchChange?.(e.target.value)}
-          className="w-full h-11 sm:h-12 pl-8 sm:pl-10 pr-4 text-sm sm:text-base bg-card/50 border border-card-border rounded-xl text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 focus:bg-card/80 transition-all duration-200 appearance-none"
+          className="w-full h-11 sm:h-12 pl-9 sm:pl-11 pr-4 text-sm sm:text-base bg-card/50 border border-card-border rounded-xl text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 focus:bg-card/80 transition-all duration-200 appearance-none"
           data-testid="input-search"
         />
       </div>
