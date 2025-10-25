@@ -174,8 +174,8 @@ export default function TopHeader() {
       </header>
 
       <Dialog open={isDepositOpen} onOpenChange={(open) => { if (open) setIsDepositOpen(true); }}>
-        <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-green-500/20 rounded-[2rem] p-0 overflow-hidden max-w-[340px] shadow-2xl shadow-green-500/10" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="relative px-4 pt-6 pb-4">
+        <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-green-500/20 rounded-[2rem] p-5 overflow-hidden max-w-[340px] shadow-2xl shadow-green-500/10" onInteractOutside={(e) => e.preventDefault()}>
+          <div className="relative">
             <div className="absolute top-4 right-4">
               <Button
                 variant="ghost"
@@ -251,8 +251,8 @@ export default function TopHeader() {
       </Dialog>
 
       <Dialog open={isWithdrawOpen} onOpenChange={(open) => { if (open) setIsWithdrawOpen(true); }}>
-        <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-red-500/20 rounded-[2rem] p-0 overflow-hidden max-w-[340px] shadow-2xl shadow-red-500/10" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="relative px-4 pt-6 pb-4">
+        <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-red-500/20 rounded-[2rem] p-5 overflow-hidden max-w-[340px] shadow-2xl shadow-red-500/10" onInteractOutside={(e) => e.preventDefault()}>
+          <div className="relative">
             <div className="absolute top-4 right-4">
               <Button
                 variant="ghost"
