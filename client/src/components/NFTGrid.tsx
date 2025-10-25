@@ -62,8 +62,8 @@ export default function NFTGrid({ searchQuery = "", giftFilter = [] }: NFTGridPr
         <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
           <span className="text-2xl">🎁</span>
         </div>
-        <p className="text-muted-foreground text-sm">No gifts available</p>
-        <p className="text-muted-foreground text-xs mt-1">Try changing the filter</p>
+        <p className="text-muted-foreground text-sm">Подарки недоступны</p>
+        <p className="text-muted-foreground text-xs mt-1">Попробуйте изменить фильтр</p>
       </div>
     );
   }

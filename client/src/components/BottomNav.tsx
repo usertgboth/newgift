@@ -10,9 +10,9 @@ interface BottomNavProps {
 
 export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   const navItems = [
-    { id: "store" as NavItem, label: "Store", icon: Home },
-    { id: "myads" as NavItem, label: "My Ads", icon: Megaphone },
-    { id: "tasks" as NavItem, label: "Tasks", icon: CheckSquare },
+    { id: "store" as NavItem, label: "Магазин", icon: Home },
+    { id: "myads" as NavItem, label: "Мои объявления", icon: Megaphone },
+    { id: "tasks" as NavItem, label: "Задания", icon: CheckSquare },
   ];
 
   const handleClick = (id: NavItem) => {

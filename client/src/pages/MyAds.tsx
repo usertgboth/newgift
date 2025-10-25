@@ -34,21 +34,21 @@ export default function MyAds() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/channels"] });
       toast({
-        title: "Success!",
-        description: "Channel deleted",
+        title: "Успех!",
+        description: "Канал удален",
       });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to delete channel",
+        title: "Ошибка",
+        description: "Не удалось удалить канал",
         variant: "destructive",
       });
     },
   });
 
   const handleDelete = (id: string, name: string) => {
-    if (confirm(`Delete channel "${name}"?`)) {
+    if (confirm(`Удалить канал "${name}"?`)) {
       deleteChannelMutation.mutate(id);
     }
   };
@@ -60,7 +60,7 @@ export default function MyAds() {
       <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between px-4 py-4 border-b border-border">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
-            My Channels
+            Мои каналы
           </h1>
           <Button
             size="icon"
@@ -93,10 +93,10 @@ export default function MyAds() {
               
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold text-foreground" data-testid="text-empty-title">
-                  No Channels
+                  Нет каналов
                 </h2>
                 <p className="text-sm text-muted-foreground" data-testid="text-empty-subtitle">
-                  Create your first channel
+                  Создайте свой первый канал
                 </p>
               </div>
 

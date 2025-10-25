@@ -59,7 +59,7 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
                   )}
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-foreground truncate">
-                  {selectedGifts.length} {selectedGifts.length === 1 ? 'gift' : 'gifts'} selected
+                  Выбрано: {selectedGifts.length} {selectedGifts.length === 1 ? 'подарок' : selectedGifts.length < 5 ? 'подарка' : 'подарков'}
                 </span>
               </>
             ) : (
@@ -67,7 +67,7 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
                 <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
                   <span className="text-sm sm:text-base">🎁</span>
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-foreground">Select Gift</span>
+                <span className="text-xs sm:text-sm font-medium text-foreground">Выбрать подарок</span>
               </>
             )}
           </div>

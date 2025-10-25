@@ -69,11 +69,11 @@ export default function GiftPickerModal({
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-foreground text-lg sm:text-xl font-bold">
-                🎁 Select Gifts
+                🎁 Выбрать подарки
               </DialogTitle>
               {localSelectedIds.length > 0 && (
                 <span className="text-primary text-xs sm:text-sm font-medium mt-1 block">
-                  {localSelectedIds.length} selected
+                  Выбрано: {localSelectedIds.length}
                 </span>
               )}
             </div>
@@ -87,7 +87,7 @@ export default function GiftPickerModal({
             </Button>
           </div>
           <DialogDescription className="text-muted-foreground text-xs sm:text-sm mt-1.5">
-            Choose one or more gifts from the list
+            Выберите один или несколько подарков из списка
           </DialogDescription>
         </DialogHeader>
 
@@ -98,7 +98,7 @@ export default function GiftPickerModal({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search gifts..."
+              placeholder="Поиск подарков..."
               className="w-full h-11 sm:h-12 pl-10 sm:pl-12 pr-3 sm:pr-4 text-sm bg-muted/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/80 transition-all duration-200"
             />
           </div>
@@ -118,8 +118,8 @@ export default function GiftPickerModal({
                 <span className="text-xl sm:text-2xl">🎁</span>
               </div>
               <div className="flex-1 text-left min-w-0">
-                <span className="text-foreground font-medium text-sm block truncate">All Gifts</span>
-                <p className="text-muted-foreground text-xs mt-0.5 truncate">Clear all filters</p>
+                <span className="text-foreground font-medium text-sm block truncate">Все подарки</span>
+                <p className="text-muted-foreground text-xs mt-0.5 truncate">Очистить все фильтры</p>
               </div>
               {localSelectedIds.length === 0 && (
                 <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
@@ -148,7 +148,7 @@ export default function GiftPickerModal({
                 <div className="flex-1 text-left min-w-0">
                   <span className="text-foreground font-medium text-sm block truncate">{gift.name}</span>
                   <p className="text-muted-foreground text-xs mt-0.5 truncate">
-                    {localSelectedIds.includes(gift.id) ? 'Tap to remove' : 'Tap to add'}
+                    {localSelectedIds.includes(gift.id) ? 'Нажмите чтобы убрать' : 'Нажмите чтобы добавить'}
                   </p>
                 </div>
                 {localSelectedIds.includes(gift.id) && (
@@ -164,8 +164,8 @@ export default function GiftPickerModal({
                 <div className="w-14 h-14 sm:w-16 sm:h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <span className="text-xl sm:text-2xl">🔍</span>
                 </div>
-                <p className="text-muted-foreground text-sm">No gifts found</p>
-                <p className="text-muted-foreground text-xs mt-1">Try a different search query</p>
+                <p className="text-muted-foreground text-sm">Подарки не найдены</p>
+                <p className="text-muted-foreground text-xs mt-1">Попробуйте другой поисковый запрос</p>
               </div>
             )}
           </div>
@@ -178,13 +178,13 @@ export default function GiftPickerModal({
               onClick={handleCancel}
               className="flex-1 h-11 sm:h-12 rounded-xl border-border hover:bg-muted/50 text-sm"
             >
-              Cancel
+              Отмена
             </Button>
             <Button
               onClick={handleApply}
               className="flex-1 h-11 sm:h-12 rounded-xl bg-primary hover:bg-primary/90 text-sm"
             >
-              Apply {localSelectedIds.length > 0 && `(${localSelectedIds.length})`}
+              Применить {localSelectedIds.length > 0 && `(${localSelectedIds.length})`}
             </Button>
           </div>
         </div>

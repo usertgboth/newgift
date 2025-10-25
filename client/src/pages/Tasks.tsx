@@ -18,36 +18,36 @@ interface Task {
 const mockTasks: Task[] = [
   {
     id: "1",
-    title: "Create first listing",
-    description: "Add your first NFT to the marketplace",
+    title: "Создать первое объявление",
+    description: "Добавьте свой первый подарок в магазин",
     reward: "5",
     completed: false,
   },
   {
     id: "2",
-    title: "Invite a friend",
-    description: "Share the link with a friend",
+    title: "Пригласить друга",
+    description: "Поделитесь ссылкой с другом",
     reward: "10",
     completed: false,
   },
   {
     id: "3",
-    title: "Make a purchase",
-    description: "Buy any NFT in the store",
+    title: "Совершить покупку",
+    description: "Купите любой подарок в магазине",
     reward: "3",
     completed: false,
   },
   {
     id: "4",
-    title: "Daily check-in",
-    description: "Open the app every day",
+    title: "Ежедневный вход",
+    description: "Открывайте приложение каждый день",
     reward: "2",
     completed: false,
   },
   {
     id: "5",
-    title: "Share on social media",
-    description: "Tell about LootGifts on social networks",
+    title: "Поделиться в соцсетях",
+    description: "Расскажите о LootGifts в социальных сетях",
     reward: "7",
     completed: false,
   },
@@ -65,8 +65,8 @@ export default function Tasks() {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
       toast({
-        title: "Reward claimed!",
-        description: `+${task.reward} TON added to balance`,
+        title: "Награда получена!",
+        description: `+${task.reward} TON добавлено на баланс`,
       });
     }
   };
@@ -81,7 +81,7 @@ export default function Tasks() {
       <div className="px-4 py-6 pb-24">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
-            Tasks
+            Задания
           </h1>
           <div className="text-sm text-muted-foreground" data-testid="text-progress">
             {completedCount} / {tasks.length}
@@ -94,7 +94,7 @@ export default function Tasks() {
               <Gift className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-muted-foreground">Total earned</p>
+              <p className="text-sm text-muted-foreground">Всего заработано</p>
               <div className="flex items-center gap-1.5 mt-1">
                 <img src={tonLogo} alt="TON" className="w-4 h-4 rounded-full object-cover" />
                 <span className="text-lg font-semibold text-foreground" data-testid="text-total-reward">
@@ -146,7 +146,7 @@ export default function Tasks() {
                         onClick={() => handleClaimReward(task.id)}
                         data-testid={`button-claim-${task.id}`}
                       >
-                        Claim
+                        Получить
                       </Button>
                     )}
                   </div>
