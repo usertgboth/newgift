@@ -46,7 +46,7 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
               <>
                 <div className="flex -space-x-2 flex-shrink-0">
                   {selectedGifts.slice(0, 3).map((gift) => (
-                    <div key={gift.id} className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden bg-white shadow-sm border-2 border-background">
+                    <div key={gift.id} className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-white shadow-sm border-2 border-background">
                       <img
                         src={gift.image}
                         alt={gift.name}
@@ -55,25 +55,25 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
                     </div>
                   ))}
                   {selectedGifts.length > 3 && (
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-primary/20 flex items-center justify-center border-2 border-background">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/20 flex items-center justify-center border-2 border-background">
                       <span className="text-xs font-bold text-primary">+{selectedGifts.length - 3}</span>
                     </div>
                   )}
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-foreground truncate">
+                <span className="text-sm sm:text-base font-medium text-foreground truncate">
                   {t.home.giftsSelected(selectedGifts.length)}
                 </span>
               </>
             ) : (
               <>
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm sm:text-base">🎁</span>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center flex-shrink-0 border border-primary/20">
+                  <span className="text-base sm:text-lg">🎁</span>
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-foreground">{t.home.selectGift}</span>
+                <span className="text-sm sm:text-base font-medium text-foreground">{t.home.selectGift}</span>
               </>
             )}
           </div>
-          <span className="text-muted-foreground text-base flex-shrink-0">›</span>
+          <span className="text-muted-foreground/60 text-lg sm:text-xl flex-shrink-0">›</span>
         </button>
       </div>
 
