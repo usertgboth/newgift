@@ -1,10 +1,10 @@
 run = "vite"
 entrypoint = "index.html"
 hidden = [".config"]
-modules = ["web", "nodejs-20"]
+modules = ["nodejs-20", "web"]
 
 [nix]
-channel = "stable-23_05"
+channel = "stable-25_05"
 
 [deployment]
 deploymentTarget = "autoscale"
