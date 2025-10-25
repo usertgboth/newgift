@@ -7,8 +7,9 @@ import NFTGrid from "@/components/NFTGrid";
 import BottomNav from "@/components/BottomNav";
 import MyAds from "./MyAds";
 import Tasks from "./Tasks";
+import Profile from "./Profile";
 
-type Page = "store" | "myads" | "tasks";
+type Page = "store" | "myads" | "tasks" | "profile";
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState<Page>("store");
@@ -28,6 +29,15 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-background text-foreground telegram-mini-app pb-20 sm:pb-24">
         <Tasks />
+        <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
+      </div>
+    );
+  }
+
+  if (currentPage === "profile") {
+    return (
+      <div className="min-h-screen bg-background text-foreground telegram-mini-app pb-20 sm:pb-24">
+        <Profile />
         <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
       </div>
     );

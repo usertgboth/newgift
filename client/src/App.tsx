@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import CreateAd from "@/pages/CreateAd";
 import MyAds from "@/pages/MyAds";
 import Tasks from "@/pages/Tasks";
+import Profile from "@/pages/Profile";
 
 function Router() {
   return (
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/create-ad" component={CreateAd} />
       <Route path="/myads" component={MyAds} />
       <Route path="/tasks" component={Tasks} />
+      <Route path="/profile" component={Profile} />
     </Switch>
   );
 }

@@ -1,7 +1,8 @@
-import { Home, Megaphone, CheckSquare } from "lucide-react";
+import { Home, Megaphone, CheckSquare, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-type NavItem = "store" | "myads" | "tasks";
+type NavItem = "store" | "myads" | "tasks" | "profile";
 
 interface BottomNavProps {
   activeTab?: NavItem;
@@ -9,10 +10,13 @@ interface BottomNavProps {
 }
 
 export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
+  const { t } = useLanguage();
+  
   const navItems = [
-    { id: "store" as NavItem, label: "Магазин", icon: Home },
-    { id: "myads" as NavItem, label: "Мои объявления", icon: Megaphone },
-    { id: "tasks" as NavItem, label: "Задания", icon: CheckSquare },
+    { id: "store" as NavItem, label: t.nav.store, icon: Home },
+    { id: "myads" as NavItem, label: t.nav.myAds, icon: Megaphone },
+    { id: "tasks" as NavItem, label: t.nav.tasks, icon: CheckSquare },
+    { id: "profile" as NavItem, label: t.nav.profile, icon: User },
   ];
 
   const handleClick = (id: NavItem) => {
