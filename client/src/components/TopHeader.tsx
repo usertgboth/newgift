@@ -292,13 +292,12 @@ export default function TopHeader() {
                     </div>
                   </div>
                   <Input
-                    type="number"
-                    step="0.01"
-                    min="0.05"
+                    type="text"
+                    inputMode="decimal"
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                     placeholder="0.00"
-                    className="h-14 text-3xl sm:text-4xl font-bold text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 py-0"
+                    className="h-14 text-3xl sm:text-4xl font-bold text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 py-0 appearance-none"
                   />
                 </div>
               </div>
