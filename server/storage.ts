@@ -1,21 +1,27 @@
 import { type User, type InsertUser, type Gift, type Channel, type InsertChannel } from "@shared/schema";
 import { AVAILABLE_GIFTS } from "@shared/gifts";
 import { randomUUID } from "crypto";
+import { db } from "../db";
+import { gifts, channels, users, referrals, referralEarnings, type InsertChannel } from "@shared/schema";
+import { eq, ilike, or } from "drizzle-orm";
+
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   getAllGifts(): Promise<Gift[]>;
   getGiftById(id: string): Promise<Gift | undefined>;
-  
+
   getAllChannels(): Promise<(Channel & { giftName: string; giftImage: string })[]>;
   getChannelById(id: string): Promise<(Channel & { giftName: string; giftImage: string }) | undefined>;
   createChannel(channel: InsertChannel): Promise<Channel & { giftName: string; giftImage: string }>;
   updateChannel(id: string, channel: Partial<InsertChannel>): Promise<(Channel & { giftName: string; giftImage: string }) | undefined>;
   deleteChannel(id: string): Promise<boolean>;
   searchChannelsByGiftName(query: string): Promise<(Channel & { giftName: string; giftImage: string })[]>;
+  getUserByTelegramId(telegramId: string);
+  getReferralStats(userId: string): Promise<{ count: number; earnings: string }>;
 }
 
 export class MemStorage implements IStorage {
@@ -121,7 +127,7 @@ export class MemStorage implements IStorage {
   async getChannelById(id: string): Promise<(Channel & { giftName: string; giftImage: string }) | undefined> {
     const channel = this.channels.get(id);
     if (!channel) return undefined;
-    
+
     const gift = this.gifts.get(channel.giftId);
     return {
       ...channel,
@@ -139,7 +145,7 @@ export class MemStorage implements IStorage {
       gifts: insertChannel.gifts ?? null,
     };
     this.channels.set(id, channel);
-    
+
     const gift = this.gifts.get(channel.giftId);
     return {
       ...channel,
@@ -154,7 +160,7 @@ export class MemStorage implements IStorage {
 
     const updated = { ...channel, ...updates };
     this.channels.set(id, updated);
-    
+
     const gift = this.gifts.get(updated.giftId);
     return {
       ...updated,
@@ -164,17 +170,51 @@ export class MemStorage implements IStorage {
   }
 
   async deleteChannel(id: string): Promise<boolean> {
-    return this.channels.delete(id);
+    try {
+      const result = await db.delete(channels).where(eq(channels.id, id));
+      return result.rowCount !== null && result.rowCount > 0;
+    } catch (error) {
+      console.error('Error deleting channel:', error);
+      return false;
+    }
   }
 
-  async searchChannelsByGiftName(query: string): Promise<(Channel & { giftName: string; giftImage: string })[]> {
-    const lowerQuery = query.toLowerCase();
-    const allChannels = await this.getAllChannels();
-    
-    return allChannels.filter(channel => 
-      channel.giftName.toLowerCase().includes(lowerQuery) ||
-      channel.channelName.toLowerCase().includes(lowerQuery)
-    );
+  async getUserByTelegramId(telegramId: string) {
+    try {
+      const result = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1);
+      return result[0] || null;
+    } catch (error) {
+      console.error('Error getting user by telegram ID:', error);
+      return null;
+    }
+  }
+
+  async getReferralStats(userId: string): Promise<{ count: number; earnings: string }> {
+    try {
+      // Get referral count
+      const referralCount = await db
+        .select()
+        .from(referrals)
+        .where(eq(referrals.referrerId, userId));
+
+      // Get total earnings from referrals
+      const earnings = await db
+        .select()
+        .from(referralEarnings)
+        .where(eq(referralEarnings.userId, userId));
+
+      const totalEarnings = earnings.reduce((sum, earning) => {
+        return sum + parseFloat(earning.amount);
+      }, 0);
+
+      return {
+        count: referralCount.length,
+        earnings: totalEarnings.toFixed(2),
+      };
+    } catch (error) {
+      console.error('Error getting referral stats:', error);
+      return { count: 0, earnings: "0.00" };
+    }
   }
 }
 

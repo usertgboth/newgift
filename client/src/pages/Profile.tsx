@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Copy, CheckCircle2, Globe, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,10 +23,32 @@ export default function Profile() {
   const [depositAmount, setDepositAmount] = useState("");
   const [promoCode, setPromoCode] = useState("");
 
+  const [totalReferrals, setTotalReferrals] = useState(0);
+  const [referralEarnings, setReferralEarnings] = useState("0.00");
+
   const referralCode = "123456789";
   const referralLink = `https://t.me/LootGifts_bot?start=${referralCode}`;
-  const totalReferrals = 0;
-  const referralEarnings = "0.00";
+
+  // Fetch referral stats
+  useEffect(() => {
+    const fetchReferralStats = async () => {
+      try {
+        const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+        if (!telegramUser?.id) return;
+
+        const response = await fetch(`/api/users/${telegramUser.id}/referral-stats`);
+        if (response.ok) {
+          const data = await response.json();
+          setTotalReferrals(data.totalReferrals);
+          setReferralEarnings(data.totalEarnings);
+        }
+      } catch (error) {
+        console.error('Error fetching referral stats:', error);
+      }
+    };
+
+    fetchReferralStats();
+  }, []);
 
   const handleCopyLink = async () => {
     try {

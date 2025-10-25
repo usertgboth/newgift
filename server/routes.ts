@@ -213,6 +213,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get referral statistics
+  app.get("/api/users/:telegramId/referral-stats", async (req, res) => {
+    try {
+      const { telegramId } = req.params;
+      
+      // Get user by telegram ID
+      const user = await storage.getUserByTelegramId(telegramId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Get referral count and earnings
+      const stats = await storage.getReferralStats(user.id);
+      
+      res.json({
+        totalReferrals: stats.count,
+        totalEarnings: stats.earnings,
+      });
+    } catch (error) {
+      console.error('Error fetching referral stats:', error);
+      res.status(500).json({ error: "Failed to fetch referral stats" });
+    }
+  });
+
   // New endpoint to verify Telegram channel and check for gifts
   app.post("/api/verify-telegram", async (req, res) => {
     try {
