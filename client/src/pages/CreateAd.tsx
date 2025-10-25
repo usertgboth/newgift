@@ -223,7 +223,7 @@ export default function CreateAd() {
               id="telegramLink"
               value={formData.telegramLink}
               onChange={(e) => setFormData({ ...formData, telegramLink: e.target.value })}
-              placeholder="https://t.me/your_channel"
+              placeholder="@channel, channel или https://t.me/channel"
               className="bg-card border-card-border text-foreground flex-1"
               data-testid="input-telegram-link"
             />
