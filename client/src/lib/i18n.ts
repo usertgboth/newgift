@@ -14,6 +14,9 @@ export const translations = {
       giftsSelected: (count: number) => `${count} gift${count === 1 ? '' : 's'} selected`,
       noGifts: 'No gifts available',
       tryChangingFilter: 'Try changing the filter',
+      sortNewest: 'Newest',
+      sortCheapest: 'Cheapest',
+      sortExpensive: 'Most Expensive',
     },
     createAd: {
       title: 'Create Channel',
@@ -141,6 +144,9 @@ export const translations = {
       },
       noGifts: 'Подарки недоступны',
       tryChangingFilter: 'Попробуйте изменить фильтр',
+      sortNewest: 'Новые',
+      sortCheapest: 'Дешевые',
+      sortExpensive: 'Дорогие',
     },
     createAd: {
       title: 'Создать канал',

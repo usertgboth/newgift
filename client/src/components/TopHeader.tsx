@@ -164,7 +164,7 @@ export default function TopHeader() {
               data-testid="button-connect-wallet"
             >
               <Wallet className="w-4 h-4" />
-              <span>{language === 'ru' ? 'Підключити' : 'Connect Wallet'}</span>
+              <span>{language === 'ru' ? 'Подключить' : 'Connect Wallet'}</span>
             </Button>
           ) : (
             <>
@@ -216,7 +216,7 @@ export default function TopHeader() {
                 <Plus className="w-5 h-5 text-white" />
               </div>
               <DialogTitle className="text-foreground text-base font-bold mb-0.5">{t.profile.depositTitle}</DialogTitle>
-              <p className="text-muted-foreground text-xs">{language === 'ru' ? 'Мінімум 0.05 TON' : 'Minimum 0.05 TON'}</p>
+              <p className="text-muted-foreground text-xs">{language === 'ru' ? 'Минимум 0.05 TON' : 'Minimum 0.05 TON'}</p>
             </div>
 
             <div className="space-y-3">
@@ -225,7 +225,7 @@ export default function TopHeader() {
                 <div className="relative bg-card/80 backdrop-blur-sm border border-green-500/30 rounded-2xl p-4 transition-all duration-300 group-hover:border-green-500/50">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {language === 'ru' ? 'Сума' : 'Amount'}
+                      {language === 'ru' ? 'Сумма' : 'Amount'}
                     </span>
                     <div className="flex items-center gap-2">
                       <img src={tonLogo} alt="TON" className="w-5 h-5 rounded-full" />
@@ -263,7 +263,7 @@ export default function TopHeader() {
                 onClick={handleDeposit}
                 className="w-full h-12 rounded-2xl bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 hover:from-green-700 hover:via-green-600 hover:to-emerald-600 shadow-lg shadow-green-500/30 text-white font-bold text-sm transition-all duration-300 hover:shadow-xl hover:shadow-green-500/40 hover:scale-[1.02] active:scale-[0.98]"
               >
-                {wallet ? t.profile.confirm : (language === 'ru' ? 'Підключити гаманець' : 'Connect Wallet')}
+                {wallet ? t.profile.confirm : (language === 'ru' ? 'Подключить кошелек' : 'Connect Wallet')}
               </Button>
             </div>
           </div>
@@ -304,7 +304,7 @@ export default function TopHeader() {
                 <div className="relative bg-card/80 backdrop-blur-sm border border-red-500/30 rounded-2xl p-4 transition-all duration-300 group-hover:border-red-500/50">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {language === 'ru' ? 'Сума' : 'Amount'}
+                      {language === 'ru' ? 'Сумма' : 'Amount'}
                     </span>
                     <div className="flex items-center gap-2">
                       <img src={tonLogo} alt="TON" className="w-5 h-5 rounded-full" />

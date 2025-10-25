@@ -31,9 +31,9 @@ export default function SearchBar({ onSearchChange, onSortChange }: SearchBarPro
   };
 
   const sortLabels = {
-    newest: "Новые",
-    "price-low": "Дешевые",
-    "price-high": "Дорогие",
+    newest: t.home.sortNewest,
+    "price-low": t.home.sortCheapest,
+    "price-high": t.home.sortExpensive,
   };
 
   return (
@@ -67,21 +67,21 @@ export default function SearchBar({ onSearchChange, onSortChange }: SearchBarPro
               className={sortOption === "newest" ? "bg-blue-500 text-white" : ""}
               data-testid="sort-option-newest"
             >
-              Новые
+              {t.home.sortNewest}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleSortChange("price-low")}
               className={sortOption === "price-low" ? "bg-blue-500 text-white" : ""}
               data-testid="sort-option-price-low"
             >
-              Дешевые
+              {t.home.sortCheapest}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleSortChange("price-high")}
               className={sortOption === "price-high" ? "bg-blue-500 text-white" : ""}
               data-testid="sort-option-price-high"
             >
-              Дорогие
+              {t.home.sortExpensive}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
