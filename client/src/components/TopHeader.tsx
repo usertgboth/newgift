@@ -86,19 +86,19 @@ export default function TopHeader() {
           </div>
           <Button
             size="icon"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-600 hover:bg-green-700 active-elevate-2 shadow-lg"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-green-600 hover:bg-green-700 active-elevate-2 shadow-md"
             data-testid="button-deposit"
             onClick={() => setIsDepositOpen(true)}
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <Plus className="w-4 h-4 text-white" />
           </Button>
           <Button
             size="icon"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-600 hover:bg-red-700 active-elevate-2 shadow-lg"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-red-600 hover:bg-red-700 active-elevate-2 shadow-md"
             data-testid="button-withdraw"
             onClick={() => setIsWithdrawOpen(true)}
           >
-            <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <Minus className="w-4 h-4 text-white" />
           </Button>
         </div>
       </header>
