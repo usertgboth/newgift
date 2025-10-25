@@ -1,4 +1,5 @@
 import { Home, Megaphone, CheckSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type NavItem = "store" | "myads" | "tasks";
 
