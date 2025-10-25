@@ -44,10 +44,10 @@ export default function Profile() {
 
   const handleDeposit = () => {
     const amount = parseFloat(depositAmount);
-    if (!amount || amount <= 0) {
+    if (!amount || amount < 1) {
       toast({
         title: t.toast.error,
-        description: "Please enter a valid amount",
+        description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
         variant: "destructive",
       });
       return;
@@ -58,12 +58,12 @@ export default function Profile() {
       finalAmount = amount * 1.15;
       toast({
         title: t.toast.success,
-        description: `${amount} TON + 15% bonus = ${finalAmount.toFixed(2)} TON`,
+        description: `${amount} TON + 15% ${language === 'ru' ? 'бонус' : 'bonus'} = ${finalAmount.toFixed(2)} TON`,
       });
     } else {
       toast({
         title: t.toast.success,
-        description: `Deposited ${finalAmount.toFixed(2)} TON`,
+        description: `${language === 'ru' ? 'Депозит' : 'Deposited'} ${finalAmount.toFixed(2)} TON`,
       });
     }
 
@@ -72,12 +72,26 @@ export default function Profile() {
     setPromoCode("");
   };
 
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+
   const handleWithdraw = () => {
+    const amount = parseFloat(withdrawAmount);
+    if (!amount || amount < 1) {
+      toast({
+        title: t.toast.error,
+        description: language === 'ru' ? "Минимальная сумма вывода: 1 TON" : "Minimum withdrawal: 1 TON",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
       title: t.profile.suspiciousActivity,
       description: t.profile.withdrawalBlocked,
       variant: "destructive",
     });
+    setIsWithdrawOpen(false);
+    setWithdrawAmount("");
   };
 
   return (
@@ -102,26 +116,7 @@ export default function Profile() {
             </div>
           </div>
           
-          <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={() => setIsDepositOpen(true)}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-              data-testid="button-deposit"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {t.profile.deposit}
-            </Button>
-            <Button 
-              onClick={() => setIsWithdrawOpen(true)}
-              variant="outline"
-              className="flex-1 border-red-500/30 text-red-500 hover:bg-red-500/10 hover:text-red-400"
-              data-testid="button-withdraw"
-            >
-              <Minus className="w-4 h-4 mr-2" />
-              {t.profile.withdraw}
-            </Button>
-          </div>
-        </Card>
+          </Card>
 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -210,32 +205,33 @@ export default function Profile() {
       <BottomNav activeTab="profile" />
 
       <Dialog open={isDepositOpen} onOpenChange={setIsDepositOpen}>
-        <DialogContent className="bg-card border-card-border">
+        <DialogContent className="bg-card border-card-border rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-foreground">{t.profile.depositTitle}</DialogTitle>
+            <DialogTitle className="text-foreground text-xl">{t.profile.depositTitle}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 pt-2">
+          <div className="space-y-5 pt-2">
             <div>
-              <Label htmlFor="deposit-amount" className="text-sm text-muted-foreground mb-2 block">
+              <Label htmlFor="deposit-amount" className="text-sm text-muted-foreground mb-3 block">
                 {t.profile.amount}
               </Label>
-              <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-2 border border-border">
-                <img src={tonLogo} alt="TON" className="w-5 h-5 rounded-full flex-shrink-0" />
+              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl p-4 border-2 border-blue-500/20">
+                <img src={tonLogo} alt="TON" className="w-8 h-8 rounded-full flex-shrink-0" />
                 <Input
                   id="deposit-amount"
                   type="number"
                   step="0.01"
-                  min="0"
+                  min="1"
                   value={depositAmount}
                   onChange={(e) => setDepositAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                  placeholder="1.00"
+                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg font-semibold"
                 />
               </div>
+              <p className="text-xs text-muted-foreground mt-2 ml-1">{language === 'ru' ? 'Минимум: 1 TON' : 'Minimum: 1 TON'}</p>
             </div>
             
             <div>
-              <Label htmlFor="promo-code" className="text-sm text-muted-foreground mb-2 block">
+              <Label htmlFor="promo-code" className="text-sm text-muted-foreground mb-3 block">
                 {t.profile.promoCode}
               </Label>
               <Input
@@ -243,13 +239,12 @@ export default function Profile() {
                 type="text"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                placeholder="GIFT"
-                className="uppercase bg-muted/50 border-border"
+                placeholder={language === 'ru' ? 'Введите промокод' : 'Enter promo code'}
+                className="uppercase bg-muted/50 border-border rounded-xl h-12 text-base"
               />
-              <p className="text-xs text-green-400 mt-1.5 font-medium">{t.profile.promoCodeBonus}</p>
             </div>
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -257,13 +252,13 @@ export default function Profile() {
                   setDepositAmount("");
                   setPromoCode("");
                 }}
-                className="flex-1"
+                className="flex-1 h-12 rounded-xl"
               >
                 {t.profile.cancel}
               </Button>
               <Button
                 onClick={handleDeposit}
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-lg shadow-green-500/25"
               >
                 {t.profile.confirm}
               </Button>
@@ -273,22 +268,49 @@ export default function Profile() {
       </Dialog>
 
       <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
-        <DialogContent className="bg-card border-card-border">
+        <DialogContent className="bg-card border-card-border rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-foreground">{t.profile.withdrawTitle}</DialogTitle>
+            <DialogTitle className="text-foreground text-xl">{t.profile.withdrawTitle}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-red-400 mb-2">{t.profile.suspiciousActivity}</h3>
-              <p className="text-xs text-red-300">{t.profile.withdrawalBlocked}</p>
+          <div className="space-y-5 pt-2">
+            <div>
+              <Label htmlFor="withdraw-amount" className="text-sm text-muted-foreground mb-3 block">
+                {t.profile.amount}
+              </Label>
+              <div className="flex items-center gap-3 bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-2xl p-4 border-2 border-red-500/20">
+                <img src={tonLogo} alt="TON" className="w-8 h-8 rounded-full flex-shrink-0" />
+                <Input
+                  id="withdraw-amount"
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  placeholder="1.00"
+                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg font-semibold"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 ml-1">{language === 'ru' ? 'Минимум: 1 TON' : 'Minimum: 1 TON'}</p>
             </div>
 
-            <Button
-              onClick={() => setIsWithdrawOpen(false)}
-              className="w-full"
-            >
-              {t.profile.cancel}
-            </Button>
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsWithdrawOpen(false);
+                  setWithdrawAmount("");
+                }}
+                className="flex-1 h-12 rounded-xl"
+              >
+                {t.profile.cancel}
+              </Button>
+              <Button
+                onClick={handleWithdraw}
+                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg shadow-red-500/25"
+              >
+                {t.profile.confirm}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
