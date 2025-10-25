@@ -179,8 +179,8 @@ export default function CreateAd() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-6">
-      <header className="sticky top-0 z-50 flex items-center gap-3 px-4 py-3 bg-background border-b border-border">
+    <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
+      <header className="sticky top-0 z-50 flex items-center gap-3 px-4 py-3 bg-background border-b border-border flex-shrink-0">
         <Button
           variant="ghost"
           size="icon"
@@ -193,7 +193,8 @@ export default function CreateAd() {
         <h1 className="text-lg font-semibold">{t.createAd.title}</h1>
       </header>
 
-      <div className="px-4 py-6">
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 py-6">
         <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
           <h3 className="text-sm font-semibold text-blue-400 mb-3">{t.createAd.importantInfo}</h3>
           <div className="space-y-2 text-xs text-blue-200/80">
@@ -367,15 +368,16 @@ export default function CreateAd() {
       </form>
 
       <GiftPickerModal
-        open={isGiftPickerOpen}
-        onClose={() => setIsGiftPickerOpen(false)}
-        gifts={gifts}
-        selectedGiftIds={selectedGifts.map(g => g.giftId)}
-        onSelectGifts={(giftIds) => {
-          setSelectedGifts(giftIds.map(id => ({ giftId: id, quantity: 1 })));
-          setIsGiftPickerOpen(false);
-        }}
-      />
+          open={isGiftPickerOpen}
+          onClose={() => setIsGiftPickerOpen(false)}
+          gifts={gifts}
+          selectedGiftIds={selectedGifts.map(g => g.giftId)}
+          onSelectGifts={(giftIds) => {
+            setSelectedGifts(giftIds.map(id => ({ giftId: id, quantity: 1 })));
+            setIsGiftPickerOpen(false);
+          }}
+        />
+      </div>
     </div>
   );
 }
