@@ -17,7 +17,7 @@ export default function CashbackBanner() {
 
   return (
     <div className="px-3 sm:px-4 pt-3 pb-2">
-      <div className="relative overflow-hidden rounded-xl h-[115px]">
+      <div className="relative overflow-hidden rounded-xl" style={{ aspectRatio: '4 / 1' }}>
         <div
           className="flex h-full transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${currentBanner * 100}%)` }}
