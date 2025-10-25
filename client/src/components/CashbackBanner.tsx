@@ -33,21 +33,6 @@ export default function CashbackBanner() {
             </div>
           ))}
         </div>
-        
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {banners.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentBanner(index)}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                currentBanner === index
-                  ? "bg-white w-4"
-                  : "bg-white/50"
-              }`}
-              aria-label={`Go to banner ${index + 1}`}
-            />
-          ))}
-        </div>
       </div>
     </div>
   );
