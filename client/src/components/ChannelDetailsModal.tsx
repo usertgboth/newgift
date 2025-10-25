@@ -75,11 +75,11 @@ export default function ChannelDetailsModal({
         </button>
 
         <div className="flex flex-col sm:flex-row flex-1 min-h-0 overflow-hidden">
-          <div className="relative w-full sm:w-2/5 h-48 sm:h-auto bg-gradient-to-br from-primary/10 to-primary/5 flex-shrink-0">
+          <div className="relative w-full sm:w-2/5 h-56 sm:h-auto bg-gradient-to-br from-primary/10 to-primary/5 flex-shrink-0 flex items-center justify-center p-4">
             <img
               src={image}
               alt={giftName}
-              className="w-full h-full object-cover"
+              className="max-w-full max-h-full object-contain"
               data-testid="img-modal-gift"
             />
           </div>
