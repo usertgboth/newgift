@@ -17,17 +17,17 @@ export default function CashbackBanner() {
 
   return (
     <div className="px-3 sm:px-4 pt-3 pb-2">
-      <div className="relative overflow-hidden rounded-2xl h-16 sm:h-20">
+      <div className="relative overflow-hidden rounded-2xl">
         <div
-          className="flex h-full transition-transform duration-500 ease-in-out"
+          className="flex transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${currentBanner * 100}%)` }}
         >
           {banners.map((banner, index) => (
-            <div key={index} className="min-w-full flex-shrink-0 h-full">
+            <div key={index} className="min-w-full flex-shrink-0">
               <img
                 src={banner}
                 alt={`Promotional banner ${index + 1}`}
-                className="w-full h-full rounded-2xl object-cover"
+                className="w-full h-auto rounded-2xl"
               />
             </div>
           ))}
