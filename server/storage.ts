@@ -1,7 +1,7 @@
 import { type User, type InsertUser, type Gift, type Channel, type InsertChannel } from "@shared/schema";
 import { AVAILABLE_GIFTS } from "@shared/gifts";
 import { randomUUID } from "crypto";
-import { db } from "@db";
+import { db } from "../db/index";
 import { gifts, channels, users, referrals, referralEarnings } from "@shared/schema";
 import { eq, ilike, or } from "drizzle-orm";
 
