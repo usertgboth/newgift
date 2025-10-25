@@ -110,6 +110,7 @@ export default function NFTGrid({ searchQuery = "", giftFilter = [], sortOption 
               key={channel.id}
               giftName={channel.giftName}
               channelName={channel.channelName}
+              telegramLink={channel.telegramLink}
               price={channel.price}
               image={channel.giftImage}
               locked={false}

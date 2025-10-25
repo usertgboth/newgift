@@ -1,5 +1,7 @@
 import { Lock } from "lucide-react";
 import tonLogo from "@assets/toncoin_1760893904370.png";
+import { useState } from "react";
+import ChannelDetailsModal from "./ChannelDetailsModal";
 
 interface GiftItem {
   giftId: string;
@@ -10,13 +12,15 @@ interface GiftItem {
 interface NFTCardProps {
   giftName: string;
   channelName: string;
+  telegramLink: string;
   price: string;
   image: string;
   locked?: boolean;
   gifts?: GiftItem[];
 }
 
-export default function NFTCard({ giftName, channelName, price, image, locked = false, gifts = [] }: NFTCardProps) {
+export default function NFTCard({ giftName, channelName, telegramLink, price, image, locked = false, gifts = [] }: NFTCardProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const mainGift = gifts.find(g => g.giftName === giftName) || gifts[0];
   const otherGifts = gifts.filter(g => g.giftName !== giftName);
   
@@ -41,11 +45,12 @@ export default function NFTCard({ giftName, channelName, price, image, locked = 
   };
 
   return (
-    <div
-      className="group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 bg-card border border-card-border hover:border-primary/30 active:scale-[0.98] shadow-sm hover:shadow-md flex flex-col"
-      onClick={() => console.log(`Channel clicked: ${channelName}`)}
-      data-testid={`card-channel-${channelName}`}
-    >
+    <>
+      <div
+        className="group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 bg-card border border-card-border hover:border-primary/30 active:scale-[0.98] shadow-sm hover:shadow-md flex flex-col"
+        onClick={() => setIsModalOpen(true)}
+        data-testid={`card-channel-${channelName}`}
+      >
       <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
         <img
           src={image}
@@ -74,7 +79,7 @@ export default function NFTCard({ giftName, channelName, price, image, locked = 
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 bg-blue-500 hover:bg-blue-600 rounded-xl transition-all active:scale-95 mt-auto"
           onClick={(e) => {
             e.stopPropagation();
-            console.log(`Buy clicked: ${channelName}`);
+            setIsModalOpen(true);
           }}
           data-testid={`button-buy-${channelName}`}
         >
@@ -83,7 +88,19 @@ export default function NFTCard({ giftName, channelName, price, image, locked = 
             {price} TON
           </span>
         </button>
+        </div>
       </div>
-    </div>
+
+      <ChannelDetailsModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        channelName={channelName}
+        telegramLink={telegramLink}
+        price={price}
+        giftName={giftName}
+        image={image}
+        gifts={gifts}
+      />
+    </>
   );
 }
