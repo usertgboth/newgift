@@ -1,8 +1,8 @@
 import { type User, type InsertUser, type Gift, type Channel, type InsertChannel } from "@shared/schema";
 import { AVAILABLE_GIFTS } from "@shared/gifts";
 import { randomUUID } from "crypto";
-import { db } from "../db";
-import { gifts, channels, users, referrals, referralEarnings, type InsertChannel } from "@shared/schema";
+import { db } from "@db";
+import { gifts, channels, users, referrals, referralEarnings } from "@shared/schema";
 import { eq, ilike, or } from "drizzle-orm";
 
 
@@ -22,6 +22,7 @@ export interface IStorage {
   searchChannelsByGiftName(query: string): Promise<(Channel & { giftName: string; giftImage: string })[]>;
   getUserByTelegramId(telegramId: string);
   getReferralStats(userId: string): Promise<{ count: number; earnings: string }>;
+  updateUserBalance(telegramId: string, amount: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -214,6 +215,26 @@ export class MemStorage implements IStorage {
     } catch (error) {
       console.error('Error getting referral stats:', error);
       return { count: 0, earnings: "0.00" };
+    }
+  }
+
+  async updateUserBalance(telegramId: string, amount: number): Promise<boolean> {
+    try {
+      const user = await this.getUserByTelegramId(telegramId);
+      if (!user) return false;
+
+      const currentBalance = parseFloat(user.balance);
+      const newBalance = (currentBalance + amount).toFixed(2);
+
+      await db
+        .update(users)
+        .set({ balance: newBalance })
+        .where(eq(users.telegramId, telegramId));
+
+      return true;
+    } catch (error) {
+      console.error('Error updating user balance:', error);
+      return false;
     }
   }
 }

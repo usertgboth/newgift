@@ -76,6 +76,26 @@ export default function TopHeader() {
       const result = await tonConnectUI.sendTransaction(transaction);
       console.log('Transaction sent:', result);
 
+      // Update balance in database
+      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+      if (telegramUser?.id) {
+        try {
+          const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount: finalAmount }),
+          });
+
+          if (response.ok) {
+            console.log('Balance updated in database');
+          }
+        } catch (error) {
+          console.error('Failed to update balance in database:', error);
+        }
+      }
+
       const newBalance = balance + finalAmount;
       setBalance(newBalance);
       localStorage.setItem('userBalance', newBalance.toString());
