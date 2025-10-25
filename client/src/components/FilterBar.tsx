@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import GiftPickerModal from "./GiftPickerModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Gift {
   id: string;
@@ -13,6 +14,7 @@ interface FilterBarProps {
 }
 
 export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
+  const { t } = useLanguage();
   const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -59,7 +61,7 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
                   )}
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-foreground truncate">
-                  Выбрано: {selectedGifts.length} {selectedGifts.length === 1 ? 'подарок' : selectedGifts.length < 5 ? 'подарка' : 'подарков'}
+                  {t.home.giftsSelected(selectedGifts.length)}
                 </span>
               </>
             ) : (
@@ -67,7 +69,7 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
                 <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
                   <span className="text-sm sm:text-base">🎁</span>
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-foreground">Выбрать подарок</span>
+                <span className="text-xs sm:text-sm font-medium text-foreground">{t.home.selectGift}</span>
               </>
             )}
           </div>

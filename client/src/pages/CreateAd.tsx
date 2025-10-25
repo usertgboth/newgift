@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import tonLogo from "@assets/toncoin_1760893904370.png";
@@ -24,6 +25,7 @@ interface SelectedGift {
 export default function CreateAd() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [isGiftPickerOpen, setIsGiftPickerOpen] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -60,15 +62,15 @@ export default function CreateAd() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/channels"] });
       toast({
-        title: "Успех!",
-        description: "Канал создан",
+        title: t.toast.success,
+        description: t.toast.channelCreated,
       });
       navigate("/");
     },
     onError: () => {
       toast({
-        title: "Ошибка",
-        description: "Не удалось создать канал",
+        title: t.toast.error,
+        description: t.toast.failedToCreate,
         variant: "destructive",
       });
     },
@@ -79,8 +81,8 @@ export default function CreateAd() {
     
     if (!formData.telegramLink || selectedGifts.length === 0 || !formData.price) {
       toast({
-        title: "Ошибка",
-        description: "Пожалуйста, заполните все обязательные поля и добавьте хотя бы один подарок",
+        title: t.toast.error,
+        description: t.toast.fillAllFields,
         variant: "destructive",
       });
       return;
@@ -88,8 +90,8 @@ export default function CreateAd() {
 
     if (!telegramVerification.isVerified) {
       toast({
-        title: "Требуется проверка",
-        description: "Пожалуйста, проверьте ваш Telegram канал перед созданием объявления",
+        title: t.toast.warning,
+        description: t.toast.verificationRequired,
         variant: "destructive",
       });
       return;
@@ -112,8 +114,8 @@ export default function CreateAd() {
   const addGift = (giftId: string) => {
     if (selectedGifts.find(g => g.giftId === giftId)) {
       toast({
-        title: "Предупреждение",
-        description: "Этот подарок уже добавлен",
+        title: t.toast.warning,
+        description: t.toast.giftAlreadyAdded,
         variant: "destructive",
       });
       return;
@@ -137,8 +139,8 @@ export default function CreateAd() {
   const verifyTelegramChannel = async () => {
     if (!formData.telegramLink || selectedGifts.length === 0) {
       toast({
-        title: "Предупреждение",
-        description: "Пожалуйста, введите ссылку на Telegram и выберите хотя бы один подарок",
+        title: t.toast.warning,
+        description: t.toast.enterTelegramLink,
         variant: "destructive",
       });
       return;
@@ -162,15 +164,15 @@ export default function CreateAd() {
       });
 
       toast({
-        title: result.channelValid ? "Канал проверен" : "Проверка не удалась",
+        title: result.channelValid ? t.toast.channelVerified : t.toast.verificationFailed,
         description: result.message,
         variant: result.channelValid ? "default" : "destructive",
       });
     } catch (error) {
       setTelegramVerification(prev => ({ ...prev, isVerifying: false }));
       toast({
-        title: "Ошибка",
-        description: "Не удалось проверить Telegram канал",
+        title: t.toast.error,
+        description: t.toast.failedToVerify,
         variant: "destructive",
       });
     }
@@ -188,23 +190,23 @@ export default function CreateAd() {
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h1 className="text-lg font-semibold">Создать канал</h1>
+        <h1 className="text-lg font-semibold">{t.createAd.title}</h1>
       </header>
 
       <div className="px-4 py-6">
         <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
-          <h3 className="text-sm font-semibold text-blue-400 mb-3">Важная информация для продажи канала</h3>
+          <h3 className="text-sm font-semibold text-blue-400 mb-3">{t.createAd.importantInfo}</h3>
           <div className="space-y-2 text-xs text-blue-200/80">
-            <p className="font-medium">Перед добавлением канала:</p>
+            <p className="font-medium">{t.createAd.beforeAdding}</p>
             <ol className="list-decimal list-inside space-y-1 ml-2">
-              <li>Добавьте @LootGifts_bot в администраторы канала</li>
-              <li>Не удаляйте бота до конца сделки!</li>
+              <li>{t.createAd.step1}</li>
+              <li>{t.createAd.step2}</li>
             </ol>
-            <p className="font-medium mt-3">Убедитесь что:</p>
+            <p className="font-medium mt-3">{t.createAd.makeSure}</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Облачный пароль включён минимум 7 дней назад</li>
-              <li>Сессия на устройстве активна не менее 24 часов</li>
-              <li>Подарки не скрыты!</li>
+              <li>{t.createAd.cloudPassword}</li>
+              <li>{t.createAd.sessionActive}</li>
+              <li>{t.createAd.giftsNotHidden}</li>
             </ul>
           </div>
         </div>
@@ -213,7 +215,7 @@ export default function CreateAd() {
       <form onSubmit={handleSubmit} className="px-4 space-y-6 pb-6">
         <div className="space-y-2">
           <Label htmlFor="telegramLink" className="text-sm font-medium text-foreground">
-            Ссылка на Telegram канал *
+            {t.createAd.telegramLink} *
           </Label>
           <div className="flex gap-2">
             <Input
@@ -233,7 +235,7 @@ export default function CreateAd() {
               {telegramVerification.isVerifying ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                "Перевірити"
+                t.createAd.verify
               )}
             </Button>
           </div>
@@ -261,7 +263,7 @@ export default function CreateAd() {
 
         <div className="space-y-3">
           <Label className="text-sm font-medium text-foreground">
-            Подарки *
+            {t.createAd.gifts} *
           </Label>
           
           {selectedGifts.map((selected) => {
@@ -316,13 +318,13 @@ export default function CreateAd() {
             data-testid="button-add-gift"
           >
             <Plus className="w-5 h-5" />
-            <span>Добавить подарок</span>
+            <span>{t.createAd.addGift}</span>
           </button>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="price" className="text-sm font-medium text-foreground">
-            Цена (TON) *
+            {t.createAd.price} *
           </Label>
           <div className="relative">
             <Input
@@ -350,7 +352,7 @@ export default function CreateAd() {
             onClick={() => navigate("/")}
             data-testid="button-cancel"
           >
-            Отмена
+            {t.createAd.cancel}
           </Button>
           <Button
             type="submit"
@@ -358,8 +360,8 @@ export default function CreateAd() {
             disabled={createChannelMutation.isPending || !telegramVerification.isVerified}
             data-testid="button-submit"
           >
-            {createChannelMutation.isPending ? "Создание..." : 
-             !telegramVerification.isVerified ? "Сначала проверьте канал" : "Создать"}
+            {createChannelMutation.isPending ? t.createAd.creating : 
+             !telegramVerification.isVerified ? t.createAd.verifyFirst : t.createAd.create}
           </Button>
         </div>
       </form>

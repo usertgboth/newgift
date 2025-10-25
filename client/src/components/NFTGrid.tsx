@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import NFTCard from "./NFTCard";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Channel {
   id: string;
@@ -18,6 +19,7 @@ interface NFTGridProps {
 }
 
 export default function NFTGrid({ searchQuery = "", giftFilter = [] }: NFTGridProps) {
+  const { t } = useLanguage();
   const { data: channels, isLoading } = useQuery<Channel[]>({
     queryKey: searchQuery ? ["/api/channels", { search: searchQuery }] : ["/api/channels"],
     queryFn: async ({ queryKey }) => {
@@ -62,8 +64,8 @@ export default function NFTGrid({ searchQuery = "", giftFilter = [] }: NFTGridPr
         <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
           <span className="text-2xl">🎁</span>
         </div>
-        <p className="text-muted-foreground text-sm">Подарки недоступны</p>
-        <p className="text-muted-foreground text-xs mt-1">Попробуйте изменить фильтр</p>
+        <p className="text-muted-foreground text-sm">{t.home.noGifts}</p>
+        <p className="text-muted-foreground text-xs mt-1">{t.home.tryChangingFilter}</p>
       </div>
     );
   }

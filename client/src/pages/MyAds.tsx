@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import tonLogo from "@assets/toncoin_1760893904370.png";
 
 interface Channel {
@@ -22,6 +23,7 @@ interface Channel {
 export default function MyAds() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const { data: channels, isLoading } = useQuery<Channel[]>({
     queryKey: ["/api/channels"],
@@ -34,21 +36,21 @@ export default function MyAds() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/channels"] });
       toast({
-        title: "Успех!",
-        description: "Канал удален",
+        title: t.toast.success,
+        description: t.toast.channelDeleted,
       });
     },
     onError: () => {
       toast({
-        title: "Ошибка",
-        description: "Не удалось удалить канал",
+        title: t.toast.error,
+        description: t.toast.failedToDelete,
         variant: "destructive",
       });
     },
   });
 
   const handleDelete = (id: string, name: string) => {
-    if (confirm(`Удалить канал "${name}"?`)) {
+    if (confirm(t.myAds.deleteConfirm(name))) {
       deleteChannelMutation.mutate(id);
     }
   };
@@ -60,7 +62,7 @@ export default function MyAds() {
       <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between px-4 py-4 border-b border-border">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
-            Мои каналы
+            {t.myAds.title}
           </h1>
           <Button
             size="icon"
@@ -93,10 +95,10 @@ export default function MyAds() {
               
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold text-foreground" data-testid="text-empty-title">
-                  Нет каналов
+                  {t.myAds.noChannels}
                 </h2>
                 <p className="text-sm text-muted-foreground" data-testid="text-empty-subtitle">
-                  Создайте свой первый канал
+                  {t.myAds.createFirst}
                 </p>
               </div>
 
