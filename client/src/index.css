@@ -238,7 +238,9 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased text-foreground;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    background-attachment: fixed;
     /* Telegram Mini App optimizations */
     -webkit-touch-callout: none;
     -webkit-user-select: none;

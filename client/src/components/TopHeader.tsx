@@ -71,34 +71,35 @@ export default function TopHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 bg-background/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 backdrop-blur-xl border-b border-white/5 shadow-xl">
         <div className="flex items-center gap-2 sm:gap-3" data-testid="text-title">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-            <span className="text-sm sm:text-base font-bold text-white">{avatarLetter}</span>
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-blue-500/30 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+            <span className="text-base sm:text-lg font-bold text-white relative z-10">{avatarLetter}</span>
           </div>
-          <span className="text-base sm:text-lg font-semibold text-foreground">{username}</span>
+          <span className="text-base sm:text-lg font-bold text-white">{username}</span>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20" data-testid="display-balance">
-            <img src={tonLogo} alt="TON" className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover" />
-            <span className="text-xs sm:text-sm font-semibold text-foreground">0 TON</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 backdrop-blur-sm shadow-lg shadow-blue-500/5" data-testid="display-balance">
+            <img src={tonLogo} alt="TON" className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover shadow-md" />
+            <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">0 TON</span>
           </div>
           <Button
             size="icon"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-600 hover:bg-green-700 active-elevate-2 shadow-lg"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 hover:scale-105 active:scale-95 border border-green-400/20"
             data-testid="button-deposit"
             onClick={() => setIsDepositOpen(true)}
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-md" />
           </Button>
           <Button
             size="icon"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-600 hover:bg-red-700 active-elevate-2 shadow-lg"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 hover:scale-105 active:scale-95 border border-red-400/20"
             data-testid="button-withdraw"
             onClick={() => setIsWithdrawOpen(true)}
           >
-            <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <Minus className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-md" />
           </Button>
         </div>
       </header>
