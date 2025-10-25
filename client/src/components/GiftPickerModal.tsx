@@ -101,7 +101,7 @@ export default function GiftPickerModal({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t.giftPicker.searchPlaceholder}
-              className="w-full h-11 sm:h-12 pl-9 sm:pl-11 pr-3 sm:pr-4 text-sm sm:text-base bg-muted/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 focus:bg-muted/80 transition-all duration-200 appearance-none"
+              className="w-full h-11 sm:h-12 pl-10 sm:pl-12 pr-3 sm:pr-4 text-sm sm:text-base bg-muted/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 focus:bg-muted/80 transition-all duration-200 appearance-none"
             />
           </div>
         </div>

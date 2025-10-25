@@ -26,7 +26,7 @@ export default function SearchBar({ onSearchChange }: SearchBarProps) {
           placeholder={t.home.searchPlaceholder}
           value={searchQuery}
           onChange={(e) => onSearchChange?.(e.target.value)}
-          className="w-full h-11 sm:h-12 pl-9 sm:pl-11 pr-4 text-sm sm:text-base bg-card/50 border border-card-border rounded-xl text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 focus:bg-card/80 transition-all duration-200 appearance-none"
+          className="w-full h-11 sm:h-12 pl-10 sm:pl-12 pr-4 text-sm sm:text-base bg-card/50 border border-card-border rounded-xl text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 focus:bg-card/80 transition-all duration-200 appearance-none"
           data-testid="input-search"
         />
       </div>
