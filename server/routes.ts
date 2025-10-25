@@ -92,6 +92,20 @@ async function checkGiftInChannel(telegramLink: string, giftName: string): Promi
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve TON Connect manifest
+  app.get('/tonconnect-manifest.json', (_req, res) => {
+    res.json({
+      url: "https://4a6a4d09-c68b-481c-9974-30fc162da62a-00-35hnxvckxlwnb.riker.replit.dev",
+      name: "TON Gift App",
+      iconUrl: "https://4a6a4d09-c68b-481c-9974-30fc162da62a-00-35hnxvckxlwnb.riker.replit.dev/icon.png"
+    });
+  });
+
+  // Serve icon
+  app.get('/icon.png', (_req, res) => {
+    res.sendFile('public/icon.png', { root: '.' });
+  });
+
   app.get("/api/gifts", async (req, res) => {
     try {
       const gifts = await storage.getAllGifts();

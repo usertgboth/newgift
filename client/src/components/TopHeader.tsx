@@ -132,7 +132,7 @@ export default function TopHeader() {
               data-testid="button-connect-wallet"
             >
               <Wallet className="w-4 h-4" />
-              <span>{language === 'ru' ? 'Гаманець' : 'Wallet'}</span>
+              <span>{language === 'ru' ? 'Підключити' : 'Connect Wallet'}</span>
             </Button>
           ) : (
             <>
