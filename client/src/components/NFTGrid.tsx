@@ -71,21 +71,16 @@ export default function NFTGrid({ searchQuery = "", giftFilter = [] }: NFTGridPr
   return (
     <div className="px-3 sm:px-4 pb-24 pt-2">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-        {filteredChannels.map((channel, index) => {
+        {filteredChannels.map((channel) => {
           return (
-            <div
+            <NFTCard
               key={channel.id}
-              className="animate-in fade-in-0 zoom-in-95 duration-500"
-              style={{ animationDelay: `${index * 75}ms` }}
-            >
-              <NFTCard
-                giftName={channel.giftName}
-                channelName={channel.channelName}
-                price={channel.price}
-                image={channel.giftImage}
-                locked={false}
-              />
-            </div>
+              giftName={channel.giftName}
+              channelName={channel.channelName}
+              price={channel.price}
+              image={channel.giftImage}
+              locked={false}
+            />
           );
         })}
       </div>

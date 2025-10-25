@@ -20,9 +20,9 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border safe-area-bottom animate-in slide-in-from-bottom duration-500">
-      <div className="flex justify-around items-center h-16 sm:h-20 px-2">
-        {navItems.map((item, index) => {
+    <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50 safe-area-bottom">
+      <div className="flex items-center justify-around h-16 sm:h-20 px-1 sm:px-2 pb-1 sm:pb-2">
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
 
@@ -30,29 +30,20 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
             <button
               key={item.id}
               onClick={() => handleClick(item.id)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 px-3 sm:px-4 py-2 rounded-xl transition-all duration-300 min-w-[60px] sm:min-w-[80px] relative group",
-                isActive
-                  ? "text-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:scale-105"
-              )}
-              data-testid={`tab-${item.id}`}
-              style={{ animationDelay: `${index * 100}ms` }}
+              className={`flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full transition-all duration-200 rounded-lg mx-0.5 sm:mx-1 ${
+                isActive ? "bg-primary/10" : "hover:bg-muted/50"
+              }`}
+              data-testid={`button-nav-${item.id}`}
             >
-              {isActive && (
-                <div className="absolute inset-0 bg-primary/5 rounded-xl animate-pulse" />
-              )}
               <Icon
-                className={cn(
-                  "w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 relative z-10",
-                  isActive && "animate-in zoom-in-0 duration-300"
-                )}
+                className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}
               />
               <span
-                className={cn(
-                  "text-xs sm:text-sm font-medium transition-all duration-300 relative z-10",
-                  isActive && "font-bold"
-                )}
+                className={`text-[10px] sm:text-[11px] font-medium transition-colors ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}
               >
                 {item.label}
               </span>
