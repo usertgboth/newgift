@@ -175,8 +175,8 @@ export default function TopHeader() {
 
       <Dialog open={isDepositOpen} onOpenChange={(open) => { if (open) setIsDepositOpen(true); }}>
         <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-green-500/20 rounded-[2rem] p-0 overflow-hidden max-w-sm shadow-2xl shadow-green-500/10" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="relative px-8 pt-10 pb-8">
-            <div className="absolute top-6 right-6">
+          <div className="relative px-6 pt-8 pb-6">
+            <div className="absolute top-4 right-4">
               <Button
                 variant="ghost"
                 size="icon"
@@ -191,12 +191,12 @@ export default function TopHeader() {
               </Button>
             </div>
             
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/30">
-                <Plus className="w-8 h-8 text-white" />
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/30">
+                <Plus className="w-7 h-7 text-white" />
               </div>
-              <DialogTitle className="text-foreground text-2xl font-bold mb-1">{t.profile.depositTitle}</DialogTitle>
-              <p className="text-muted-foreground text-sm">{language === 'ru' ? 'Мінімум 0.05 TON' : 'Minimum 0.05 TON'}</p>
+              <DialogTitle className="text-foreground text-xl font-bold mb-1">{t.profile.depositTitle}</DialogTitle>
+              <p className="text-muted-foreground text-xs">{language === 'ru' ? 'Мінімум 0.05 TON' : 'Minimum 0.05 TON'}</p>
             </div>
 
             <div className="space-y-5">
@@ -252,8 +252,8 @@ export default function TopHeader() {
 
       <Dialog open={isWithdrawOpen} onOpenChange={(open) => { if (open) setIsWithdrawOpen(true); }}>
         <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-red-500/20 rounded-[2rem] p-0 overflow-hidden max-w-sm shadow-2xl shadow-red-500/10" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="relative px-8 pt-10 pb-8">
-            <div className="absolute top-6 right-6">
+          <div className="relative px-6 pt-8 pb-6">
+            <div className="absolute top-4 right-4">
               <Button
                 variant="ghost"
                 size="icon"
@@ -267,12 +267,12 @@ export default function TopHeader() {
               </Button>
             </div>
             
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/30">
-                <Minus className="w-8 h-8 text-white" />
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/30">
+                <Minus className="w-7 h-7 text-white" />
               </div>
-              <DialogTitle className="text-foreground text-2xl font-bold mb-1">{t.profile.withdrawTitle}</DialogTitle>
-              <p className="text-muted-foreground text-sm">
+              <DialogTitle className="text-foreground text-xl font-bold mb-1">{t.profile.withdrawTitle}</DialogTitle>
+              <p className="text-muted-foreground text-xs">
                 {language === 'ru' ? 'Доступно: ' : 'Available: '}
                 <span className="font-semibold text-foreground">{balance.toFixed(2)} TON</span>
               </p>
