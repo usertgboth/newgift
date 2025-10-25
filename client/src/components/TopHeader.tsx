@@ -22,7 +22,7 @@ export default function TopHeader() {
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [promoCode, setPromoCode] = useState("");
-  const [depositAddress] = useState("UQD_Xp6XRYv3T8eY3OT_XZJt_WqLmJZ8zJpVJzPOxGRbVYlP");
+  const [depositAddress] = useState("UQAb0o8lRX_dZvl2NL6pInxbSjixvdrCf_G4KdqYRCgIjDz1");
 
   const handleDeposit = async () => {
     if (!wallet) {
@@ -36,10 +36,10 @@ export default function TopHeader() {
     }
 
     const amount = parseFloat(depositAmount);
-    if (!amount || amount < 1) {
+    if (!amount || amount < 0.05) {
       toast({
         title: t.toast.error,
-        description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
+        description: language === 'ru' ? "Минимальная сумма депозита: 0.05 TON" : "Minimum deposit: 0.05 TON",
         variant: "destructive",
       });
       return;
@@ -95,10 +95,10 @@ export default function TopHeader() {
 
   const handleWithdraw = () => {
     const amount = parseFloat(withdrawAmount);
-    if (!amount || amount < 1) {
+    if (!amount || amount < 0.05) {
       toast({
         title: t.toast.error,
-        description: language === 'ru' ? "Минимальная сумма вывода: 1 TON" : "Minimum withdrawal: 1 TON",
+        description: language === 'ru' ? "Минимальная сумма вывода: 0.05 TON" : "Minimum withdrawal: 0.05 TON",
         variant: "destructive",
       });
       return;
@@ -190,14 +190,14 @@ export default function TopHeader() {
                   id="deposit-amount"
                   type="number"
                   step="0.01"
-                  min="1"
+                  min="0.05"
                   value={depositAmount}
                   onChange={(e) => setDepositAmount(e.target.value)}
-                  placeholder="1.00"
+                  placeholder="0.05"
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg font-semibold"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-2 ml-1">{language === 'ru' ? 'Минимум: 1 TON' : 'Minimum: 1 TON'}</p>
+              <p className="text-xs text-muted-foreground mt-2 ml-1">{language === 'ru' ? 'Минимум: 0.05 TON' : 'Minimum: 0.05 TON'}</p>
             </div>
 
             <div>
@@ -258,14 +258,14 @@ export default function TopHeader() {
                   id="withdraw-amount"
                   type="number"
                   step="0.01"
-                  min="1"
+                  min="0.05"
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="1.00"
+                  placeholder="0.05"
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg font-semibold"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-2 ml-1">{language === 'ru' ? 'Минимум: 1 TON' : 'Minimum: 1 TON'}</p>
+              <p className="text-xs text-muted-foreground mt-2 ml-1">{language === 'ru' ? 'Минимум: 0.05 TON' : 'Minimum: 0.05 TON'}</p>
             </div>
 
             <div className="flex gap-3 pt-2">
