@@ -3,6 +3,7 @@ import TopHeader from "@/components/TopHeader";
 import CashbackBanner from "@/components/CashbackBanner";
 import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
+import SortPanel, { type SortOption } from "@/components/SortPanel";
 import NFTGrid from "@/components/NFTGrid";
 import BottomNav from "@/components/BottomNav";
 import MyAds from "./MyAds";
@@ -15,6 +16,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState<Page>("store");
   const [searchQuery, setSearchQuery] = useState("");
   const [giftFilter, setGiftFilter] = useState<string[]>([]);
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
 
   if (currentPage === "myads") {
     return (
@@ -48,8 +50,9 @@ export default function Home() {
       <TopHeader />
       <CashbackBanner />
       <FilterBar onGiftFilterChange={setGiftFilter} />
+      <SortPanel onSortChange={setSortOption} />
       <SearchBar onSearchChange={setSearchQuery} />
-      <NFTGrid searchQuery={searchQuery} giftFilter={giftFilter} />
+      <NFTGrid searchQuery={searchQuery} giftFilter={giftFilter} sortOption={sortOption} />
       <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
     </div>
   );

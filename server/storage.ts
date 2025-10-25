@@ -14,13 +14,13 @@ export interface IStorage {
   getAllGifts(): Promise<Gift[]>;
   getGiftById(id: string): Promise<Gift | undefined>;
 
-  getAllChannels(): Promise<(Channel & { giftName: string; giftImage: string })[]>;
-  getChannelById(id: string): Promise<(Channel & { giftName: string; giftImage: string }) | undefined>;
-  createChannel(channel: InsertChannel): Promise<Channel & { giftName: string; giftImage: string }>;
-  updateChannel(id: string, channel: Partial<InsertChannel>): Promise<(Channel & { giftName: string; giftImage: string }) | undefined>;
+  getAllChannels(): Promise<(Channel & { giftName: string; giftImage: string; parsedGifts: any[] })[]>;
+  getChannelById(id: string): Promise<(Channel & { giftName: string; giftImage: string; parsedGifts: any[] }) | undefined>;
+  createChannel(channel: InsertChannel): Promise<Channel & { giftName: string; giftImage: string; parsedGifts: any[] }>;
+  updateChannel(id: string, channel: Partial<InsertChannel>): Promise<(Channel & { giftName: string; giftImage: string; parsedGifts: any[] }) | undefined>;
   deleteChannel(id: string): Promise<boolean>;
-  searchChannelsByGiftName(query: string): Promise<(Channel & { giftName: string; giftImage: string })[]>;
-  getUserByTelegramId(telegramId: string);
+  searchChannelsByGiftName(query: string): Promise<(Channel & { giftName: string; giftImage: string; parsedGifts: any[] })[]>;
+  getUserByTelegramId(telegramId: string): Promise<User | null>;
   getReferralStats(userId: string): Promise<{ count: number; earnings: string }>;
   updateUserBalance(telegramId: string, amount: number): Promise<boolean>;
 }
@@ -53,7 +53,11 @@ export class MemStorage implements IStorage {
         giftId: "box-of-chocolates",
         price: "29",
         ownerId: null,
-        gifts: JSON.stringify([{ giftId: "box-of-chocolates", quantity: 1 }]),
+        gifts: JSON.stringify([
+          { giftId: "box-of-chocolates", quantity: 4 },
+          { giftId: "cherry-cake", quantity: 2 },
+          { giftId: "ice-cream-cone", quantity: 1 }
+        ]),
       },
       {
         id: randomUUID(),
@@ -62,7 +66,10 @@ export class MemStorage implements IStorage {
         giftId: "cherry-cake",
         price: "10.49",
         ownerId: null,
-        gifts: JSON.stringify([{ giftId: "cherry-cake", quantity: 1 }]),
+        gifts: JSON.stringify([
+          { giftId: "cherry-cake", quantity: 3 },
+          { giftId: "gift-bag", quantity: 1 }
+        ]),
       },
       {
         id: randomUUID(),
@@ -71,7 +78,12 @@ export class MemStorage implements IStorage {
         giftId: "gift-bag",
         price: "15.99",
         ownerId: null,
-        gifts: JSON.stringify([{ giftId: "gift-bag", quantity: 1 }]),
+        gifts: JSON.stringify([
+          { giftId: "gift-bag", quantity: 5 },
+          { giftId: "box-of-chocolates", quantity: 2 },
+          { giftId: "ice-cream-cone", quantity: 3 },
+          { giftId: "cherry-cake", quantity: 1 }
+        ]),
       },
       {
         id: randomUUID(),
@@ -80,7 +92,9 @@ export class MemStorage implements IStorage {
         giftId: "ice-cream-cone",
         price: "22.50",
         ownerId: null,
-        gifts: JSON.stringify([{ giftId: "ice-cream-cone", quantity: 1 }]),
+        gifts: JSON.stringify([
+          { giftId: "ice-cream-cone", quantity: 2 }
+        ]),
       },
     ];
 
@@ -101,7 +115,17 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser,
+      id,
+      telegramId: insertUser.telegramId || null,
+      avatarUrl: insertUser.avatarUrl || null,
+      referredBy: insertUser.referredBy || null,
+      language: insertUser.language || "en",
+      referralCode: randomUUID().substring(0, 8),
+      balance: "0.00",
+      createdAt: new Date(),
+    };
     this.users.set(id, user);
     return user;
   }
@@ -114,30 +138,44 @@ export class MemStorage implements IStorage {
     return this.gifts.get(id);
   }
 
-  async getAllChannels(): Promise<(Channel & { giftName: string; giftImage: string })[]> {
+  async getAllChannels(): Promise<(Channel & { giftName: string; giftImage: string; parsedGifts: any[] })[]> {
     return Array.from(this.channels.values()).map(channel => {
       const gift = this.gifts.get(channel.giftId);
+      let parsedGifts = [];
+      try {
+        parsedGifts = channel.gifts ? JSON.parse(channel.gifts) : [];
+      } catch (e) {
+        parsedGifts = [];
+      }
       return {
         ...channel,
         giftName: gift?.name || "",
         giftImage: gift?.image || "",
+        parsedGifts,
       };
     });
   }
 
-  async getChannelById(id: string): Promise<(Channel & { giftName: string; giftImage: string }) | undefined> {
+  async getChannelById(id: string): Promise<(Channel & { giftName: string; giftImage: string; parsedGifts: any[] }) | undefined> {
     const channel = this.channels.get(id);
     if (!channel) return undefined;
 
     const gift = this.gifts.get(channel.giftId);
+    let parsedGifts = [];
+    try {
+      parsedGifts = channel.gifts ? JSON.parse(channel.gifts) : [];
+    } catch (e) {
+      parsedGifts = [];
+    }
     return {
       ...channel,
       giftName: gift?.name || "",
       giftImage: gift?.image || "",
+      parsedGifts,
     };
   }
 
-  async createChannel(insertChannel: InsertChannel): Promise<Channel & { giftName: string; giftImage: string }> {
+  async createChannel(insertChannel: InsertChannel): Promise<Channel & { giftName: string; giftImage: string; parsedGifts: any[] }> {
     const id = randomUUID();
     const channel: Channel = { 
       ...insertChannel,
@@ -148,14 +186,21 @@ export class MemStorage implements IStorage {
     this.channels.set(id, channel);
 
     const gift = this.gifts.get(channel.giftId);
+    let parsedGifts = [];
+    try {
+      parsedGifts = channel.gifts ? JSON.parse(channel.gifts) : [];
+    } catch (e) {
+      parsedGifts = [];
+    }
     return {
       ...channel,
       giftName: gift?.name || "",
       giftImage: gift?.image || "",
+      parsedGifts,
     };
   }
 
-  async updateChannel(id: string, updates: Partial<InsertChannel>): Promise<(Channel & { giftName: string; giftImage: string }) | undefined> {
+  async updateChannel(id: string, updates: Partial<InsertChannel>): Promise<(Channel & { giftName: string; giftImage: string; parsedGifts: any[] }) | undefined> {
     const channel = this.channels.get(id);
     if (!channel) return undefined;
 
@@ -163,10 +208,17 @@ export class MemStorage implements IStorage {
     this.channels.set(id, updated);
 
     const gift = this.gifts.get(updated.giftId);
+    let parsedGifts = [];
+    try {
+      parsedGifts = updated.gifts ? JSON.parse(updated.gifts) : [];
+    } catch (e) {
+      parsedGifts = [];
+    }
     return {
       ...updated,
       giftName: gift?.name || "",
       giftImage: gift?.image || "",
+      parsedGifts,
     };
   }
 
@@ -180,7 +232,15 @@ export class MemStorage implements IStorage {
     }
   }
 
-  async getUserByTelegramId(telegramId: string) {
+  async searchChannelsByGiftName(query: string): Promise<(Channel & { giftName: string; giftImage: string; parsedGifts: any[] })[]> {
+    const allChannels = await this.getAllChannels();
+    return allChannels.filter(channel =>
+      channel.giftName.toLowerCase().includes(query.toLowerCase()) ||
+      channel.channelName.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  async getUserByTelegramId(telegramId: string): Promise<User | null> {
     try {
       const result = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1);
       return result[0] || null;

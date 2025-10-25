@@ -1,6 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import NFTCard from "./NFTCard";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { type SortOption } from "./SortPanel";
+
+interface GiftItem {
+  giftId: string;
+  quantity: number;
+}
 
 interface Channel {
   id: string;
@@ -11,28 +17,42 @@ interface Channel {
   giftImage: string;
   price: string;
   ownerId: string | null;
+  parsedGifts?: GiftItem[];
 }
 
 interface NFTGridProps {
   searchQuery?: string;
   giftFilter?: string[];
+  sortOption?: SortOption;
 }
 
-export default function NFTGrid({ searchQuery = "", giftFilter = [] }: NFTGridProps) {
+export default function NFTGrid({ searchQuery = "", giftFilter = [], sortOption = "newest" }: NFTGridProps) {
   const { t } = useLanguage();
   const { data: channels, isLoading } = useQuery<Channel[]>({
-    queryKey: searchQuery ? ["/api/channels", { search: searchQuery }] : ["/api/channels"],
-    queryFn: async ({ queryKey }) => {
-      const [url, params] = queryKey as [string, { search?: string } | undefined];
-      const searchParam = params?.search ? `?search=${encodeURIComponent(params.search)}` : '';
-      const response = await fetch(`${url}${searchParam}`);
-      return response.json();
-    },
+    queryKey: ["/api/channels"],
   });
 
-  const filteredChannels = (channels || []).filter(channel => {
-    if (!giftFilter || giftFilter.length === 0) return true;
-    return giftFilter.includes(channel.giftId);
+  const { data: allGifts } = useQuery<Array<{ id: string; name: string; image: string }>>({
+    queryKey: ["/api/gifts"],
+  });
+
+  let filteredChannels = (channels || []).filter(channel => {
+    const matchesSearch = !searchQuery || 
+      channel.giftName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      channel.channelName.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesFilter = !giftFilter || giftFilter.length === 0 || giftFilter.includes(channel.giftId);
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  filteredChannels = [...filteredChannels].sort((a, b) => {
+    if (sortOption === "price-low") {
+      return parseFloat(a.price) - parseFloat(b.price);
+    } else if (sortOption === "price-high") {
+      return parseFloat(b.price) - parseFloat(a.price);
+    }
+    return 0;
   });
 
   if (isLoading) {
@@ -70,6 +90,17 @@ export default function NFTGrid({ searchQuery = "", giftFilter = [] }: NFTGridPr
     );
   }
 
+  const enrichedGifts = (channel: Channel) => {
+    if (!channel.parsedGifts || !allGifts) return [];
+    return channel.parsedGifts.map((gift: GiftItem) => {
+      const giftData = allGifts.find((g) => g.id === gift.giftId);
+      return {
+        ...gift,
+        giftName: giftData?.name || "",
+      };
+    });
+  };
+
   return (
     <div className="px-3 sm:px-4 pb-24 pt-2">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
@@ -82,6 +113,7 @@ export default function NFTGrid({ searchQuery = "", giftFilter = [] }: NFTGridPr
               price={channel.price}
               image={channel.giftImage}
               locked={false}
+              gifts={enrichedGifts(channel)}
             />
           );
         })}

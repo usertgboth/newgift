@@ -10,10 +10,10 @@ export default function SearchBar({ onSearchChange }: SearchBarProps) {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSearchChange = (value: string) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     setSearchQuery(value);
     onSearchChange?.(value);
-    console.log('Search query:', value);
   };
 
   return (
@@ -25,7 +25,7 @@ export default function SearchBar({ onSearchChange }: SearchBarProps) {
           inputMode="search"
           placeholder={t.home.searchPlaceholder}
           value={searchQuery}
-          onChange={(e) => onSearchChange?.(e.target.value)}
+          onChange={handleSearchChange}
           className="w-full h-11 sm:h-12 pl-10 sm:pl-12 pr-4 text-sm sm:text-base bg-transparent text-foreground placeholder:text-muted-foreground/70 focus:outline-none appearance-none"
           data-testid="input-search"
         />
