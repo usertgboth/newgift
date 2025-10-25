@@ -62,7 +62,7 @@ export default function ChannelDetailsModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="p-0 gap-0 max-w-[95vw] w-full sm:max-w-md border-0 overflow-hidden">
+      <DialogContent className="p-0 gap-0 max-w-[90vw] w-full sm:max-w-sm max-h-[85vh] border-0 overflow-hidden flex flex-col">
         <VisuallyHidden>
           <DialogTitle>{giftName}</DialogTitle>
         </VisuallyHidden>
@@ -74,7 +74,7 @@ export default function ChannelDetailsModal({
           <X className="w-4 h-4 text-foreground" />
         </button>
 
-        <div className="flex flex-col sm:flex-row">
+        <div className="flex flex-col sm:flex-row overflow-y-auto flex-1">
           <div className="relative w-full sm:w-2/5 aspect-square sm:aspect-auto bg-gradient-to-br from-primary/10 to-primary/5 flex-shrink-0">
             <img
               src={image}
@@ -84,8 +84,8 @@ export default function ChannelDetailsModal({
             />
           </div>
 
-          <div className="flex-1 p-4 flex flex-col">
-            <div className="flex-1 space-y-3">
+          <div className="flex-1 p-4 flex flex-col min-h-0">
+            <div className="flex-1 space-y-3 overflow-y-auto pr-1">
               <div>
                 <h3 className="text-lg font-bold text-foreground line-clamp-1" data-testid="text-modal-gift-name">
                   {giftName}
