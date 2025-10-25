@@ -57,7 +57,8 @@ export default function GiftPickerModal({
   };
 
   const handleCancel = () => {
-    setLocalSelectedIds(selectedGiftIds);
+    setLocalSelectedIds([]);
+    setSearchQuery("");
     onClose();
   };
 
