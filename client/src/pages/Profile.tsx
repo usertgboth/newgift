@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Copy, CheckCircle2, Globe } from "lucide-react";
+import { Copy, CheckCircle2, Globe, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import TopHeader from "@/components/TopHeader";
 import BottomNav from "@/components/BottomNav";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,6 +18,10 @@ export default function Profile() {
   const { username, avatarLetter } = useTelegramUser();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [isDepositOpen, setIsDepositOpen] = useState(false);
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+  const [depositAmount, setDepositAmount] = useState("");
+  const [promoCode, setPromoCode] = useState("");
 
   const referralCode = "123456789";
   const referralLink = `https://t.me/LootGifts_bot?start=${referralCode}`;
@@ -35,6 +42,44 @@ export default function Profile() {
     }
   };
 
+  const handleDeposit = () => {
+    const amount = parseFloat(depositAmount);
+    if (!amount || amount <= 0) {
+      toast({
+        title: t.toast.error,
+        description: "Please enter a valid amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    let finalAmount = amount;
+    if (promoCode.trim().toUpperCase() === "GIFT") {
+      finalAmount = amount * 1.15;
+      toast({
+        title: t.toast.success,
+        description: `${amount} TON + 15% bonus = ${finalAmount.toFixed(2)} TON`,
+      });
+    } else {
+      toast({
+        title: t.toast.success,
+        description: `Deposited ${finalAmount.toFixed(2)} TON`,
+      });
+    }
+
+    setIsDepositOpen(false);
+    setDepositAmount("");
+    setPromoCode("");
+  };
+
+  const handleWithdraw = () => {
+    toast({
+      title: t.profile.suspiciousActivity,
+      description: t.profile.withdrawalBlocked,
+      variant: "destructive",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
@@ -47,7 +92,7 @@ export default function Profile() {
         </div>
 
         <Card className="bg-card border-card-border rounded-2xl p-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
               <span className="text-2xl font-bold text-white">{avatarLetter}</span>
             </div>
@@ -55,6 +100,24 @@ export default function Profile() {
               <h2 className="text-lg font-semibold text-foreground">{username}</h2>
               <p className="text-sm text-muted-foreground">@{username.toLowerCase()}</p>
             </div>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setIsDepositOpen(true)}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {t.profile.deposit}
+            </Button>
+            <Button 
+              onClick={() => setIsWithdrawOpen(true)}
+              variant="outline"
+              className="flex-1 border-red-500/30 text-red-500 hover:bg-red-500/10"
+            >
+              <Minus className="w-4 h-4 mr-2" />
+              {t.profile.withdraw}
+            </Button>
           </div>
         </Card>
 
@@ -143,6 +206,90 @@ export default function Profile() {
       </div>
 
       <BottomNav activeTab="profile" />
+
+      <Dialog open={isDepositOpen} onOpenChange={setIsDepositOpen}>
+        <DialogContent className="bg-card border-card-border">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">{t.profile.depositTitle}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="deposit-amount" className="text-sm text-muted-foreground mb-2 block">
+                {t.profile.amount}
+              </Label>
+              <div className="flex items-center gap-2">
+                <img src={tonLogo} alt="TON" className="w-5 h-5 rounded-full" />
+                <Input
+                  id="deposit-amount"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="promo-code" className="text-sm text-muted-foreground mb-2 block">
+                {t.profile.promoCode}
+              </Label>
+              <Input
+                id="promo-code"
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+                placeholder="GIFT"
+                className="uppercase"
+              />
+              <p className="text-xs text-green-500 mt-1">{t.profile.promoCodeBonus}</p>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsDepositOpen(false);
+                  setDepositAmount("");
+                  setPromoCode("");
+                }}
+                className="flex-1"
+              >
+                {t.profile.cancel}
+              </Button>
+              <Button
+                onClick={handleDeposit}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                {t.profile.confirm}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
+        <DialogContent className="bg-card border-card-border">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">{t.profile.withdrawTitle}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-red-400 mb-2">{t.profile.suspiciousActivity}</h3>
+              <p className="text-xs text-red-300">{t.profile.withdrawalBlocked}</p>
+            </div>
+
+            <Button
+              onClick={() => setIsWithdrawOpen(false)}
+              className="w-full"
+            >
+              {t.profile.cancel}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
