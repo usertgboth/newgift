@@ -23,6 +23,8 @@ export const translations = {
       buy: 'Buy',
       close: 'Close',
       includes: 'Includes',
+      cashback: 'Cashback',
+      youGet: 'You get back',
     },
     createAd: {
       title: 'Create Channel',
@@ -159,6 +161,8 @@ export const translations = {
       buy: 'Купить',
       close: 'Закрыть',
       includes: 'Включает',
+      cashback: 'Кешбэк',
+      youGet: 'Вы получите обратно',
     },
     createAd: {
       title: 'Создать канал',
