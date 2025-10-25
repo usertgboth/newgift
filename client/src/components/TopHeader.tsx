@@ -175,7 +175,7 @@ export default function TopHeader() {
 
       <Dialog open={isDepositOpen} onOpenChange={(open) => { if (open) setIsDepositOpen(true); }}>
         <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-green-500/20 rounded-[2rem] p-0 overflow-hidden max-w-sm shadow-2xl shadow-green-500/10" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="relative px-6 pt-8 pb-6">
+          <div className="relative px-5 pt-7 pb-5">
             <div className="absolute top-4 right-4">
               <Button
                 variant="ghost"
@@ -191,18 +191,18 @@ export default function TopHeader() {
               </Button>
             </div>
 
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/30">
-                <Plus className="w-7 h-7 text-white" />
+            <div className="text-center mb-5">
+              <div className="w-12 h-12 mx-auto mb-2.5 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/30">
+                <Plus className="w-6 h-6 text-white" />
               </div>
-              <DialogTitle className="text-foreground text-xl font-bold mb-1">{t.profile.depositTitle}</DialogTitle>
+              <DialogTitle className="text-foreground text-lg font-bold mb-0.5">{t.profile.depositTitle}</DialogTitle>
               <p className="text-muted-foreground text-xs">{language === 'ru' ? 'Мінімум 0.05 TON' : 'Minimum 0.05 TON'}</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                <div className="relative bg-card/80 backdrop-blur-sm border border-green-500/30 rounded-2xl p-5 transition-all duration-300 group-hover:border-green-500/50">
+                <div className="relative bg-card/80 backdrop-blur-sm border border-green-500/30 rounded-2xl p-4 transition-all duration-300 group-hover:border-green-500/50">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {language === 'ru' ? 'Сума' : 'Amount'}
@@ -241,7 +241,7 @@ export default function TopHeader() {
 
               <Button
                 onClick={handleDeposit}
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 hover:from-green-700 hover:via-green-600 hover:to-emerald-600 shadow-lg shadow-green-500/30 text-white font-bold text-base transition-all duration-300 hover:shadow-xl hover:shadow-green-500/40 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full h-12 rounded-2xl bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 hover:from-green-700 hover:via-green-600 hover:to-emerald-600 shadow-lg shadow-green-500/30 text-white font-bold text-sm transition-all duration-300 hover:shadow-xl hover:shadow-green-500/40 hover:scale-[1.02] active:scale-[0.98]"
               >
                 {wallet ? t.profile.confirm : (language === 'ru' ? 'Підключити гаманець' : 'Connect Wallet')}
               </Button>
@@ -252,7 +252,7 @@ export default function TopHeader() {
 
       <Dialog open={isWithdrawOpen} onOpenChange={(open) => { if (open) setIsWithdrawOpen(true); }}>
         <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-red-500/20 rounded-[2rem] p-0 overflow-hidden max-w-sm shadow-2xl shadow-red-500/10" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="relative px-6 pt-8 pb-6">
+          <div className="relative px-5 pt-7 pb-5">
             <div className="absolute top-4 right-4">
               <Button
                 variant="ghost"
@@ -267,21 +267,21 @@ export default function TopHeader() {
               </Button>
             </div>
 
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/30">
-                <Minus className="w-7 h-7 text-white" />
+            <div className="text-center mb-5">
+              <div className="w-12 h-12 mx-auto mb-2.5 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/30">
+                <Minus className="w-6 h-6 text-white" />
               </div>
-              <DialogTitle className="text-foreground text-xl font-bold mb-1">{t.profile.withdrawTitle}</DialogTitle>
+              <DialogTitle className="text-foreground text-lg font-bold mb-0.5">{t.profile.withdrawTitle}</DialogTitle>
               <p className="text-muted-foreground text-xs">
                 {language === 'ru' ? 'Доступно: ' : 'Available: '}
                 <span className="font-semibold text-foreground">{balance.toFixed(2)} TON</span>
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                <div className="relative bg-card/80 backdrop-blur-sm border border-red-500/30 rounded-2xl p-5 transition-all duration-300 group-hover:border-red-500/50">
+                <div className="relative bg-card/80 backdrop-blur-sm border border-red-500/30 rounded-2xl p-4 transition-all duration-300 group-hover:border-red-500/50">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {language === 'ru' ? 'Сума' : 'Amount'}
@@ -305,7 +305,7 @@ export default function TopHeader() {
 
               <Button
                 onClick={handleWithdraw}
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-red-600 via-red-500 to-orange-500 hover:from-red-700 hover:via-red-600 hover:to-orange-600 shadow-lg shadow-red-500/30 text-white font-bold text-base transition-all duration-300 hover:shadow-xl hover:shadow-red-500/40 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full h-12 rounded-2xl bg-gradient-to-r from-red-600 via-red-500 to-orange-500 hover:from-red-700 hover:via-red-600 hover:to-orange-600 shadow-lg shadow-red-500/30 text-white font-bold text-sm transition-all duration-300 hover:shadow-xl hover:shadow-red-500/40 hover:scale-[1.02] active:scale-[0.98]"
               >
                 {t.profile.confirm}
               </Button>
