@@ -10,15 +10,21 @@ const BOT_TOKEN = "8240745182:AAE5sF_HosDMHafZbWgF5cgTPx4Oq_wh-_c";
 // Telegram verification functions
 async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
   try {
-    // Extract channel username from link
+    // Extract channel username from link or use it directly
+    let channelUsername = telegramLink.trim();
+    
+    // If it's a full link, extract username
     const channelMatch = telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
-    if (!channelMatch) {
-      return false;
+    if (channelMatch) {
+      channelUsername = channelMatch[1];
     }
     
-    const channelUsername = channelMatch[1];
+    // Remove @ if present
+    if (channelUsername.startsWith('@')) {
+      channelUsername = channelUsername.substring(1);
+    }
     
-    // Use Telegram Bot API to check if channel exists and bot is admin
+    // Use Telegram Bot API to check if channel exists
     const response = await fetch(
       `https://api.telegram.org/bot${BOT_TOKEN}/getChat?chat_id=@${channelUsername}`
     );
@@ -38,12 +44,17 @@ async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
     const adminsData = await adminsResponse.json();
     
     if (!adminsData.ok) {
+      console.error('Failed to get administrators:', adminsData.description);
       return false;
     }
     
     // Check if our bot is in the administrators list
     const botId = BOT_TOKEN.split(':')[0];
     const isBotAdmin = adminsData.result.some((admin: any) => admin.user.id.toString() === botId);
+    
+    if (!isBotAdmin) {
+      console.error('Bot is not an administrator in this channel');
+    }
     
     return isBotAdmin;
   } catch (error) {
@@ -54,13 +65,19 @@ async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
 
 async function checkGiftInChannel(telegramLink: string, giftName: string): Promise<boolean> {
   try {
-    // Extract channel username from link
+    // Extract channel username from link or use it directly
+    let channelUsername = telegramLink.trim();
+    
+    // If it's a full link, extract username
     const channelMatch = telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
-    if (!channelMatch) {
-      return false;
+    if (channelMatch) {
+      channelUsername = channelMatch[1];
     }
     
-    const channelUsername = channelMatch[1];
+    // Remove @ if present
+    if (channelUsername.startsWith('@')) {
+      channelUsername = channelUsername.substring(1);
+    }
     
     // Get recent messages from the channel
     const response = await fetch(
