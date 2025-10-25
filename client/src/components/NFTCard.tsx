@@ -41,7 +41,7 @@ export default function NFTCard({ giftName, channelName, price, image, locked = 
         </div>
 
         <button
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-xl transition-all active:scale-95"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 bg-blue-500 hover:bg-blue-600 rounded-xl transition-all active:scale-95"
           onClick={(e) => {
             e.stopPropagation();
             console.log(`Buy clicked: ${channelName}`);

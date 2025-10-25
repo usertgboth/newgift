@@ -1,15 +1,18 @@
-import { Plus, User } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import tonLogo from "@assets/toncoin_1760893904370.png";
+import { useTelegramUser } from "@/hooks/use-telegram-user";
 
 export default function TopHeader() {
+  const { username, avatarLetter } = useTelegramUser();
+
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 bg-background/95 backdrop-blur-sm">
       <div className="flex items-center gap-2 sm:gap-3" data-testid="text-title">
         <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-          <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          <span className="text-sm sm:text-base font-bold text-white">{avatarLetter}</span>
         </div>
-        <span className="text-base sm:text-lg font-semibold text-foreground">johndee</span>
+        <span className="text-base sm:text-lg font-semibold text-foreground">{username}</span>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
