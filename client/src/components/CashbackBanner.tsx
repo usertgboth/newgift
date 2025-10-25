@@ -17,7 +17,7 @@ export default function CashbackBanner() {
 
   return (
     <div className="px-3 sm:px-4 pt-3 pb-2">
-      <div className="relative overflow-hidden rounded-2xl h-32 sm:h-40">
+      <div className="relative overflow-hidden rounded-2xl h-48 sm:h-56">
         <div
           className="flex h-full transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${currentBanner * 100}%)` }}
@@ -27,25 +27,9 @@ export default function CashbackBanner() {
               <img
                 src={banner}
                 alt={`Promotional banner ${index + 1}`}
-                className="w-full h-full rounded-2xl object-cover"
+                className="w-full h-full rounded-2xl object-contain"
               />
             </div>
-          ))}
-        </div>
-
-        {/* Dots indicator */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {banners.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentBanner(index)}
-              className={`h-2 rounded-full transition-all ${
-                currentBanner === index
-                  ? "bg-white w-4"
-                  : "bg-white/50 w-2"
-              }`}
-              aria-label={`Go to banner ${index + 1}`}
-            />
           ))}
         </div>
       </div>
