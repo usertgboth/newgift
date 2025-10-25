@@ -75,11 +75,11 @@ export default function TopHeader() {
     try {
       const result = await tonConnectUI.sendTransaction(transaction);
       console.log('Transaction sent:', result);
-      
+
       const newBalance = balance + finalAmount;
       setBalance(newBalance);
       localStorage.setItem('userBalance', newBalance.toString());
-      
+
       if (bonusApplied) {
         toast({
           title: t.toast.success,
@@ -91,7 +91,7 @@ export default function TopHeader() {
           description: `${language === 'ru' ? 'Депозит успешно отправлен' : 'Deposit sent successfully'}: ${amount} TON`,
         });
       }
-      
+
       setIsDepositOpen(false);
       setDepositAmount("");
       setPromoCode("");
@@ -190,7 +190,7 @@ export default function TopHeader() {
                 <span className="text-muted-foreground text-lg">×</span>
               </Button>
             </div>
-            
+
             <div className="text-center mb-6">
               <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/30">
                 <Plus className="w-7 h-7 text-white" />
@@ -199,7 +199,7 @@ export default function TopHeader() {
               <p className="text-muted-foreground text-xs">{language === 'ru' ? 'Мінімум 0.05 TON' : 'Minimum 0.05 TON'}</p>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
                 <div className="relative bg-card/80 backdrop-blur-sm border border-green-500/30 rounded-2xl p-5 transition-all duration-300 group-hover:border-green-500/50">
@@ -266,7 +266,7 @@ export default function TopHeader() {
                 <span className="text-muted-foreground text-lg">×</span>
               </Button>
             </div>
-            
+
             <div className="text-center mb-6">
               <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/30">
                 <Minus className="w-7 h-7 text-white" />
@@ -278,7 +278,7 @@ export default function TopHeader() {
               </p>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
                 <div className="relative bg-card/80 backdrop-blur-sm border border-red-500/30 rounded-2xl p-5 transition-all duration-300 group-hover:border-red-500/50">
