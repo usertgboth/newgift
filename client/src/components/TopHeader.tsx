@@ -174,66 +174,76 @@ export default function TopHeader() {
       </header>
 
       <Dialog open={isDepositOpen} onOpenChange={(open) => { if (open) setIsDepositOpen(true); }}>
-        <DialogContent className="bg-background border-0 rounded-3xl p-0 overflow-hidden max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="bg-gradient-to-br from-green-600 to-emerald-600 px-6 pt-8 pb-6">
-            <DialogTitle className="text-white text-2xl font-bold mb-2">{t.profile.depositTitle}</DialogTitle>
-            <p className="text-white/80 text-sm">{language === 'ru' ? 'Пополните баланс' : 'Add funds to balance'}</p>
-          </div>
-          
-          <div className="p-6 space-y-6">
-            <div>
-              <div className="relative">
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.05"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="h-16 text-3xl font-bold text-center border-0 bg-muted/30 focus-visible:ring-2 focus-visible:ring-green-500 rounded-2xl pr-16"
-                />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                  <img src={tonLogo} alt="TON" className="w-6 h-6 rounded-full" />
-                  <span className="text-sm font-medium text-muted-foreground">TON</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground text-center mt-2">{language === 'ru' ? 'Минимум 0.05 TON' : 'Minimum 0.05 TON'}</p>
-            </div>
-
-            <div>
-              <Input
-                type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                placeholder={language === 'ru' ? 'Промокод (опционально)' : 'Promo code (optional)'}
-                className="h-12 bg-muted/30 border-0 focus-visible:ring-2 focus-visible:ring-green-500 rounded-xl text-center uppercase"
-              />
-              {promoCode.toUpperCase() === "GIFT" && (
-                <div className="mt-2 p-2 bg-green-500/10 rounded-lg">
-                  <p className="text-xs text-green-600 text-center font-medium">
-                    ✓ {language === 'ru' ? '+15% бонус' : '+15% bonus'}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
+        <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-green-500/20 rounded-[2rem] p-0 overflow-hidden max-w-sm shadow-2xl shadow-green-500/10" onInteractOutside={(e) => e.preventDefault()}>
+          <div className="relative px-8 pt-10 pb-8">
+            <div className="absolute top-6 right-6">
               <Button
-                variant="outline"
+                variant="ghost"
+                size="icon"
                 onClick={() => {
                   setIsDepositOpen(false);
                   setDepositAmount("");
                   setPromoCode("");
                 }}
-                className="h-12 rounded-xl border-2"
+                className="w-8 h-8 rounded-full hover:bg-muted/50"
               >
-                {t.profile.cancel}
+                <span className="text-muted-foreground text-lg">×</span>
               </Button>
+            </div>
+            
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/30">
+                <Plus className="w-8 h-8 text-white" />
+              </div>
+              <DialogTitle className="text-foreground text-2xl font-bold mb-1">{t.profile.depositTitle}</DialogTitle>
+              <p className="text-muted-foreground text-sm">{language === 'ru' ? 'Мінімум 0.05 TON' : 'Minimum 0.05 TON'}</p>
+            </div>
+
+            <div className="space-y-5">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                <div className="relative bg-card/80 backdrop-blur-sm border border-green-500/30 rounded-2xl p-5 transition-all duration-300 group-hover:border-green-500/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {language === 'ru' ? 'Сума' : 'Amount'}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <img src={tonLogo} alt="TON" className="w-5 h-5 rounded-full" />
+                      <span className="text-xs font-semibold text-foreground">TON</span>
+                    </div>
+                  </div>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0.05"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="h-14 text-4xl font-bold text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                  />
+                </div>
+              </div>
+
+              <div className="relative">
+                <Input
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                  placeholder={language === 'ru' ? 'Промокод' : 'Promo code'}
+                  className="h-14 bg-card/50 backdrop-blur-sm border border-border/50 focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:border-green-500/50 rounded-2xl text-center uppercase font-medium tracking-wider placeholder:text-muted-foreground/50"
+                />
+                {promoCode.toUpperCase() === "GIFT" && (
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+                    +15% бонус
+                  </div>
+                )}
+              </div>
+
               <Button
                 onClick={handleDeposit}
-                className="h-12 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg"
+                className="w-full h-14 rounded-2xl bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 hover:from-green-700 hover:via-green-600 hover:to-emerald-600 shadow-lg shadow-green-500/30 text-white font-bold text-base transition-all duration-300 hover:shadow-xl hover:shadow-green-500/40 hover:scale-[1.02] active:scale-[0.98]"
               >
-                {wallet ? t.profile.confirm : (language === 'ru' ? 'Подключить' : 'Connect')}
+                {wallet ? t.profile.confirm : (language === 'ru' ? 'Підключити гаманець' : 'Connect Wallet')}
               </Button>
             </div>
           </div>
@@ -241,46 +251,61 @@ export default function TopHeader() {
       </Dialog>
 
       <Dialog open={isWithdrawOpen} onOpenChange={(open) => { if (open) setIsWithdrawOpen(true); }}>
-        <DialogContent className="bg-background border-0 rounded-3xl p-0 overflow-hidden max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="bg-gradient-to-br from-red-600 to-orange-600 px-6 pt-8 pb-6">
-            <DialogTitle className="text-white text-2xl font-bold mb-2">{t.profile.withdrawTitle}</DialogTitle>
-            <p className="text-white/80 text-sm">{language === 'ru' ? 'Доступно: ' : 'Available: '}{balance.toFixed(2)} TON</p>
-          </div>
-          
-          <div className="p-6 space-y-6">
-            <div>
-              <div className="relative">
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.05"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="h-16 text-3xl font-bold text-center border-0 bg-muted/30 focus-visible:ring-2 focus-visible:ring-red-500 rounded-2xl pr-16"
-                />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                  <img src={tonLogo} alt="TON" className="w-6 h-6 rounded-full" />
-                  <span className="text-sm font-medium text-muted-foreground">TON</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground text-center mt-2">{language === 'ru' ? 'Минимум 0.05 TON' : 'Minimum 0.05 TON'}</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
+        <DialogContent className="bg-gradient-to-b from-background to-muted/20 border border-red-500/20 rounded-[2rem] p-0 overflow-hidden max-w-sm shadow-2xl shadow-red-500/10" onInteractOutside={(e) => e.preventDefault()}>
+          <div className="relative px-8 pt-10 pb-8">
+            <div className="absolute top-6 right-6">
               <Button
-                variant="outline"
+                variant="ghost"
+                size="icon"
                 onClick={() => {
                   setIsWithdrawOpen(false);
                   setWithdrawAmount("");
                 }}
-                className="h-12 rounded-xl border-2"
+                className="w-8 h-8 rounded-full hover:bg-muted/50"
               >
-                {t.profile.cancel}
+                <span className="text-muted-foreground text-lg">×</span>
               </Button>
+            </div>
+            
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/30">
+                <Minus className="w-8 h-8 text-white" />
+              </div>
+              <DialogTitle className="text-foreground text-2xl font-bold mb-1">{t.profile.withdrawTitle}</DialogTitle>
+              <p className="text-muted-foreground text-sm">
+                {language === 'ru' ? 'Доступно: ' : 'Available: '}
+                <span className="font-semibold text-foreground">{balance.toFixed(2)} TON</span>
+              </p>
+            </div>
+
+            <div className="space-y-5">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                <div className="relative bg-card/80 backdrop-blur-sm border border-red-500/30 rounded-2xl p-5 transition-all duration-300 group-hover:border-red-500/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {language === 'ru' ? 'Сума' : 'Amount'}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <img src={tonLogo} alt="TON" className="w-5 h-5 rounded-full" />
+                      <span className="text-xs font-semibold text-foreground">TON</span>
+                    </div>
+                  </div>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0.05"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="h-14 text-4xl font-bold text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                  />
+                </div>
+              </div>
+
               <Button
                 onClick={handleWithdraw}
-                className="h-12 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 shadow-lg"
+                className="w-full h-14 rounded-2xl bg-gradient-to-r from-red-600 via-red-500 to-orange-500 hover:from-red-700 hover:via-red-600 hover:to-orange-600 shadow-lg shadow-red-500/30 text-white font-bold text-base transition-all duration-300 hover:shadow-xl hover:shadow-red-500/40 hover:scale-[1.02] active:scale-[0.98]"
               >
                 {t.profile.confirm}
               </Button>
