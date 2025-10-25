@@ -17,7 +17,7 @@ export default function CashbackBanner() {
 
   return (
     <div className="px-3 sm:px-4 pt-3 pb-2">
-      <div className="relative overflow-hidden rounded-xl h-[75px] bg-gradient-to-r from-cyan-400 to-blue-600">
+      <div className="relative overflow-hidden rounded-xl h-[115px]">
         <div
           className="flex h-full transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${currentBanner * 100}%)` }}
@@ -27,7 +27,7 @@ export default function CashbackBanner() {
               <img
                 src={banner}
                 alt={`Promotional banner ${index + 1}`}
-                className="w-full h-full object-contain rounded-xl"
+                className="w-full h-full object-cover rounded-xl"
               />
             </div>
           ))}
