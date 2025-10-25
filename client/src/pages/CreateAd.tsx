@@ -27,7 +27,6 @@ export default function CreateAd() {
   const [isGiftPickerOpen, setIsGiftPickerOpen] = useState(false);
   
   const [formData, setFormData] = useState({
-    channelName: "",
     telegramLink: "",
     price: "",
   });
@@ -78,7 +77,7 @@ export default function CreateAd() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.channelName || !formData.telegramLink || selectedGifts.length === 0 || !formData.price) {
+    if (!formData.telegramLink || selectedGifts.length === 0 || !formData.price) {
       toast({
         title: "Error",
         description: "Please fill all required fields and add at least one gift",
@@ -96,8 +95,13 @@ export default function CreateAd() {
       return;
     }
 
+    // Extract channel name from telegram link
+    const channelMatch = formData.telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
+    const channelName = channelMatch ? channelMatch[1] : "Unknown Channel";
+
     const submitData = {
       ...formData,
+      channelName,
       giftId: selectedGifts[0].giftId,
       gifts: JSON.stringify(selectedGifts),
     };
@@ -187,21 +191,26 @@ export default function CreateAd() {
         <h1 className="text-lg font-semibold">Create Channel</h1>
       </header>
 
-      <form onSubmit={handleSubmit} className="px-4 py-6 space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="channelName" className="text-sm font-medium text-foreground">
-            Channel Name *
-          </Label>
-          <Input
-            id="channelName"
-            value={formData.channelName}
-            onChange={(e) => setFormData({ ...formData, channelName: e.target.value })}
-            placeholder="e.g. Gift Shop"
-            className="bg-card border-card-border text-foreground"
-            data-testid="input-channel-name"
-          />
+      <div className="px-4 py-6">
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
+          <h3 className="text-sm font-semibold text-blue-400 mb-3">Важлива інформація для продажу каналу</h3>
+          <div className="space-y-2 text-xs text-blue-200/80">
+            <p className="font-medium">Перед додаванням каналу:</p>
+            <ol className="list-decimal list-inside space-y-1 ml-2">
+              <li>Додайте @LootGifts_bot в адміністратори каналу</li>
+              <li>Не видаляйте бота до кінця угоди!</li>
+            </ol>
+            <p className="font-medium mt-3">Переконайтеся що:</p>
+            <ul className="list-disc list-inside space-y-1 ml-2">
+              <li>Хмарний пароль увімкнений мінімум 7 днів тому</li>
+              <li>Сесія на пристрої активна не менше 24 годин</li>
+              <li>Подарунки не приховані!</li>
+            </ul>
+          </div>
         </div>
+      </div>
 
+      <form onSubmit={handleSubmit} className="px-4 space-y-6 pb-6">
         <div className="space-y-2">
           <Label htmlFor="telegramLink" className="text-sm font-medium text-foreground">
             Telegram Channel Link *
@@ -219,12 +228,12 @@ export default function CreateAd() {
               type="button"
               onClick={verifyTelegramChannel}
               disabled={telegramVerification.isVerifying}
-              className="px-4 bg-primary hover:bg-primary/90"
+              className="px-4 bg-primary hover:bg-primary/90 whitespace-nowrap"
             >
               {telegramVerification.isVerifying ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                "Verify"
+                "Перевірити"
               )}
             </Button>
           </div>

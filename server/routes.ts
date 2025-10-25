@@ -4,6 +4,9 @@ import { storage } from "./storage";
 import { insertChannelSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Telegram Bot API Token
+const BOT_TOKEN = "8240745182:AAE5sF_HosDMHafZbWgF5cgTPx4Oq_wh-_c";
+
 // Telegram verification functions
 async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
   try {
@@ -15,15 +18,34 @@ async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
     
     const channelUsername = channelMatch[1];
     
-    // In real implementation, you would use Telegram Bot API
-    // For now, we'll simulate a check
-    // You would use: https://api.telegram.org/bot<BOT_TOKEN>/getChat?chat_id=@channel_username
+    // Use Telegram Bot API to check if channel exists and bot is admin
+    const response = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/getChat?chat_id=@${channelUsername}`
+    );
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const data = await response.json();
     
-    // For demo purposes, accept most channels
-    return channelUsername.length > 0;
+    if (!data.ok) {
+      console.error('Telegram API error:', data.description);
+      return false;
+    }
+    
+    // Check if bot is an administrator
+    const adminsResponse = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/getChatAdministrators?chat_id=@${channelUsername}`
+    );
+    
+    const adminsData = await adminsResponse.json();
+    
+    if (!adminsData.ok) {
+      return false;
+    }
+    
+    // Check if our bot is in the administrators list
+    const botId = BOT_TOKEN.split(':')[0];
+    const isBotAdmin = adminsData.result.some((admin: any) => admin.user.id.toString() === botId);
+    
+    return isBotAdmin;
   } catch (error) {
     console.error('Error verifying Telegram channel:', error);
     return false;
@@ -32,17 +54,37 @@ async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
 
 async function checkGiftInChannel(telegramLink: string, giftName: string): Promise<boolean> {
   try {
-    // In real implementation, you would:
-    // 1. Use Telegram Bot API to get recent messages
-    // 2. Search for the gift name in message content
-    // 3. Check for images or media related to the gift
+    // Extract channel username from link
+    const channelMatch = telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
+    if (!channelMatch) {
+      return false;
+    }
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    const channelUsername = channelMatch[1];
     
-    // For demo purposes, simulate finding the gift 70% of the time
-    const random = Math.random();
-    return random > 0.3;
+    // Get recent messages from the channel
+    const response = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?chat_id=@${channelUsername}&limit=100`
+    );
+    
+    const data = await response.json();
+    
+    if (!data.ok) {
+      console.error('Failed to get channel messages:', data.description);
+      return false;
+    }
+    
+    // Search for gift name in recent messages
+    const messages = data.result || [];
+    const hasGift = messages.some((update: any) => {
+      const message = update.message || update.channel_post;
+      if (!message) return false;
+      
+      const text = message.text || message.caption || '';
+      return text.toLowerCase().includes(giftName.toLowerCase());
+    });
+    
+    return hasGift;
   } catch (error) {
     console.error('Error checking gift in channel:', error);
     return false;
