@@ -38,7 +38,7 @@ export default function FilterBar({ onGiftFilterChange }: FilterBarProps) {
       <div className="px-3 sm:px-4 py-2">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full flex items-center justify-between p-3.5 sm:p-4 bg-gradient-to-r from-slate-900/80 to-slate-800/80 border border-white/10 rounded-2xl hover:border-blue-500/30 hover:bg-slate-900/90 active:scale-[0.98] transition-all duration-300 shadow-lg hover:shadow-blue-500/10 backdrop-blur-sm"
+          className="w-full flex items-center justify-between p-3 sm:p-3.5 bg-card/50 border border-card-border rounded-xl hover:bg-card/80 active:scale-[0.98] transition-all duration-200"
           data-testid="button-select-filter"
         >
           <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
