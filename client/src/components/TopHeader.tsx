@@ -128,11 +128,11 @@ export default function TopHeader() {
             <Button
               size="sm"
               onClick={() => tonConnectUI.openModal()}
-              className="px-3 py-1.5 h-8 sm:h-9 rounded-full bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm gap-1.5"
+              className="px-3 py-2 h-9 rounded-full bg-blue-600 hover:bg-blue-700 text-sm font-semibold gap-1.5 shadow-lg"
               data-testid="button-connect-wallet"
             >
-              <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{language === 'ru' ? 'Подключить' : 'Connect'}</span>
+              <Wallet className="w-4 h-4" />
+              <span>{language === 'ru' ? 'Гаманець' : 'Wallet'}</span>
             </Button>
           ) : (
             <>
