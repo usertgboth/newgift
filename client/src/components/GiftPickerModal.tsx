@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -65,7 +64,7 @@ export default function GiftPickerModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(open) => { if (!open) return; handleCancel(); }}>
       <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] p-0 bg-card border-card-border rounded-2xl mx-4">
         <DialogHeader className="px-4 sm:px-6 pt-5 sm:pt-6 pb-3 sm:pb-4 border-b border-border">
           <div className="flex items-center justify-between">

@@ -173,8 +173,8 @@ export default function TopHeader() {
         </div>
       </header>
 
-      <Dialog open={isDepositOpen} onOpenChange={setIsDepositOpen}>
-        <DialogContent className="bg-background border-0 rounded-3xl p-0 overflow-hidden max-w-sm">
+      <Dialog open={isDepositOpen} onOpenChange={(open) => { if (open) setIsDepositOpen(true); }}>
+        <DialogContent className="bg-background border-0 rounded-3xl p-0 overflow-hidden max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
           <div className="bg-gradient-to-br from-green-600 to-emerald-600 px-6 pt-8 pb-6">
             <DialogTitle className="text-white text-2xl font-bold mb-2">{t.profile.depositTitle}</DialogTitle>
             <p className="text-white/80 text-sm">{language === 'ru' ? 'Пополните баланс' : 'Add funds to balance'}</p>
@@ -240,8 +240,8 @@ export default function TopHeader() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
-        <DialogContent className="bg-background border-0 rounded-3xl p-0 overflow-hidden max-w-sm">
+      <Dialog open={isWithdrawOpen} onOpenChange={(open) => { if (open) setIsWithdrawOpen(true); }}>
+        <DialogContent className="bg-background border-0 rounded-3xl p-0 overflow-hidden max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
           <div className="bg-gradient-to-br from-red-600 to-orange-600 px-6 pt-8 pb-6">
             <DialogTitle className="text-white text-2xl font-bold mb-2">{t.profile.withdrawTitle}</DialogTitle>
             <p className="text-white/80 text-sm">{language === 'ru' ? 'Доступно: ' : 'Available: '}{balance.toFixed(2)} TON</p>
