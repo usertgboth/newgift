@@ -298,7 +298,7 @@ export default function TopHeader() {
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                     placeholder="0.00"
-                    className="h-14 text-4xl font-bold text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                    className="h-14 text-3xl sm:text-4xl font-bold text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-0"
                   />
                 </div>
               </div>
