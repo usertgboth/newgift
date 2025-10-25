@@ -22,7 +22,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50 safe-area-bottom">
-      <div className="flex items-center justify-around h-16 sm:h-20 px-1 sm:px-2 pb-1 sm:pb-2">
+      <div className="flex items-center justify-around h-24 sm:h-28 px-1 sm:px-2 pb-2 sm:pb-3">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -31,18 +31,18 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
             <button
               key={item.id}
               onClick={() => handleClick(item.id)}
-              className={`flex flex-col items-center justify-center gap-1 sm:gap-2 flex-1 h-full transition-all duration-200 rounded-lg mx-0.5 sm:mx-1 ${
+              className={`flex flex-col items-center justify-center gap-2 sm:gap-3 flex-1 h-full transition-all duration-200 rounded-lg mx-0.5 sm:mx-1 ${
                 isActive ? "bg-primary/10" : "hover:bg-muted/50"
               }`}
               data-testid={`button-nav-${item.id}`}
             >
               <Icon
-                className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors ${
+                className={`w-8 h-8 sm:w-9 sm:h-9 transition-colors ${
                   isActive ? "text-primary" : "text-muted-foreground"
                 }`}
               />
               <span
-                className={`text-[10px] sm:text-[11px] font-medium transition-colors ${
+                className={`text-xs sm:text-sm font-medium transition-colors ${
                   isActive ? "text-primary" : "text-muted-foreground"
                 }`}
               >
