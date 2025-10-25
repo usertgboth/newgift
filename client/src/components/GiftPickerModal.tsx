@@ -93,7 +93,7 @@ export default function GiftPickerModal({
         </DialogHeader>
 
         <div className="px-4 sm:px-6 py-3 sm:py-4">
-          <div className="relative">
+          <div className="relative bg-muted/50 border border-border rounded-xl hover:bg-muted/80 transition-all duration-200">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/60 pointer-events-none z-10" />
             <input
               type="text"
@@ -101,7 +101,7 @@ export default function GiftPickerModal({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t.giftPicker.searchPlaceholder}
-              className="w-full h-11 sm:h-12 pl-10 sm:pl-12 pr-3 sm:pr-4 text-sm sm:text-base bg-muted/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 focus:bg-muted/80 transition-all duration-200 appearance-none"
+              className="w-full h-11 sm:h-12 pl-10 sm:pl-12 pr-3 sm:pr-4 text-sm sm:text-base bg-transparent text-foreground placeholder:text-muted-foreground/70 focus:outline-none appearance-none"
             />
           </div>
         </div>
