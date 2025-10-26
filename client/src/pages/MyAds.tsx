@@ -8,6 +8,10 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import tonLogo from "@assets/toncoin_1760893904370.png";
+import SellerNotification from '@/components/SellerNotification';
+import { useState, useEffect } from 'react';
+import type { User, Purchase } from '@shared/schema';
+
 interface Channel {
   id: string;
   channelName: string;
@@ -23,10 +27,50 @@ export default function MyAds() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const telegramUser = useTelegramUser();
+  const [activePurchase, setActivePurchase] = useState<Purchase | null>(null);
 
-  const { data: channels, isLoading } = useQuery<Channel[]>({
+  // Fetch user data to enable conditional query for purchases
+  const { data: user } = useQuery<User>({
+    queryKey: ["/api/user/me"],
+  });
+
+  const { data: channels = [] } = useQuery<Array<{
+    id: string;
+    channelName: string;
+    telegramLink: string;
+    price: string;
+    giftId: string;
+    giftName: string;
+    giftImage: string;
+    ownerId: string | null;
+    parsedGifts: any[];
+  }>>({
     queryKey: ["/api/channels"],
   });
+
+  // Fetch purchases only if user data is available
+  const { data: purchases = [] } = useQuery<Purchase[]>({
+    queryKey: ['/api/purchases/seller', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const res = await fetch(`/api/purchases/seller/${user.id}`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!user?.id,
+    refetchInterval: 5000, // Poll every 5 seconds
+  });
+
+  useEffect(() => {
+    // Find purchases with buyerNotifiedAt set and sellerConfirmed not set
+    const notifiedPurchase = purchases.find(p =>
+      p.buyerNotifiedAt && !p.sellerConfirmed
+    );
+    if (notifiedPurchase) {
+      setActivePurchase(notifiedPurchase);
+    }
+  }, [purchases]);
 
   const deleteChannelMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -57,7 +101,18 @@ export default function MyAds() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
-      
+
+      {activePurchase && activePurchase.sellerCountdownExpiresAt && (
+        <SellerNotification
+          open={true}
+          onClose={() => setActivePurchase(null)}
+          purchaseId={activePurchase.id}
+          buyerUsername="anykaj" // This should ideally come from purchase data
+          channelName={channels.find(c => c.id === activePurchase.channelId)?.channelName || ''}
+          expiresAt={new Date(activePurchase.sellerCountdownExpiresAt)}
+        />
+      )}
+
       <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between px-4 py-4 border-b border-border">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
@@ -91,7 +146,7 @@ export default function MyAds() {
               <div className="w-24 h-24 rounded-2xl bg-card border border-card-border flex items-center justify-center">
                 <Layers3 className="w-12 h-12 text-muted-foreground" />
               </div>
-              
+
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold text-foreground" data-testid="text-empty-title">
                   {t.myAds.noChannels}

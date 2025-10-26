@@ -68,33 +68,43 @@ export default function ChannelDetailsModal({
 
   const purchaseMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest(
-        'POST',
-        '/api/purchases',
-        {
-          buyerId: user?.id,
-          sellerId: currentChannel?.ownerId || null,
-          channelId: currentChannel?.id,
-          giftId: currentChannel?.giftId,
+      if (!user?.id || !currentChannel?.id) {
+        throw new Error('Missing user or channel data');
+      }
+
+      const res = await fetch('/api/purchases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          buyerId: user.id,
+          sellerId: currentChannel.ownerId,
+          channelId: currentChannel.id,
+          giftId: currentChannel.giftId,
           price: price,
-        }
-      );
-      return await response.json();
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to create purchase');
+      }
+
+      return res.json();
     },
-    onSuccess: (data: any) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+    onSuccess: () => {
       toast({
-        title: language === 'ru' ? "Успешно!" : "Success!",
-        description: language === 'ru' ? "Покупка успешно завершена" : "Purchase completed successfully",
+        title: language === 'ru' ? 'Ошибка' : 'Error',
+        description: language === 'ru' ? 'Произошла ошибка при обработке покупки' : 'An error occurred while processing the purchase',
+        variant: 'destructive',
       });
       setShowConfirmDialog(false);
       onClose();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
-        title: t.toast.error,
-        description: error.message || (language === 'ru' ? "Ошибка покупки" : "Purchase failed"),
-        variant: "destructive",
+        title: language === 'ru' ? 'Ошибка' : 'Error',
+        description: error.message,
+        variant: 'destructive',
       });
       setShowConfirmDialog(false);
     },
@@ -252,14 +262,14 @@ export default function ChannelDetailsModal({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel data-testid="button-cancel-purchase">
-              {language === 'ru' ? 'Отмена' : 'Cancel'}
+              {language === 'ru' ? 'Нет' : 'No'}
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmPurchase} 
               disabled={purchaseMutation.isPending}
               data-testid="button-confirm-purchase"
             >
-              {language === 'ru' ? 'Подтвердить' : 'Confirm'}
+              {language === 'ru' ? 'Да' : 'Yes'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
