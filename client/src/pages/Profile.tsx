@@ -92,14 +92,18 @@ export default function Profile() {
         });
         return;
       }
-    } else if (amount < 1) {
-      // Only check minimum amount if not using admin promo code
-      toast({
-        title: t.toast.error,
-        description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
-        variant: "destructive",
-      });
-      return;
+      
+      // Admin promo code path - skip regular deposit logic
+    } else {
+      // Regular deposit - check minimum amount
+      if (amount < 1) {
+        toast({
+          title: t.toast.error,
+          description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     try {
