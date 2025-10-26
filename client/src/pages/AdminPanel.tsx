@@ -23,12 +23,7 @@ export default function AdminPanel() {
     queryKey: ['/api/admin/users'],
     enabled: isAdmin,
     queryFn: async () => {
-      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-      const telegramId = telegramUser?.id?.toString() || '';
-      
-      const res = await apiRequest('GET', '/api/admin/users', undefined, {
-        'x-telegram-id': telegramId
-      });
+      const res = await apiRequest('GET', '/api/admin/users');
       return res.json();
     },
   });
@@ -40,12 +35,7 @@ export default function AdminPanel() {
 
   const updateBalanceMutation = useMutation({
     mutationFn: async ({ userId: targetUserId, amount }: { userId: string; amount: number }) => {
-      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-      const telegramId = telegramUser?.id?.toString() || '';
-      
-      await apiRequest('PATCH', `/api/admin/users/${targetUserId}/balance`, { amount }, {
-        'x-telegram-id': telegramId
-      });
+      await apiRequest('PATCH', `/api/admin/users/${targetUserId}/balance`, { amount });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
@@ -66,12 +56,7 @@ export default function AdminPanel() {
 
   const deleteChannelMutation = useMutation({
     mutationFn: async (channelId: string) => {
-      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-      const telegramId = telegramUser?.id?.toString() || '';
-      
-      await apiRequest('DELETE', `/api/admin/channels/${channelId}`, undefined, {
-        'x-telegram-id': telegramId
-      });
+      await apiRequest('DELETE', `/api/admin/channels/${channelId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/channels'] });

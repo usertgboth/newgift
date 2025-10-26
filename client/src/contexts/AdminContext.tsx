@@ -21,14 +21,9 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     enabled: adminActivated,
     retry: false,
     queryFn: async () => {
-      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-      const telegramId = telegramUser?.id?.toString() || '';
+      console.log('AdminContext checking admin status');
       
-      console.log('AdminContext checking with telegramId:', telegramId);
-      
-      const res = await apiRequest('GET', '/api/admin/me', undefined, {
-        'x-telegram-id': telegramId
-      });
+      const res = await apiRequest('GET', '/api/admin/me');
       const data = await res.json();
       console.log('Admin status response:', data);
       return data;
