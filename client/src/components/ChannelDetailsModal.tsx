@@ -48,6 +48,15 @@ export default function ChannelDetailsModal({
 
   const { data: user } = useQuery<User>({
     queryKey: ['/api/users', telegramUser.user?.id, 'profile'],
+    queryFn: async () => {
+      if (!telegramUser.user?.id) return null;
+      const res = await fetch(`/api/users/${telegramUser.user.id}/profile`);
+      if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error('Failed to fetch user');
+      }
+      return res.json();
+    },
     enabled: !!telegramUser.user?.id,
   });
 
