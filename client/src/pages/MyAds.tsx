@@ -7,6 +7,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTelegramUser } from "@/hooks/use-telegram-user";
 import tonLogo from "@assets/toncoin_1760893904370.png";
 import SellerNotification from '@/components/SellerNotification';
 import { useState, useEffect } from 'react';
@@ -35,7 +36,7 @@ export default function MyAds() {
     queryKey: ["/api/user/me"],
   });
 
-  const { data: channels = [] } = useQuery<Array<{
+  const { data: channels = [], isLoading } = useQuery<Array<{
     id: string;
     channelName: string;
     telegramLink: string;

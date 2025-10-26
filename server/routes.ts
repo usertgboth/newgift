@@ -593,11 +593,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Purchase not found" });
       }
 
-      if (purchase.status === "transfer_completed" && purchase.sellerId) {
-        const price = parseFloat(purchase.price);
-        await storage.updateUserBalanceById(purchase.sellerId, price);
-      }
-
       res.json(purchase);
     } catch (error) {
       res.status(500).json({ error: "Failed to confirm transfer" });
