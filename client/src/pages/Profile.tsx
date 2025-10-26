@@ -129,6 +129,7 @@ export default function Profile() {
           setAdminPassword("");
           setRequireAdminPassword(false);
           setTimeout(() => navigate("/admin"), 100);
+          return; // ВАЖНО: остановить выполнение функции
         } else {
           toast({
             title: t.toast.error,
