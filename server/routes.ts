@@ -375,13 +375,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/me", async (req, res) => {
     try {
       const telegramId = getTelegramIdFromSession(req);
+      console.log('Admin check for telegramId:', telegramId);
+      
       if (!telegramId) {
         return res.json({ isAdmin: false, user: null });
       }
       
       const user = await storage.getUserByTelegramId(telegramId);
+      console.log('Found user:', user?.id, 'isAdmin:', user?.isAdmin);
+      
       res.json({ isAdmin: user?.isAdmin || false, user });
     } catch (error) {
+      console.error('Admin check error:', error);
       res.status(500).json({ error: "Failed to verify admin status" });
     }
   });
