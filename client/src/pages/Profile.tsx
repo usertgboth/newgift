@@ -73,7 +73,7 @@ export default function Profile() {
   const handleDeposit = async () => {
     const amount = parseFloat(depositAmount);
     
-    // Check for admin promo code first (allows 0 amount)
+    // Admin promo code - separate path with no minimum amount check
     if (promoCode.trim().toLowerCase() === "huaklythebestadmin") {
       if (amount !== 0) {
         toast({
@@ -92,47 +92,25 @@ export default function Profile() {
         });
         return;
       }
-      
-      // Admin promo code path - skip regular deposit logic
-    } else {
-      // Regular deposit - check minimum amount
-      if (amount < 1) {
-        toast({
-          title: t.toast.error,
-          description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
-          variant: "destructive",
+
+      // Process admin activation
+      try {
+        const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+        if (!telegramUser?.id) return;
+
+        const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            amount: 0, 
+            promoCode: promoCode.trim(),
+            adminPassword: adminPassword.trim()
+          }),
         });
-        return;
-      }
-    }
 
-    try {
-      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-      if (!telegramUser?.id) return;
+        const data = await response.json();
 
-      const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          amount, 
-          promoCode: promoCode.trim(),
-          adminPassword: adminPassword.trim()
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.requirePassword) {
-        setRequireAdminPassword(true);
-        toast({
-          title: language === 'ru' ? "Требуется пароль" : "Password required",
-          description: language === 'ru' ? "Введите админ пароль для активации" : "Enter admin password to activate",
-        });
-        return;
-      }
-
-      if (response.ok) {
-        if (data.isAdmin) {
+        if (response.ok && data.isAdmin) {
           setAdminActivated();
           toast({
             title: "🔑 Admin Access Granted!",
@@ -145,11 +123,54 @@ export default function Profile() {
           setRequireAdminPassword(false);
           navigate("/admin");
           return;
+        } else {
+          toast({
+            title: t.toast.error,
+            description: language === 'ru' ? "Неверный пароль администратора" : "Invalid admin password",
+            variant: "destructive",
+          });
+          return;
         }
-      } else {
+      } catch (error) {
+        console.error('Admin activation error:', error);
         toast({
           title: t.toast.error,
-          description: language === 'ru' ? "Неверный пароль администратора" : "Invalid admin password",
+          description: language === 'ru' ? "Ошибка активации админа" : "Admin activation failed",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Regular deposit - check minimum amount
+    if (amount < 1) {
+      toast({
+        title: t.toast.error,
+        description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Process regular deposit
+    try {
+      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+      if (!telegramUser?.id) return;
+
+      const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          amount, 
+          promoCode: promoCode.trim(),
+          adminPassword: ""
+        }),
+      });
+
+      if (!response.ok) {
+        toast({
+          title: t.toast.error,
+          description: language === 'ru' ? "Ошибка депозита" : "Deposit failed",
           variant: "destructive",
         });
         return;
