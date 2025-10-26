@@ -32,6 +32,7 @@ export interface IStorage {
   getPurchaseById(id: string): Promise<Purchase | undefined>;
   getPurchasesByChannel(channelId: string): Promise<Purchase[]>;
   getPurchasesBySeller(sellerId: string): Promise<Purchase[]>;
+  getPurchasesByBuyer(buyerId: string): Promise<Purchase[]>;
   updatePurchase(id: string, updates: Partial<Purchase>): Promise<Purchase | undefined>;
   updatePurchaseStatus(id: string, status: string): Promise<Purchase | undefined>;
   confirmPurchaseBuyer(id: string): Promise<Purchase | undefined>;
@@ -366,6 +367,12 @@ export class MemStorage implements IStorage {
   async getPurchasesBySeller(sellerId: string): Promise<Purchase[]> {
     return Array.from(this.purchases.values()).filter(
       (purchase) => purchase.sellerId === sellerId
+    );
+  }
+
+  async getPurchasesByBuyer(buyerId: string): Promise<Purchase[]> {
+    return Array.from(this.purchases.values()).filter(
+      (purchase) => purchase.buyerId === buyerId
     );
   }
 

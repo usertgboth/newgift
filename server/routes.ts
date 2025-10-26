@@ -573,6 +573,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/purchases/buyer/:buyerId", async (req, res) => {
+    try {
+      const purchases = await storage.getPurchasesByBuyer(req.params.buyerId);
+      res.json(purchases);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch buyer purchases" });
+    }
+  });
+
   app.post("/api/purchases/:id/confirm-buyer", async (req, res) => {
     try {
       const purchase = await storage.confirmPurchaseBuyer(req.params.id);
