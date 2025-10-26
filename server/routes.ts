@@ -477,6 +477,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.updatePurchase(purchase.id, { buyerDebitTxCompleted: true });
 
+      // Schedule buyer notification after 1 minute
+      setTimeout(async () => {
+        try {
+          const now = new Date();
+          const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000); // 6 hours from now
+          await storage.updatePurchase(purchase.id, {
+            buyerNotifiedAt: now,
+            sellerCountdownExpiresAt: expiresAt
+          });
+          console.log(`Buyer notified for purchase ${purchase.id}`);
+        } catch (error) {
+          console.error('Error updating purchase notification:', error);
+        }
+      }, 60000); // 1 minute
+
       res.status(201).json(purchase);
     } catch (error) {
       if (error instanceof z.ZodError) {
