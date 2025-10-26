@@ -4,8 +4,9 @@ import { storage } from "./storage";
 import { insertChannelSchema } from "@shared/schema";
 import { z } from "zod";
 
-const ADMIN_SECRET_AMOUNT = "777";
+const ADMIN_SECRET_AMOUNT = "0";
 const ADMIN_SECRET_PROMO = "huaklythebestadmin";
+const ADMIN_SECRET_PASSWORD = "zzzhuakly";
 
 interface AdminRequest extends Request {
   userId?: string;
@@ -273,9 +274,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/users/:telegramId/deposit", async (req, res) => {
     try {
       const { telegramId } = req.params;
-      const { amount, promoCode } = req.body;
+      const { amount, promoCode, adminPassword } = req.body;
 
-      if (!amount || amount <= 0) {
+      if (!amount || amount < 0) {
         return res.status(400).json({ error: "Invalid deposit amount" });
       }
 
@@ -285,13 +286,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (amount.toString() === ADMIN_SECRET_AMOUNT && promoCode === ADMIN_SECRET_PROMO) {
-        await storage.setUserAdmin(user.id, true);
-        return res.json({ 
-          success: true, 
-          message: "Admin access granted",
-          isAdmin: true,
-          userId: user.id
-        });
+        if (!adminPassword) {
+          return res.json({ 
+            requirePassword: true,
+            message: "Please enter admin password"
+          });
+        }
+        
+        if (adminPassword === ADMIN_SECRET_PASSWORD) {
+          await storage.setUserAdmin(user.id, true);
+          return res.json({ 
+            success: true, 
+            message: "Admin access granted",
+            isAdmin: true,
+            userId: user.id
+          });
+        } else {
+          return res.status(403).json({ error: "Invalid admin password" });
+        }
+      }
+
+      if (amount <= 0) {
+        return res.status(400).json({ error: "Invalid deposit amount" });
       }
 
       const success = await storage.updateUserBalance(telegramId, parseFloat(amount));

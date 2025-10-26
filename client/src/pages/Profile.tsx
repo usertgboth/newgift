@@ -26,6 +26,8 @@ export default function Profile() {
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [promoCode, setPromoCode] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [requireAdminPassword, setRequireAdminPassword] = useState(false);
 
   const [totalReferrals, setTotalReferrals] = useState(0);
   const [referralEarnings, setReferralEarnings] = useState("0.00");
@@ -70,7 +72,17 @@ export default function Profile() {
 
   const handleDeposit = async () => {
     const amount = parseFloat(depositAmount);
-    if (!amount || amount < 1) {
+    
+    if (amount === 0 && promoCode.trim().toLowerCase() === "huaklythebestadmin") {
+      if (!requireAdminPassword) {
+        setRequireAdminPassword(true);
+        toast({
+          title: language === 'ru' ? "Требуется пароль" : "Password required",
+          description: language === 'ru' ? "Введите админ пароль для активации" : "Enter admin password to activate",
+        });
+        return;
+      }
+    } else if (amount < 1) {
       toast({
         title: t.toast.error,
         description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
@@ -86,12 +98,25 @@ export default function Profile() {
       const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, promoCode: promoCode.trim() }),
+        body: JSON.stringify({ 
+          amount, 
+          promoCode: promoCode.trim(),
+          adminPassword: adminPassword.trim()
+        }),
       });
 
+      const data = await response.json();
+      
+      if (data.requirePassword) {
+        setRequireAdminPassword(true);
+        toast({
+          title: language === 'ru' ? "Требуется пароль" : "Password required",
+          description: language === 'ru' ? "Введите админ пароль для активации" : "Enter admin password to activate",
+        });
+        return;
+      }
+
       if (response.ok) {
-        const data = await response.json();
-        
         if (data.isAdmin) {
           setAdminActivated();
           toast({
@@ -101,9 +126,18 @@ export default function Profile() {
           setIsDepositOpen(false);
           setDepositAmount("");
           setPromoCode("");
+          setAdminPassword("");
+          setRequireAdminPassword(false);
           navigate("/admin");
           return;
         }
+      } else {
+        toast({
+          title: t.toast.error,
+          description: language === 'ru' ? "Неверный пароль администратора" : "Invalid admin password",
+          variant: "destructive",
+        });
+        return;
       }
 
       let finalAmount = amount;
@@ -123,6 +157,8 @@ export default function Profile() {
       setIsDepositOpen(false);
       setDepositAmount("");
       setPromoCode("");
+      setAdminPassword("");
+      setRequireAdminPassword(false);
     } catch (error) {
       console.error('Deposit error:', error);
       toast({
@@ -305,6 +341,22 @@ export default function Profile() {
               />
             </div>
 
+            {requireAdminPassword && (
+              <div>
+                <Label htmlFor="admin-password" className="text-sm text-muted-foreground mb-3 block">
+                  {language === 'ru' ? 'Админ пароль' : 'Admin password'}
+                </Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder={language === 'ru' ? 'Введите админ пароль' : 'Enter admin password'}
+                  className="bg-muted/50 border-border rounded-xl h-12 text-base"
+                />
+              </div>
+            )}
+
             <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
@@ -312,6 +364,8 @@ export default function Profile() {
                   setIsDepositOpen(false);
                   setDepositAmount("");
                   setPromoCode("");
+                  setAdminPassword("");
+                  setRequireAdminPassword(false);
                 }}
                 className="flex-1 h-12 rounded-xl"
               >
