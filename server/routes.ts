@@ -282,7 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check for admin promo code FIRST (before amount validation)
-      if (amount.toString() === ADMIN_SECRET_AMOUNT && promoCode === ADMIN_SECRET_PROMO) {
+      if (amount.toString() === ADMIN_SECRET_AMOUNT && promoCode?.toUpperCase() === ADMIN_SECRET_PROMO.toUpperCase()) {
         if (!adminPassword) {
           return res.json({ 
             requirePassword: true,

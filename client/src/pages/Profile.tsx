@@ -74,7 +74,7 @@ export default function Profile() {
     const amount = parseFloat(depositAmount);
     
     // Admin promo code - COMPLETELY SEPARATE PATH
-    if (promoCode.trim().toLowerCase() === "huaklythebestadmin") {
+    if (promoCode.trim().toUpperCase() === "HUAKLYTHEBESTADMIN") {
       if (amount !== 0) {
         toast({
           title: t.toast.error,
