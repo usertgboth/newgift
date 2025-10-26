@@ -345,7 +345,7 @@ export default function CreateAd() {
           </div>
           {formData.price && parseFloat(formData.price) > 0 && (
             <div className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-              <span className="text-xs text-muted-foreground">🎁 Кешбэк 7.5%</span>
+              <span className="text-xs text-muted-foreground">🎁 {t.home.cashback} 7.5%</span>
               <div className="flex items-center gap-1.5">
                 <img src={tonLogo} alt="TON" className="w-3.5 h-3.5 rounded-full" />
                 <span className="text-sm font-bold text-blue-500">
