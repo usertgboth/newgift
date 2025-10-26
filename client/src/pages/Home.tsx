@@ -46,12 +46,26 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground telegram-mini-app pb-20 sm:pb-24">
+    <div className="h-screen bg-background text-foreground telegram-mini-app flex flex-col overflow-hidden">
       <TopHeader />
       <CashbackBanner />
-      <FilterBar onGiftFilterChange={setGiftFilter} />
-      <SearchBar onSearchChange={setSearchQuery} onSortChange={setSortOption} />
-      <NFTGrid searchQuery={searchQuery} giftFilter={giftFilter} sortOption={sortOption} />
+      <FilterBar
+        selectedGifts={giftFilter}
+        onGiftChange={setGiftFilter}
+      />
+      <SearchBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        sortOption={sortOption}
+        onSortChange={setSortOption}
+      />
+      <div className="flex-1 overflow-y-auto pb-20 sm:pb-24">
+        <NFTGrid
+          searchQuery={searchQuery}
+          giftFilter={giftFilter}
+          sortOption={sortOption}
+        />
+      </div>
       <BottomNav activeTab={currentPage} onTabChange={setCurrentPage} />
     </div>
   );

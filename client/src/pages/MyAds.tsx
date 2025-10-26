@@ -60,16 +60,18 @@ export default function MyAds() {
       return res.json();
     },
     enabled: !!user?.id,
-    refetchInterval: 5000, // Poll every 5 seconds
+    refetchInterval: 3000, // Poll every 3 seconds
   });
 
   useEffect(() => {
-    // Find purchases with buyerNotifiedAt set and sellerConfirmed not set
+    // Find purchases where seller needs to be notified
     const notifiedPurchase = purchases.find(p =>
-      p.buyerNotifiedAt && !p.sellerConfirmed
+      p.sellerNotifiedAt && !p.sellerConfirmed
     );
     if (notifiedPurchase) {
       setActivePurchase(notifiedPurchase);
+    } else {
+      setActivePurchase(null);
     }
   }, [purchases]);
 
@@ -100,7 +102,7 @@ export default function MyAds() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
       <TopHeader />
 
       {activePurchase && activePurchase.sellerCountdownExpiresAt && (
@@ -114,8 +116,8 @@ export default function MyAds() {
         />
       )}
 
-      <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-border flex-shrink-0">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
             {t.myAds.title}
           </h1>
@@ -130,7 +132,7 @@ export default function MyAds() {
         </div>
 
         {isLoading ? (
-          <div className="px-4 py-6">
+          <div className="px-4 py-6 overflow-y-auto flex-1">
             <div className="grid grid-cols-2 gap-3">
               {[1, 2].map((i) => (
                 <div key={i} className="rounded-2xl p-3 bg-card animate-pulse">
@@ -142,7 +144,7 @@ export default function MyAds() {
             </div>
           </div>
         ) : !channels || channels.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
+          <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 pb-24">
             <div className="flex flex-col items-center text-center space-y-6">
               <div className="w-24 h-24 rounded-2xl bg-card border border-card-border flex items-center justify-center">
                 <Layers3 className="w-12 h-12 text-muted-foreground" />
@@ -160,7 +162,7 @@ export default function MyAds() {
             </div>
           </div>
         ) : (
-          <div className="px-4 py-6 pb-24">
+          <div className="px-4 py-6 pb-24 overflow-y-auto flex-1">
             <div className="grid grid-cols-2 gap-3">
               {channels.map((channel) => {
                 return (

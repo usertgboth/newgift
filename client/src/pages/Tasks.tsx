@@ -58,7 +58,7 @@ export default function Tasks() {
       setActivePurchase(notifiedPurchase);
     }
   }, [purchases]);
-  
+
   const mockTasks: Task[] = [
     {
       id: "1",
@@ -96,14 +96,14 @@ export default function Tasks() {
       completed: false,
     },
   ];
-  
+
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
 
   const handleClaimReward = (taskId: string) => {
     setTasks(tasks.map(task => 
       task.id === taskId ? { ...task, completed: true } : task
     ));
-    
+
     const task = tasks.find(t => t.id === taskId);
     if (task) {
       toast({
@@ -119,7 +119,7 @@ export default function Tasks() {
   const currentChannel = activePurchase ? channels.find(c => c.id === activePurchase.channelId) : null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
       <TopHeader />
 
       {activePurchase && activePurchase.sellerCountdownExpiresAt && currentChannel && (
@@ -134,35 +134,37 @@ export default function Tasks() {
           price={currentChannel.price}
         />
       )}
-      
-      <div className="px-4 py-6 pb-24">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
-            {t.tasks.title}
-          </h1>
-          <div className="text-sm text-muted-foreground" data-testid="text-progress">
-            {completedCount} / {tasks.length}
-          </div>
-        </div>
 
-        <div className="bg-card border border-card-border rounded-2xl p-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Gift className="w-6 h-6 text-primary" />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="px-4 py-4 border-b border-border flex-shrink-0">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
+              {t.tasks.title}
+            </h1>
+            <div className="text-sm text-muted-foreground" data-testid="text-progress">
+              {completedCount} / {tasks.length}
             </div>
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground">{t.tasks.totalEarned}</p>
-              <div className="flex items-center gap-1.5 mt-1">
-                <img src={tonLogo} alt="TON" className="w-4 h-4 rounded-full object-cover" />
-                <span className="text-lg font-semibold text-foreground" data-testid="text-total-reward">
-                  {totalReward.toFixed(2)} TON
-                </span>
+          </div>
+
+          <div className="bg-card border border-card-border rounded-2xl p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Gift className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">{t.tasks.totalEarned}</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <img src={tonLogo} alt="TON" className="w-4 h-4 rounded-full object-cover" />
+                  <span className="text-lg font-semibold text-foreground" data-testid="text-total-reward">
+                    {totalReward.toFixed(2)} TON
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="px-4 py-6 space-y-4 pb-24 overflow-y-auto flex-1">
           {tasks.map((task) => (
             <div
               key={task.id}
@@ -179,7 +181,7 @@ export default function Tasks() {
                     <Circle className="w-5 h-5 text-muted-foreground" />
                   )}
                 </div>
-                
+
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground mb-1" data-testid={`text-task-title-${task.id}`}>
                     {(t.tasks[task.titleKey] as any).title}
@@ -187,7 +189,7 @@ export default function Tasks() {
                   <p className="text-sm text-muted-foreground mb-3">
                     {(t.tasks[task.titleKey] as any).description}
                   </p>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-full">
                       <img src={tonLogo} alt="TON" className="w-3.5 h-3.5 rounded-full object-cover" />
@@ -195,7 +197,7 @@ export default function Tasks() {
                         +{task.reward} TON
                       </span>
                     </div>
-                    
+
                     {!task.completed && (
                       <Button
                         size="sm"
