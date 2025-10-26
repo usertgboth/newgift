@@ -84,9 +84,8 @@ export default function ChannelDetailsModal({
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
       toast({
-        title: language === 'ru' ? "Ошибка" : "Error",
-        description: data.error || (language === 'ru' ? "Временная ошибка обработки платежа. Деньги списаны." : "Temporary payment processing error. Money debited."),
-        variant: "destructive",
+        title: language === 'ru' ? "Успешно!" : "Success!",
+        description: language === 'ru' ? "Покупка успешно завершена" : "Purchase completed successfully",
       });
       setShowConfirmDialog(false);
       onClose();

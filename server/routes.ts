@@ -477,10 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.updatePurchase(purchase.id, { buyerDebitTxCompleted: true });
 
-      res.status(201).json({ 
-        ...purchase, 
-        error: "Временная ошибка обработки платежа. Деньги списаны." 
-      });
+      res.status(201).json(purchase);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: "Invalid purchase data", details: error.errors });
