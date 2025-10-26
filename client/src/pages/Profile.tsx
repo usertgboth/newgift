@@ -145,7 +145,9 @@ export default function Profile() {
           variant: "destructive",
         });
       }
-      return; // STOP HERE - don't continue to regular deposit logic
+      
+      // ВАЖНО: полностью остановить функцию здесь
+      return;
     }
     
     // REGULAR DEPOSIT PATH - only if NOT admin promo code
