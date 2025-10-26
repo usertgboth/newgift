@@ -48,9 +48,10 @@ export const translations = {
     },
     myAds: {
       title: 'My Channels',
-      noChannels: 'No Channels',
-      createFirst: 'Create your first channel',
-      deleteConfirm: (name: string) => `Delete channel "${name}"?`,
+      noChannels: 'No active listings',
+      createFirst: 'Create your first ad to start selling',
+      deleteConfirm: (name: string) => `Delete listing "${name}"?`,
+      adActive: "Your ad is now active!",
     },
     tasks: {
       title: 'Tasks',
@@ -186,9 +187,10 @@ export const translations = {
     },
     myAds: {
       title: 'Мои каналы',
-      noChannels: 'Нет каналов',
-      createFirst: 'Создайте свой первый канал',
-      deleteConfirm: (name: string) => `Удалить канал "${name}"?`,
+      noChannels: 'Нет активных объявлений',
+      createFirst: 'Создайте первое объявление, чтобы начать продавать',
+      deleteConfirm: (name: string) => `Удалить объявление "${name}"?`,
+      adActive: "Ваше объявление активно!",
     },
     tasks: {
       title: 'Задания',

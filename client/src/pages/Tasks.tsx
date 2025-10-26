@@ -119,7 +119,7 @@ export default function Tasks() {
   const currentChannel = activePurchase ? channels.find(c => c.id === activePurchase.channelId) : null;
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
+    <div className="h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
 
       {activePurchase && activePurchase.sellerCountdownExpiresAt && currentChannel && (
@@ -135,7 +135,7 @@ export default function Tasks() {
         />
       )}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         <div className="px-4 py-4 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">

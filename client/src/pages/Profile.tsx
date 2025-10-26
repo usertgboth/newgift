@@ -58,10 +58,10 @@ export default function Profile() {
   };
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
+    <div className="h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         <div className="px-4 py-4 border-b border-border flex-shrink-0">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
             {t.profile.title}

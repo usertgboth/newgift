@@ -30,6 +30,7 @@ export default function MyAds() {
   const { t } = useLanguage();
   const telegramUser = useTelegramUser();
   const [activePurchase, setActivePurchase] = useState<Purchase | null>(null);
+  const [notifiedChannels, setNotifiedChannels] = useState<Set<string>>(new Set());
 
   // Fetch user data to enable conditional query for purchases
   const { data: user } = useQuery<User>({
@@ -46,6 +47,7 @@ export default function MyAds() {
     giftImage: string;
     ownerId: string | null;
     parsedGifts: any[];
+    createdAt?: string;
   }>>({
     queryKey: ["/api/channels"],
   });
@@ -75,6 +77,43 @@ export default function MyAds() {
     }
   }, [purchases]);
 
+  // Show notification 1 minute after channel creation
+  useEffect(() => {
+    channels.forEach(channel => {
+      if (!channel.createdAt || notifiedChannels.has(channel.id)) return;
+      
+      const createdAt = new Date(channel.createdAt).getTime();
+      const now = Date.now();
+      const oneMinute = 60 * 1000;
+      const timeElapsed = now - createdAt;
+      
+      if (timeElapsed >= oneMinute) {
+        // Already passed 1 minute
+        if (!notifiedChannels.has(channel.id)) {
+          toast({
+            title: "🎉 " + t.myAds.adActive,
+            description: `${channel.channelName} - ${channel.giftName}`,
+            duration: 5000,
+          });
+          setNotifiedChannels(prev => new Set([...prev, channel.id]));
+        }
+      } else {
+        // Set timeout for remaining time
+        const remainingTime = oneMinute - timeElapsed;
+        const timer = setTimeout(() => {
+          toast({
+            title: "🎉 " + t.myAds.adActive,
+            description: `${channel.channelName} - ${channel.giftName}`,
+            duration: 5000,
+          });
+          setNotifiedChannels(prev => new Set([...prev, channel.id]));
+        }, remainingTime);
+        
+        return () => clearTimeout(timer);
+      }
+    });
+  }, [channels, notifiedChannels, toast, t]);
+
   const deleteChannelMutation = useMutation({
     mutationFn: async (id: string) => {
       await apiRequest("DELETE", `/api/channels/${id}`);
@@ -102,7 +141,7 @@ export default function MyAds() {
   };
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
+    <div className="h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
 
       {activePurchase && activePurchase.sellerCountdownExpiresAt && (
@@ -116,7 +155,7 @@ export default function MyAds() {
         />
       )}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between px-4 py-4 border-b border-border flex-shrink-0">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
             {t.myAds.title}
