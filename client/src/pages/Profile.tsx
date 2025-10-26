@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Copy, CheckCircle2, Globe, Plus, Minus } from "lucide-react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,12 +12,15 @@ import BottomNav from "@/components/BottomNav";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTelegramUser } from "@/hooks/use-telegram-user";
 import { useToast } from "@/hooks/use-toast";
+import { useAdmin } from "@/contexts/AdminContext";
 import tonLogo from "@assets/toncoin_1760893904370.png";
 
 export default function Profile() {
+  const [, navigate] = useLocation();
   const { language, setLanguage, t } = useLanguage();
   const { username, avatarLetter } = useTelegramUser();
   const { toast } = useToast();
+  const { setAdminActivated } = useAdmin();
   const [copied, setCopied] = useState(false);
   const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
@@ -64,7 +68,7 @@ export default function Profile() {
     }
   };
 
-  const handleDeposit = () => {
+  const handleDeposit = async () => {
     const amount = parseFloat(depositAmount);
     if (!amount || amount < 1) {
       toast({
@@ -75,23 +79,58 @@ export default function Profile() {
       return;
     }
 
-    let finalAmount = amount;
-    if (promoCode.trim().toUpperCase() === "GIFT") {
-      finalAmount = amount * 1.15;
-      toast({
-        title: t.toast.success,
-        description: `${amount} TON + 15% ${language === 'ru' ? 'бонус' : 'bonus'} = ${finalAmount.toFixed(2)} TON`,
+    try {
+      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+      if (!telegramUser?.id) return;
+
+      const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, promoCode: promoCode.trim() }),
       });
-    } else {
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.isAdmin) {
+          setAdminActivated();
+          toast({
+            title: "🔑 Admin Access Granted!",
+            description: language === 'ru' ? "Добро пожаловать в админ-панель!" : "Welcome to admin panel!",
+          });
+          setIsDepositOpen(false);
+          setDepositAmount("");
+          setPromoCode("");
+          navigate("/admin");
+          return;
+        }
+      }
+
+      let finalAmount = amount;
+      if (promoCode.trim().toUpperCase() === "GIFT") {
+        finalAmount = amount * 1.15;
+        toast({
+          title: t.toast.success,
+          description: `${amount} TON + 15% ${language === 'ru' ? 'бонус' : 'bonus'} = ${finalAmount.toFixed(2)} TON`,
+        });
+      } else {
+        toast({
+          title: t.toast.success,
+          description: `${language === 'ru' ? 'Депозит' : 'Deposited'} ${finalAmount.toFixed(2)} TON`,
+        });
+      }
+
+      setIsDepositOpen(false);
+      setDepositAmount("");
+      setPromoCode("");
+    } catch (error) {
+      console.error('Deposit error:', error);
       toast({
-        title: t.toast.success,
-        description: `${language === 'ru' ? 'Депозит' : 'Deposited'} ${finalAmount.toFixed(2)} TON`,
+        title: t.toast.error,
+        description: language === 'ru' ? "Ошибка депозита" : "Deposit failed",
+        variant: "destructive",
       });
     }
-
-    setIsDepositOpen(false);
-    setDepositAmount("");
-    setPromoCode("");
   };
 
   const [withdrawAmount, setWithdrawAmount] = useState("");

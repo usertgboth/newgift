@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, decimal, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -12,6 +12,8 @@ export const users = pgTable("users", {
   referredBy: varchar("referred_by").references((): any => users.id),
   language: text("language").notNull().default("en"),
   balance: decimal("balance", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  adminActivatedAt: timestamp("admin_activated_at"),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
@@ -19,6 +21,8 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   referralCode: true,
   balance: true,
+  isAdmin: true,
+  adminActivatedAt: true,
   createdAt: true,
 });
 

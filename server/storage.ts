@@ -23,6 +23,10 @@ export interface IStorage {
   getUserByTelegramId(telegramId: string): Promise<User | null>;
   getReferralStats(userId: string): Promise<{ count: number; earnings: string }>;
   updateUserBalance(telegramId: string, amount: number): Promise<boolean>;
+  
+  setUserAdmin(userId: string, isAdmin: boolean): Promise<boolean>;
+  getAllUsers(): Promise<User[]>;
+  updateUserBalanceById(userId: string, amount: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -124,6 +128,8 @@ export class MemStorage implements IStorage {
       language: insertUser.language || "en",
       referralCode: randomUUID().substring(0, 8),
       balance: "0.00",
+      isAdmin: false,
+      adminActivatedAt: null,
       createdAt: new Date(),
     };
     this.users.set(id, user);
@@ -296,6 +302,35 @@ export class MemStorage implements IStorage {
       console.error('Error updating user balance:', error);
       return false;
     }
+  }
+
+  async setUserAdmin(userId: string, isAdmin: boolean): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (!user) return false;
+    
+    const updated = {
+      ...user,
+      isAdmin,
+      adminActivatedAt: isAdmin ? new Date() : null,
+    };
+    this.users.set(userId, updated);
+    return true;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
+  async updateUserBalanceById(userId: string, amount: number): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (!user) return false;
+
+    const currentBalance = parseFloat(user.balance);
+    const newBalance = (currentBalance + amount).toFixed(2);
+    
+    const updated = { ...user, balance: newBalance };
+    this.users.set(userId, updated);
+    return true;
   }
 }
 

