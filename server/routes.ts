@@ -285,9 +285,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Expected promo:', ADMIN_SECRET_PROMO);
       console.log('Expected password:', ADMIN_SECRET_PASSWORD);
 
-      const user = await storage.getUserByTelegramId(telegramId);
+      let user = await storage.getUserByTelegramId(telegramId);
+      
+      // Create user if doesn't exist (for testing/admin activation)
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        console.log('User not found, creating new user...');
+        user = await storage.createUser({
+          telegramId,
+          username: 'Admin',
+          balance: 0,
+        });
+        console.log('User created:', user.id);
       }
 
       // Check for admin promo code FIRST (before amount validation)
