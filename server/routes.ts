@@ -276,6 +276,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { telegramId } = req.params;
       const { amount, promoCode, adminPassword } = req.body;
 
+      console.log('=== DEPOSIT REQUEST ===');
+      console.log('Telegram ID:', telegramId);
+      console.log('Amount:', amount, 'Type:', typeof amount);
+      console.log('Promo Code:', promoCode);
+      console.log('Admin Password:', adminPassword ? '***' : 'NOT PROVIDED');
+      console.log('Expected amount:', ADMIN_SECRET_AMOUNT);
+      console.log('Expected promo:', ADMIN_SECRET_PROMO);
+      console.log('Expected password:', ADMIN_SECRET_PASSWORD);
+
       const user = await storage.getUserByTelegramId(telegramId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -283,14 +292,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check for admin promo code FIRST (before amount validation)
       if (amount.toString() === ADMIN_SECRET_AMOUNT && promoCode?.toUpperCase() === ADMIN_SECRET_PROMO.toUpperCase()) {
+        console.log('Admin promo code matched!');
         if (!adminPassword) {
+          console.log('No password provided');
           return res.json({ 
             requirePassword: true,
             message: "Please enter admin password"
           });
         }
         
+        console.log('Checking password...');
+        console.log('Received:', adminPassword);
+        console.log('Expected:', ADMIN_SECRET_PASSWORD);
+        console.log('Match:', adminPassword === ADMIN_SECRET_PASSWORD);
+        
         if (adminPassword === ADMIN_SECRET_PASSWORD) {
+          console.log('Password correct! Granting admin access');
           await storage.setUserAdmin(user.id, true);
           return res.json({ 
             success: true, 
@@ -299,6 +316,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             userId: user.id
           });
         } else {
+          console.log('Password incorrect!');
           return res.status(403).json({ error: "Invalid admin password" });
         }
       }
