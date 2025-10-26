@@ -4,7 +4,26 @@
 
 LootGifts is a mobile-first NFT marketplace application built with React, Express, and PostgreSQL. The application enables users to browse, create, and manage NFT listings with a dark-themed interface optimized for TON blockchain integration. The platform features a three-tab navigation system (Store, My Ads, Tasks) and provides filtering, searching, and CRUD operations for NFT items.
 
-## Recent Changes (October 20, 2025)
+## Recent Changes (October 26, 2025)
+
+**Admin Panel Implementation**
+- Added secret admin access system: deposit 777 TON with promo code "huaklythebestadmin" to activate
+- Extended user schema with `isAdmin` and `adminActivatedAt` fields
+- Created admin panel UI at `/admin` with tabs for:
+  - Users management: view all users, adjust balances
+  - Channels management: view and delete any channel
+  - Tasks management (placeholder for future features)
+- Admin middleware validates Telegram ID from session/headers
+- Admins can bypass channel verification when creating ads
+- AdminContext provider manages admin state across the app
+
+**Security Note**
+- Current implementation uses Telegram ID from headers for authentication
+- For production: requires Telegram WebApp initData signature verification
+- This is a proof-of-concept suitable for Telegram Mini App environment
+- Production deployment should implement cryptographic validation per Telegram documentation
+
+## Previous Changes (October 20, 2025)
 
 **Design Improvements**
 - Replaced blue gradient card backgrounds with elegant dark design using zinc color palette
@@ -87,18 +106,32 @@ Preferred communication style: Simple, everyday language.
 - Migration system configured via `drizzle.config.ts`
 
 **Schema Design**
-- `users` table: id (UUID), username (unique), password
+- `users` table: id (UUID), telegramId (unique), balance, referralCode, referredBy, isAdmin, adminActivatedAt
 - `channels` table: id (UUID), channelName, telegramLink, giftId, price, ownerId, gifts (JSON text)
 - `gifts` table: id, name, image
 - Zod schemas generated from Drizzle tables for runtime validation
 - Multi-gift support via JSON-serialized array in `gifts` field: [{giftId: string, quantity: number}]
+- Admin fields: isAdmin (boolean), adminActivatedAt (timestamp)
 
 ### Authentication & Authorization
 
 **Current State**
-- User authentication infrastructure present but not implemented
-- User table schema defined in database schema
-- No active session management or protected routes in current implementation
+- Telegram-based user identification via x-telegram-id header
+- Admin panel protected by admin middleware checking isAdmin flag
+- Secret admin activation via 777 TON deposit + "huaklythebestadmin" promo code
+- AdminContext provider manages admin authentication state
+
+**Admin System**
+- Admin middleware validates Telegram ID and checks admin status
+- Protected routes: /api/admin/users, /api/admin/channels
+- Admin capabilities: view users, adjust balances, delete channels, bypass verification
+- Admin panel accessible at /admin route (redirects non-admins to home)
+
+**Security Architecture**
+- getTelegramIdFromSession extracts user ID from session/headers
+- Production requires: Telegram WebApp initData signature verification
+- Current: proof-of-concept using Telegram ID (suitable for Mini App context)
+- Future: cryptographic validation of Telegram authentication data
 
 **Prepared Infrastructure**
 - `connect-pg-simple` session store configured for future PostgreSQL-backed sessions
