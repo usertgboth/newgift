@@ -209,6 +209,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertChannelSchema.parse(req.body);
       const channel = await storage.createChannel(validatedData);
+      
+      // Schedule auto-purchase simulation after 1 minute
+      setTimeout(async () => {
+        try {
+          console.log(`Creating simulated purchase for channel ${channel.id} after 1 minute`);
+          
+          // Get or create a test buyer user
+          let testBuyer = await storage.getUserByTelegramId('test_buyer_auto');
+          if (!testBuyer) {
+            testBuyer = await storage.createUser({
+              telegramId: 'test_buyer_auto',
+              username: 'Auto Buyer',
+            });
+          }
+          
+          // Create simulated purchase
+          const purchase = await storage.createPurchase({
+            buyerId: testBuyer.id,
+            sellerId: validatedData.ownerId || null,
+            channelId: channel.id,
+            giftId: channel.giftId,
+            price: channel.price,
+          });
+          
+          await storage.updatePurchase(purchase.id, { 
+            buyerDebitTxCompleted: true 
+          });
+          
+          // Set buyer notified immediately
+          const now = new Date();
+          const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+          await storage.updatePurchase(purchase.id, {
+            buyerNotifiedAt: now,
+            sellerCountdownExpiresAt: expiresAt
+          });
+          
+          console.log(`Simulated purchase created and buyer notified for channel ${channel.id}`);
+        } catch (error) {
+          console.error('Error creating simulated purchase:', error);
+        }
+      }, 60000); // 1 minute
+      
       res.status(201).json(channel);
     } catch (error) {
       if (error instanceof z.ZodError) {
