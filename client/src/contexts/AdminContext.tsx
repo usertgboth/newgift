@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -49,8 +49,15 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isAdmin, adminStatus, adminActivated]);
 
+  const value = React.useMemo(() => ({
+    isAdmin,
+    userId,
+    setAdminActivated,
+    clearAdminData
+  }), [isAdmin, userId]);
+
   return (
-    <AdminContext.Provider value={{ isAdmin, userId, setAdminActivated, clearAdminData }}>
+    <AdminContext.Provider value={value}>
       {children}
     </AdminContext.Provider>
   );
