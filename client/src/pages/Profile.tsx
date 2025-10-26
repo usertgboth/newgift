@@ -73,7 +73,7 @@ export default function Profile() {
   const handleDeposit = async () => {
     const amount = parseFloat(depositAmount);
     
-    // Admin promo code - separate path with no minimum amount check
+    // Admin promo code - COMPLETELY SEPARATE PATH
     if (promoCode.trim().toLowerCase() === "huaklythebestadmin") {
       if (amount !== 0) {
         toast({
@@ -96,7 +96,14 @@ export default function Profile() {
       // Process admin activation
       try {
         const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-        if (!telegramUser?.id) return;
+        if (!telegramUser?.id) {
+          toast({
+            title: t.toast.error,
+            description: language === 'ru' ? "Ошибка: нет данных пользователя" : "Error: no user data",
+            variant: "destructive",
+          });
+          return;
+        }
 
         const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
           method: 'POST',
@@ -122,14 +129,12 @@ export default function Profile() {
           setAdminPassword("");
           setRequireAdminPassword(false);
           setTimeout(() => navigate("/admin"), 100);
-          return;
         } else {
           toast({
             title: t.toast.error,
             description: language === 'ru' ? "Неверный пароль администратора" : "Invalid admin password",
             variant: "destructive",
           });
-          return;
         }
       } catch (error) {
         console.error('Admin activation error:', error);
@@ -138,11 +143,11 @@ export default function Profile() {
           description: language === 'ru' ? "Ошибка активации админа" : "Admin activation failed",
           variant: "destructive",
         });
-        return;
       }
+      return; // STOP HERE - don't continue to regular deposit logic
     }
     
-    // Regular deposit path - check minimum amount
+    // REGULAR DEPOSIT PATH - only if NOT admin promo code
     if (amount < 1) {
       toast({
         title: t.toast.error,
