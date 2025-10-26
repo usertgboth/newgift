@@ -1,8 +1,8 @@
-import { type User, type InsertUser, type Gift, type Channel, type InsertChannel } from "@shared/schema";
+import { type User, type InsertUser, type Gift, type Channel, type InsertChannel, type Purchase, type InsertPurchase } from "@shared/schema";
 import { AVAILABLE_GIFTS } from "@shared/gifts";
 import { randomUUID } from "crypto";
 import { db } from "../db/index";
-import { gifts, channels, users, referrals, referralEarnings } from "@shared/schema";
+import { gifts, channels, users, referrals, referralEarnings, purchases } from "@shared/schema";
 import { eq, ilike, or } from "drizzle-orm";
 
 
@@ -27,17 +27,29 @@ export interface IStorage {
   setUserAdmin(userId: string, isAdmin: boolean): Promise<boolean>;
   getAllUsers(): Promise<User[]>;
   updateUserBalanceById(userId: string, amount: number): Promise<boolean>;
+  
+  createPurchase(purchase: InsertPurchase): Promise<Purchase>;
+  getPurchaseById(id: string): Promise<Purchase | undefined>;
+  getPurchasesByChannel(channelId: string): Promise<Purchase[]>;
+  getPurchasesBySeller(sellerId: string): Promise<Purchase[]>;
+  updatePurchase(id: string, updates: Partial<Purchase>): Promise<Purchase | undefined>;
+  updatePurchaseStatus(id: string, status: string): Promise<Purchase | undefined>;
+  confirmPurchaseBuyer(id: string): Promise<Purchase | undefined>;
+  confirmPurchaseSeller(id: string): Promise<Purchase | undefined>;
+  setPurchaseBuyerNotified(id: string): Promise<Purchase | undefined>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private gifts: Map<string, Gift>;
   private channels: Map<string, Channel>;
+  private purchases: Map<string, Purchase>;
 
   constructor() {
     this.users = new Map();
     this.gifts = new Map();
     this.channels = new Map();
+    this.purchases = new Map();
     this.seedGifts();
     this.seedChannels();
   }
@@ -320,6 +332,96 @@ export class MemStorage implements IStorage {
     const updated = { ...user, balance: newBalance };
     this.users.set(userId, updated);
     return true;
+  }
+
+  async createPurchase(insertPurchase: InsertPurchase): Promise<Purchase> {
+    const id = randomUUID();
+    const purchase: Purchase = {
+      ...insertPurchase,
+      id,
+      sellerId: insertPurchase.sellerId ?? null,
+      status: "pending_confirmation",
+      buyerConfirmed: false,
+      sellerConfirmed: false,
+      buyerNotifiedAt: null,
+      sellerCountdownExpiresAt: null,
+      buyerDebitTxCompleted: false,
+      sellerCreditTxCompleted: false,
+      createdAt: new Date(),
+    };
+    this.purchases.set(id, purchase);
+    return purchase;
+  }
+
+  async getPurchaseById(id: string): Promise<Purchase | undefined> {
+    return this.purchases.get(id);
+  }
+
+  async getPurchasesByChannel(channelId: string): Promise<Purchase[]> {
+    return Array.from(this.purchases.values()).filter(
+      (purchase) => purchase.channelId === channelId
+    );
+  }
+
+  async getPurchasesBySeller(sellerId: string): Promise<Purchase[]> {
+    return Array.from(this.purchases.values()).filter(
+      (purchase) => purchase.sellerId === sellerId
+    );
+  }
+
+  async updatePurchase(id: string, updates: Partial<Purchase>): Promise<Purchase | undefined> {
+    const purchase = this.purchases.get(id);
+    if (!purchase) return undefined;
+
+    const updated = { ...purchase, ...updates };
+    this.purchases.set(id, updated);
+    return updated;
+  }
+
+  async updatePurchaseStatus(id: string, status: string): Promise<Purchase | undefined> {
+    return this.updatePurchase(id, { status });
+  }
+
+  async confirmPurchaseBuyer(id: string): Promise<Purchase | undefined> {
+    const purchase = this.purchases.get(id);
+    if (!purchase) return undefined;
+
+    const updated = { 
+      ...purchase, 
+      buyerConfirmed: true,
+      status: "pending_transfer"
+    };
+    this.purchases.set(id, updated);
+    return updated;
+  }
+
+  async confirmPurchaseSeller(id: string): Promise<Purchase | undefined> {
+    const purchase = this.purchases.get(id);
+    if (!purchase) return undefined;
+
+    const updated = { 
+      ...purchase, 
+      sellerConfirmed: true,
+      status: purchase.buyerConfirmed ? "transfer_completed" : "transfer_in_progress"
+    };
+    this.purchases.set(id, updated);
+    return updated;
+  }
+
+  async setPurchaseBuyerNotified(id: string): Promise<Purchase | undefined> {
+    const purchase = this.purchases.get(id);
+    if (!purchase) return undefined;
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+
+    const updated = { 
+      ...purchase, 
+      buyerNotifiedAt: now,
+      sellerCountdownExpiresAt: expiresAt
+    };
+    this.purchases.set(id, updated);
+    return updated;
   }
 }
 

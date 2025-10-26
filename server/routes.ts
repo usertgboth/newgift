@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertChannelSchema } from "@shared/schema";
+import { insertChannelSchema, insertPurchaseSchema } from "@shared/schema";
 import { z } from "zod";
 
 const ADMIN_SECRET_AMOUNT = "0";
@@ -142,6 +142,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve icon
   app.get('/icon.png', (_req, res) => {
     res.sendFile('public/icon.png', { root: '.' });
+  });
+
+  app.get("/api/users/:telegramId/profile", async (req, res) => {
+    try {
+      const user = await storage.getUserByTelegramId(req.params.telegramId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
   });
 
   app.get("/api/gifts", async (req, res) => {
@@ -432,6 +444,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid channel data", details: error.errors });
       }
       res.status(500).json({ error: "Failed to create channel" });
+    }
+  });
+
+  app.post("/api/purchases", async (req, res) => {
+    try {
+      const validatedData = insertPurchaseSchema.parse(req.body);
+      
+      const buyer = await storage.getUser(validatedData.buyerId);
+      if (!buyer) {
+        return res.status(404).json({ error: "Buyer not found" });
+      }
+
+      const channel = await storage.getChannelById(validatedData.channelId);
+      if (!channel) {
+        return res.status(404).json({ error: "Channel not found" });
+      }
+
+      const price = parseFloat(validatedData.price);
+      const currentBalance = parseFloat(buyer.balance);
+
+      if (currentBalance < price) {
+        return res.status(400).json({ error: "Insufficient balance" });
+      }
+
+      const purchase = await storage.createPurchase(validatedData);
+      
+      const success = await storage.updateUserBalanceById(validatedData.buyerId, -price);
+      if (!success) {
+        return res.status(500).json({ error: "Failed to debit buyer balance" });
+      }
+
+      await storage.updatePurchase(purchase.id, { buyerDebitTxCompleted: true });
+
+      res.status(201).json({ 
+        ...purchase, 
+        error: "Временная ошибка обработки платежа. Деньги списаны." 
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid purchase data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create purchase" });
+    }
+  });
+
+  app.get("/api/purchases/:id", async (req, res) => {
+    try {
+      const purchase = await storage.getPurchaseById(req.params.id);
+      if (!purchase) {
+        return res.status(404).json({ error: "Purchase not found" });
+      }
+      res.json(purchase);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch purchase" });
+    }
+  });
+
+  app.get("/api/purchases/channel/:channelId", async (req, res) => {
+    try {
+      const purchases = await storage.getPurchasesByChannel(req.params.channelId);
+      res.json(purchases);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch purchases" });
+    }
+  });
+
+  app.get("/api/purchases/seller/:sellerId", async (req, res) => {
+    try {
+      const purchases = await storage.getPurchasesBySeller(req.params.sellerId);
+      res.json(purchases);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch seller purchases" });
+    }
+  });
+
+  app.post("/api/purchases/:id/confirm-buyer", async (req, res) => {
+    try {
+      const purchase = await storage.confirmPurchaseBuyer(req.params.id);
+      if (!purchase) {
+        return res.status(404).json({ error: "Purchase not found" });
+      }
+
+      setTimeout(async () => {
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+        await storage.updatePurchase(req.params.id, {
+          buyerNotifiedAt: now,
+          sellerCountdownExpiresAt: expiresAt
+        });
+      }, 60000);
+
+      res.json(purchase);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to confirm purchase" });
+    }
+  });
+
+  app.post("/api/purchases/:id/confirm-seller", async (req, res) => {
+    try {
+      const purchase = await storage.confirmPurchaseSeller(req.params.id);
+      if (!purchase) {
+        return res.status(404).json({ error: "Purchase not found" });
+      }
+
+      if (purchase.status === "transfer_completed" && purchase.sellerId) {
+        const price = parseFloat(purchase.price);
+        await storage.updateUserBalanceById(purchase.sellerId, price);
+      }
+
+      res.json(purchase);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to confirm transfer" });
     }
   });
 

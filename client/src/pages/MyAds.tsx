@@ -8,7 +8,6 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import tonLogo from "@assets/toncoin_1760893904370.png";
-
 interface Channel {
   id: string;
   channelName: string;

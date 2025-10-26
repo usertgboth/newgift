@@ -81,3 +81,35 @@ export const giftItemSchema = z.object({
 });
 
 export type GiftItem = z.infer<typeof giftItemSchema>;
+
+export const purchases = pgTable("purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  buyerId: varchar("buyer_id").notNull().references(() => users.id),
+  sellerId: varchar("seller_id"),
+  channelId: varchar("channel_id").notNull().references(() => channels.id),
+  giftId: varchar("gift_id").notNull().references(() => gifts.id),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  status: text("status").notNull().default("pending_confirmation"),
+  buyerConfirmed: boolean("buyer_confirmed").notNull().default(false),
+  sellerConfirmed: boolean("seller_confirmed").notNull().default(false),
+  buyerNotifiedAt: timestamp("buyer_notified_at"),
+  sellerCountdownExpiresAt: timestamp("seller_countdown_expires_at"),
+  buyerDebitTxCompleted: boolean("buyer_debit_tx_completed").notNull().default(false),
+  sellerCreditTxCompleted: boolean("seller_credit_tx_completed").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
+export const insertPurchaseSchema = createInsertSchema(purchases).omit({
+  id: true,
+  status: true,
+  buyerConfirmed: true,
+  sellerConfirmed: true,
+  buyerNotifiedAt: true,
+  sellerCountdownExpiresAt: true,
+  buyerDebitTxCompleted: true,
+  sellerCreditTxCompleted: true,
+  createdAt: true,
+});
+
+export type InsertPurchase = z.infer<typeof insertPurchaseSchema>;
+export type Purchase = typeof purchases.$inferSelect;

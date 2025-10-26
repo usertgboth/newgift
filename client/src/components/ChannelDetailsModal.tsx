@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ExternalLink, X, Gift } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,11 @@ import tonLogo from "@assets/toncoin_1760893904370.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useTonWallet } from '@tonconnect/ui-react';
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useTelegramUser } from "@/hooks/use-telegram-user";
+import type { User } from "@shared/schema";
 
 interface GiftItem {
   giftId: string;
@@ -37,6 +43,54 @@ export default function ChannelDetailsModal({
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const wallet = useTonWallet();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const telegramUser = useTelegramUser();
+
+  const { data: user } = useQuery<User>({
+    queryKey: ['/api/users', telegramUser.user?.id, 'profile'],
+    enabled: !!telegramUser.user?.id,
+  });
+
+  const { data: channels } = useQuery<Array<{id: string; channelName: string; giftId: string; ownerId: string | null}>>({
+    queryKey: ['/api/channels'],
+  });
+
+  const currentChannel = channels?.find(c => c.channelName === channelName);
+
+  const purchaseMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest(
+        'POST',
+        '/api/purchases',
+        {
+          buyerId: user?.id,
+          sellerId: currentChannel?.ownerId || null,
+          channelId: currentChannel?.id,
+          giftId: currentChannel?.giftId,
+          price: price,
+        }
+      );
+      return await response.json();
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      toast({
+        title: language === 'ru' ? "Ошибка" : "Error",
+        description: data.error || (language === 'ru' ? "Временная ошибка обработки платежа. Деньги списаны." : "Temporary payment processing error. Money debited."),
+        variant: "destructive",
+      });
+      setShowConfirmDialog(false);
+      onClose();
+    },
+    onError: (error: any) => {
+      toast({
+        title: t.toast.error,
+        description: error.message || (language === 'ru' ? "Ошибка покупки" : "Purchase failed"),
+        variant: "destructive",
+      });
+      setShowConfirmDialog(false);
+    },
+  });
 
   const priceNum = parseFloat(price);
   const cashback = (priceNum * 0.075).toFixed(2);
@@ -51,10 +105,20 @@ export default function ChannelDetailsModal({
       return;
     }
 
-    toast({
-      title: t.toast.success,
-      description: language === 'ru' ? `Покупка канала "${channelName}"` : `Buying channel "${channelName}"`,
-    });
+    if (!user) {
+      toast({
+        title: t.toast.error,
+        description: language === 'ru' ? "Пользователь не найден" : "User not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setShowConfirmDialog(true);
+  };
+
+  const confirmPurchase = () => {
+    purchaseMutation.mutate();
   };
 
   const mainGift = gifts.find(g => g.giftName === giftName) || gifts[0];
@@ -155,15 +219,43 @@ export default function ChannelDetailsModal({
             <div className="px-3 pb-3 pt-2">
               <Button
                 onClick={handleBuy}
+                disabled={purchaseMutation.isPending}
                 className="w-full h-9 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 shadow-lg shadow-blue-500/20 text-white font-bold text-sm transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
                 data-testid="button-modal-buy"
               >
-                {t.home.buy}
+                {purchaseMutation.isPending ? (language === 'ru' ? 'Обработка...' : 'Processing...') : t.home.buy}
               </Button>
             </div>
           </div>
         </div>
       </DialogContent>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent data-testid="dialog-confirm-purchase">
+          <AlertDialogHeader>
+            <AlertDialogTitle data-testid="text-confirm-title">
+              {language === 'ru' ? 'Подтвердить покупку?' : 'Confirm Purchase?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription data-testid="text-confirm-description">
+              {language === 'ru' 
+                ? `Вы уверены, что хотите купить канал "${channelName}" за ${price} TON?` 
+                : `Are you sure you want to buy "${channelName}" for ${price} TON?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-purchase">
+              {language === 'ru' ? 'Отмена' : 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmPurchase} 
+              disabled={purchaseMutation.isPending}
+              data-testid="button-confirm-purchase"
+            >
+              {language === 'ru' ? 'Подтвердить' : 'Confirm'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
