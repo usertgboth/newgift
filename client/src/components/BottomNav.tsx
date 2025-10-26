@@ -1,6 +1,7 @@
 import { Home, Megaphone, CheckSquare, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLocation } from "wouter";
 
 type NavItem = "store" | "myads" | "tasks" | "profile";
 
@@ -11,17 +12,19 @@ interface BottomNavProps {
 
 export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   const { t } = useLanguage();
+  const [, navigate] = useLocation();
   
   const navItems = [
-    { id: "store" as NavItem, label: t.nav.store, icon: Home },
-    { id: "myads" as NavItem, label: t.nav.myAds, icon: Megaphone },
-    { id: "tasks" as NavItem, label: t.nav.tasks, icon: CheckSquare },
-    { id: "profile" as NavItem, label: t.nav.profile, icon: User },
+    { id: "store" as NavItem, label: t.nav.store, icon: Home, path: "/" },
+    { id: "myads" as NavItem, label: t.nav.myAds, icon: Megaphone, path: "/myads" },
+    { id: "tasks" as NavItem, label: t.nav.tasks, icon: CheckSquare, path: "/tasks" },
+    { id: "profile" as NavItem, label: t.nav.profile, icon: User, path: "/profile" },
   ];
 
-  const handleClick = (id: NavItem) => {
+  const handleClick = (id: NavItem, path: string) => {
     onTabChange?.(id);
-    console.log(`Navigation: ${id}`);
+    navigate(path);
+    console.log(`Navigation: ${id} -> ${path}`);
   };
 
   return (
@@ -34,7 +37,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
           return (
             <button
               key={item.id}
-              onClick={() => handleClick(item.id)}
+              onClick={() => handleClick(item.id, item.path)}
               className={`flex flex-col items-center justify-center gap-1.5 sm:gap-2 flex-1 h-full transition-all duration-200 rounded-lg mx-0.5 sm:mx-1 ${
                 isActive ? "bg-primary/10" : "hover:bg-muted/50"
               }`}
