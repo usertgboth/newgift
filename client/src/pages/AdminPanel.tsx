@@ -17,13 +17,11 @@ export default function AdminPanel() {
   const { toast } = useToast();
   const [balanceInputs, setBalanceInputs] = useState<Record<string, string>>({});
 
-  if (!isAdmin || !userId) {
-    navigate("/");
-    return null;
-  }
+  // Removed redirect - allow access to admin panel for status checking
 
   const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ['/api/admin/users'],
+    enabled: isAdmin,
     queryFn: async () => {
       const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
       const telegramId = telegramUser?.id?.toString() || '';
@@ -37,6 +35,7 @@ export default function AdminPanel() {
 
   const { data: channels = [], isLoading: channelsLoading } = useQuery<Channel[]>({
     queryKey: ['/api/channels'],
+    enabled: isAdmin,
   });
 
   const updateBalanceMutation = useMutation({
@@ -122,7 +121,19 @@ export default function AdminPanel() {
       </div>
 
       <div className="p-4">
-        <Tabs defaultValue="users" className="w-full">
+        {!isAdmin ? (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-muted-foreground mb-4">
+                У вас нет доступа к админ панели. Введите специальный код в разделе пополнения.
+              </p>
+              <Button onClick={() => navigate("/profile")}>
+                Перейти в профиль
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Tabs defaultValue="users" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="users" data-testid="tab-users">
               <Users className="w-4 h-4 mr-2" />
@@ -231,6 +242,7 @@ export default function AdminPanel() {
             )}
           </TabsContent>
         </Tabs>
+        )}
       </div>
     </div>
   );
