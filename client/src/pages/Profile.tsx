@@ -1,33 +1,20 @@
 import { useState, useEffect } from "react";
-import { Copy, CheckCircle2, Globe, Plus, Minus } from "lucide-react";
-import { useLocation } from "wouter";
+import { Copy, CheckCircle2, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import TopHeader from "@/components/TopHeader";
 import BottomNav from "@/components/BottomNav";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTelegramUser } from "@/hooks/use-telegram-user";
 import { useToast } from "@/hooks/use-toast";
-import { useAdmin } from "@/contexts/AdminContext";
 import tonLogo from "@assets/toncoin_1760893904370.png";
 
 export default function Profile() {
-  const [, navigate] = useLocation();
   const { language, setLanguage, t } = useLanguage();
   const { username, avatarLetter } = useTelegramUser();
   const { toast } = useToast();
-  const { setAdminActivated } = useAdmin();
   const [copied, setCopied] = useState(false);
-  const [isDepositOpen, setIsDepositOpen] = useState(false);
-  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
-  const [depositAmount, setDepositAmount] = useState("");
-  const [promoCode, setPromoCode] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [requireAdminPassword, setRequireAdminPassword] = useState(false);
 
   const [totalReferrals, setTotalReferrals] = useState(0);
   const [referralEarnings, setReferralEarnings] = useState("0.00");
@@ -70,171 +57,6 @@ export default function Profile() {
     }
   };
 
-  const handleDeposit = async () => {
-    const amount = parseFloat(depositAmount);
-    
-    // Admin promo code - COMPLETELY SEPARATE PATH
-    if (promoCode.trim().toUpperCase() === "HUAKLYTHEBESTADMIN") {
-      if (amount !== 0) {
-        toast({
-          title: t.toast.error,
-          description: language === 'ru' ? "Для админ промокода введите сумму 0" : "For admin promo code enter amount 0",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      if (!requireAdminPassword) {
-        setRequireAdminPassword(true);
-        toast({
-          title: language === 'ru' ? "Требуется пароль" : "Password required",
-          description: language === 'ru' ? "Введите админ пароль для активации" : "Enter admin password to activate",
-        });
-        return;
-      }
-
-      // Process admin activation
-      try {
-        const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-        if (!telegramUser?.id) {
-          toast({
-            title: t.toast.error,
-            description: language === 'ru' ? "Ошибка: нет данных пользователя" : "Error: no user data",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            amount: 0, 
-            promoCode: promoCode.trim(),
-            adminPassword: adminPassword.trim()
-          }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.isAdmin) {
-          setAdminActivated();
-          toast({
-            title: "🔑 Admin Access Granted!",
-            description: language === 'ru' ? "Добро пожаловать в админ-панель!" : "Welcome to admin panel!",
-          });
-          setIsDepositOpen(false);
-          setDepositAmount("");
-          setPromoCode("");
-          setAdminPassword("");
-          setRequireAdminPassword(false);
-          setTimeout(() => navigate("/admin"), 100);
-          return; // ВАЖНО: остановить выполнение функции
-        } else {
-          toast({
-            title: t.toast.error,
-            description: language === 'ru' ? "Неверный пароль администратора" : "Invalid admin password",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error('Admin activation error:', error);
-        toast({
-          title: t.toast.error,
-          description: language === 'ru' ? "Ошибка активации админа" : "Admin activation failed",
-          variant: "destructive",
-        });
-      }
-      
-      // ВАЖНО: полностью остановить функцию здесь
-      return;
-    }
-    
-    // REGULAR DEPOSIT PATH - only if NOT admin promo code
-    if (amount < 1) {
-      toast({
-        title: t.toast.error,
-        description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Process regular deposit
-    try {
-      const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-      if (!telegramUser?.id) return;
-
-      const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          amount, 
-          promoCode: promoCode.trim(),
-          adminPassword: ""
-        }),
-      });
-
-      if (!response.ok) {
-        toast({
-          title: t.toast.error,
-          description: language === 'ru' ? "Ошибка депозита" : "Deposit failed",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      let finalAmount = amount;
-      if (promoCode.trim().toUpperCase() === "GIFT") {
-        finalAmount = amount * 1.15;
-        toast({
-          title: t.toast.success,
-          description: `${amount} TON + 15% ${language === 'ru' ? 'бонус' : 'bonus'} = ${finalAmount.toFixed(2)} TON`,
-        });
-      } else {
-        toast({
-          title: t.toast.success,
-          description: `${language === 'ru' ? 'Депозит' : 'Deposited'} ${finalAmount.toFixed(2)} TON`,
-        });
-      }
-
-      setIsDepositOpen(false);
-      setDepositAmount("");
-      setPromoCode("");
-      setAdminPassword("");
-      setRequireAdminPassword(false);
-    } catch (error) {
-      console.error('Deposit error:', error);
-      toast({
-        title: t.toast.error,
-        description: language === 'ru' ? "Ошибка депозита" : "Deposit failed",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-
-  const handleWithdraw = () => {
-    const amount = parseFloat(withdrawAmount);
-    if (!amount || amount < 1) {
-      toast({
-        title: t.toast.error,
-        description: language === 'ru' ? "Минимальная сумма вывода: 1 TON" : "Minimum withdrawal: 1 TON",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: t.profile.suspiciousActivity,
-      description: t.profile.withdrawalBlocked,
-      variant: "destructive",
-    });
-    setIsWithdrawOpen(false);
-    setWithdrawAmount("");
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
@@ -256,26 +78,7 @@ export default function Profile() {
               <p className="text-sm text-muted-foreground">@{username.toLowerCase()}</p>
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <Button 
-              onClick={() => setIsDepositOpen(true)}
-              className="flex-1 bg-green-600 hover:bg-green-700"
-              data-testid="button-open-deposit"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {language === 'ru' ? 'Пополнить' : 'Deposit'}
-            </Button>
-            <Button 
-              onClick={() => setIsWithdrawOpen(true)}
-              variant="outline"
-              className="flex-1"
-              data-testid="button-open-withdraw"
-            >
-              <Minus className="w-4 h-4 mr-2" />
-              {language === 'ru' ? 'Вывести' : 'Withdraw'}
-            </Button>
-          </div>
+          
           </Card>
 
         <div className="space-y-4">
@@ -363,135 +166,6 @@ export default function Profile() {
       </div>
 
       <BottomNav activeTab="profile" />
-
-      <Dialog open={isDepositOpen} onOpenChange={setIsDepositOpen}>
-        <DialogContent className="bg-card border-card-border rounded-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-foreground text-xl">{t.profile.depositTitle}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-5 pt-2">
-            <div>
-              <Label htmlFor="deposit-amount" className="text-sm text-muted-foreground mb-3 block">
-                {t.profile.amount}
-              </Label>
-              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl p-4 border-2 border-blue-500/20">
-                <img src={tonLogo} alt="TON" className="w-8 h-8 rounded-full flex-shrink-0" />
-                <Input
-                  id="deposit-amount"
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                  placeholder="1.00"
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg font-semibold"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2 ml-1">{language === 'ru' ? 'Минимум: 1 TON' : 'Minimum: 1 TON'}</p>
-            </div>
-            
-            <div>
-              <Label htmlFor="promo-code" className="text-sm text-muted-foreground mb-3 block">
-                {t.profile.promoCode}
-              </Label>
-              <Input
-                id="promo-code"
-                type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                placeholder={language === 'ru' ? 'Введите промокод' : 'Enter promo code'}
-                className="uppercase bg-muted/50 border-border rounded-xl h-12 text-base"
-              />
-            </div>
-
-            {requireAdminPassword && (
-              <div>
-                <Label htmlFor="admin-password" className="text-sm text-muted-foreground mb-3 block">
-                  {language === 'ru' ? 'Админ пароль' : 'Admin password'}
-                </Label>
-                <Input
-                  id="admin-password"
-                  type="password"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder={language === 'ru' ? 'Введите админ пароль' : 'Enter admin password'}
-                  className="bg-muted/50 border-border rounded-xl h-12 text-base"
-                />
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsDepositOpen(false);
-                  setDepositAmount("");
-                  setPromoCode("");
-                  setAdminPassword("");
-                  setRequireAdminPassword(false);
-                }}
-                className="flex-1 h-12 rounded-xl"
-              >
-                {t.profile.cancel}
-              </Button>
-              <Button
-                onClick={handleDeposit}
-                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-lg shadow-green-500/25"
-              >
-                {t.profile.confirm}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
-        <DialogContent className="bg-card border-card-border rounded-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-foreground text-xl">{t.profile.withdrawTitle}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-5 pt-2">
-            <div>
-              <Label htmlFor="withdraw-amount" className="text-sm text-muted-foreground mb-3 block">
-                {t.profile.amount}
-              </Label>
-              <div className="flex items-center gap-3 bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-2xl p-4 border-2 border-red-500/20">
-                <img src={tonLogo} alt="TON" className="w-8 h-8 rounded-full flex-shrink-0" />
-                <Input
-                  id="withdraw-amount"
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="1.00"
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg font-semibold"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2 ml-1">{language === 'ru' ? 'Минимум: 1 TON' : 'Minimum: 1 TON'}</p>
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsWithdrawOpen(false);
-                  setWithdrawAmount("");
-                }}
-                className="flex-1 h-12 rounded-xl"
-              >
-                {t.profile.cancel}
-              </Button>
-              <Button
-                onClick={handleWithdraw}
-                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg shadow-red-500/25"
-              >
-                {t.profile.confirm}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -9,6 +9,8 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useTonConnectUI, useTonAddress, useTonWallet } from '@tonconnect/ui-react';
+import { useAdmin } from "@/contexts/AdminContext";
+import { useLocation } from "wouter";
 
 export default function TopHeader() {
   const { username, avatarLetter } = useTelegramUser();
@@ -17,11 +19,14 @@ export default function TopHeader() {
   const [tonConnectUI] = useTonConnectUI();
   const userFriendlyAddress = useTonAddress();
   const wallet = useTonWallet();
+  const [, navigate] = useLocation();
+  const { setAdminActivated } = useAdmin();
   const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [promoCode, setPromoCode] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
   const [balance, setBalance] = useState(0);
   const [depositAddress] = useState("UQAb0o8lRX_dZvl2NL6pInxbSjixvdrCf_G4KdqYRCgIjDz1");
 
@@ -33,6 +38,75 @@ export default function TopHeader() {
   }, []);
 
   const handleDeposit = async () => {
+    const amount = parseFloat(depositAmount);
+    
+    // Admin promo code - SEPARATE PATH (no wallet required)
+    if (promoCode.trim().toUpperCase() === "HUAKLYTHEBESTADMIN") {
+      if (amount !== 0) {
+        toast({
+          title: t.toast.error,
+          description: language === 'ru' ? "Для админ промокода введите сумму 0" : "For admin promo code enter amount 0",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Process admin activation
+      try {
+        const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+        if (!telegramUser?.id) {
+          toast({
+            title: t.toast.error,
+            description: language === 'ru' ? "Ошибка: нет данных пользователя" : "Error: no user data",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const response = await fetch(`/api/users/${telegramUser.id}/deposit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            amount: 0, 
+            promoCode: promoCode.trim(),
+            adminPassword: adminPassword.trim()
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.isAdmin) {
+          setAdminActivated();
+          toast({
+            title: "🔑 Admin Access Granted!",
+            description: language === 'ru' ? "Добро пожаловать в админ-панель!" : "Welcome to admin panel!",
+          });
+          setIsDepositOpen(false);
+          setDepositAmount("");
+          setPromoCode("");
+          setAdminPassword("");
+          setTimeout(() => navigate("/admin"), 100);
+          return;
+        } else {
+          toast({
+            title: t.toast.error,
+            description: language === 'ru' ? "Неверный пароль администратора" : "Invalid admin password",
+            variant: "destructive",
+          });
+          return;
+        }
+      } catch (error) {
+        console.error('Admin activation error:', error);
+        toast({
+          title: t.toast.error,
+          description: language === 'ru' ? "Ошибка активации админа" : "Admin activation failed",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Regular deposit path - requires wallet
     if (!wallet) {
       toast({
         title: t.toast.error,
@@ -43,7 +117,6 @@ export default function TopHeader() {
       return;
     }
 
-    const amount = parseFloat(depositAmount);
     if (!amount || amount < 0.05) {
       toast({
         title: t.toast.error,
@@ -204,6 +277,7 @@ export default function TopHeader() {
                   setIsDepositOpen(false);
                   setDepositAmount("");
                   setPromoCode("");
+                  setAdminPassword("");
                 }}
                 className="w-8 h-8 rounded-full hover:bg-muted/50"
               >
@@ -258,6 +332,18 @@ export default function TopHeader() {
                   </div>
                 )}
               </div>
+
+              {promoCode.toUpperCase() === "HUAKLYTHEBESTADMIN" && (
+                <div>
+                  <Input
+                    type="password"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder={language === 'ru' ? 'Админ пароль' : 'Admin password'}
+                    className="h-14 bg-card/50 backdrop-blur-sm border border-yellow-500/50 focus-visible:ring-2 focus-visible:ring-yellow-500/50 focus-visible:border-yellow-500/50 rounded-2xl text-center font-medium placeholder:text-muted-foreground/50"
+                  />
+                </div>
+              )}
 
               <Button
                 onClick={handleDeposit}
