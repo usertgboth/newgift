@@ -276,15 +276,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { telegramId } = req.params;
       const { amount, promoCode, adminPassword } = req.body;
 
-      if (!amount || amount < 0) {
-        return res.status(400).json({ error: "Invalid deposit amount" });
-      }
-
       const user = await storage.getUserByTelegramId(telegramId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
 
+      // Check for admin promo code FIRST (before amount validation)
       if (amount.toString() === ADMIN_SECRET_AMOUNT && promoCode === ADMIN_SECRET_PROMO) {
         if (!adminPassword) {
           return res.json({ 
@@ -306,7 +303,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      if (amount <= 0) {
+      // Regular deposit validation
+      if (!amount || amount <= 0) {
         return res.status(400).json({ error: "Invalid deposit amount" });
       }
 

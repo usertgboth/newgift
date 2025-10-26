@@ -121,7 +121,7 @@ export default function Profile() {
           setPromoCode("");
           setAdminPassword("");
           setRequireAdminPassword(false);
-          navigate("/admin");
+          setTimeout(() => navigate("/admin"), 100);
           return;
         } else {
           toast({
@@ -141,8 +141,8 @@ export default function Profile() {
         return;
       }
     }
-
-    // Regular deposit - check minimum amount
+    
+    // Regular deposit path - check minimum amount
     if (amount < 1) {
       toast({
         title: t.toast.error,
