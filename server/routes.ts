@@ -580,15 +580,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Purchase not found" });
       }
 
-      setTimeout(async () => {
-        const now = new Date();
-        const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-        await storage.updatePurchase(req.params.id, {
-          buyerNotifiedAt: now,
-          sellerCountdownExpiresAt: expiresAt
-        });
-      }, 60000);
-
       res.json(purchase);
     } catch (error) {
       res.status(500).json({ error: "Failed to confirm purchase" });
