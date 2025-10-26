@@ -247,13 +247,9 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByTelegramId(telegramId: string): Promise<User | null> {
-    try {
-      const result = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1);
-      return result[0] || null;
-    } catch (error) {
-      console.error('Error getting user by telegram ID:', error);
-      return null;
-    }
+    return Array.from(this.users.values()).find(
+      (user) => user.telegramId === telegramId,
+    ) || null;
   }
 
   async getReferralStats(userId: string): Promise<{ count: number; earnings: string }> {
@@ -285,23 +281,16 @@ export class MemStorage implements IStorage {
   }
 
   async updateUserBalance(telegramId: string, amount: number): Promise<boolean> {
-    try {
-      const user = await this.getUserByTelegramId(telegramId);
-      if (!user) return false;
+    const user = await this.getUserByTelegramId(telegramId);
+    if (!user) return false;
 
-      const currentBalance = parseFloat(user.balance);
-      const newBalance = (currentBalance + amount).toFixed(2);
-
-      await db
-        .update(users)
-        .set({ balance: newBalance })
-        .where(eq(users.telegramId, telegramId));
-
-      return true;
-    } catch (error) {
-      console.error('Error updating user balance:', error);
-      return false;
-    }
+    const currentBalance = parseFloat(user.balance);
+    const newBalance = (currentBalance + amount).toFixed(2);
+    
+    user.balance = newBalance;
+    this.users.set(user.id, user);
+    
+    return true;
   }
 
   async setUserAdmin(userId: string, isAdmin: boolean): Promise<boolean> {

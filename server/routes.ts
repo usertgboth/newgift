@@ -293,7 +293,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user = await storage.createUser({
           telegramId,
           username: 'Admin',
-          balance: 0,
         });
         console.log('User created:', user.id);
       }
