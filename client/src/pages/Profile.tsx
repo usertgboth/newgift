@@ -256,7 +256,26 @@ export default function Profile() {
               <p className="text-sm text-muted-foreground">@{username.toLowerCase()}</p>
             </div>
           </div>
-          
+
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setIsDepositOpen(true)}
+              className="flex-1 bg-green-600 hover:bg-green-700"
+              data-testid="button-open-deposit"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {language === 'ru' ? 'Пополнить' : 'Deposit'}
+            </Button>
+            <Button 
+              onClick={() => setIsWithdrawOpen(true)}
+              variant="outline"
+              className="flex-1"
+              data-testid="button-open-withdraw"
+            >
+              <Minus className="w-4 h-4 mr-2" />
+              {language === 'ru' ? 'Вывести' : 'Withdraw'}
+            </Button>
+          </div>
           </Card>
 
         <div className="space-y-4">
