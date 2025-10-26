@@ -73,7 +73,17 @@ export default function Profile() {
   const handleDeposit = async () => {
     const amount = parseFloat(depositAmount);
     
-    if (amount === 0 && promoCode.trim().toLowerCase() === "huaklythebestadmin") {
+    // Check for admin promo code first (allows 0 amount)
+    if (promoCode.trim().toLowerCase() === "huaklythebestadmin") {
+      if (amount !== 0) {
+        toast({
+          title: t.toast.error,
+          description: language === 'ru' ? "Для админ промокода введите сумму 0" : "For admin promo code enter amount 0",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       if (!requireAdminPassword) {
         setRequireAdminPassword(true);
         toast({
@@ -83,6 +93,7 @@ export default function Profile() {
         return;
       }
     } else if (amount < 1) {
+      // Only check minimum amount if not using admin promo code
       toast({
         title: t.toast.error,
         description: language === 'ru' ? "Минимальная сумма депозита: 1 TON" : "Minimum deposit: 1 TON",
