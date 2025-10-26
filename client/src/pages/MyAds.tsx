@@ -79,6 +79,8 @@ export default function MyAds() {
 
   // Show notification 1 minute after channel creation
   useEffect(() => {
+    const timers: NodeJS.Timeout[] = [];
+    
     channels.forEach(channel => {
       if (!channel.createdAt || notifiedChannels.has(channel.id)) return;
       
@@ -88,15 +90,13 @@ export default function MyAds() {
       const timeElapsed = now - createdAt;
       
       if (timeElapsed >= oneMinute) {
-        // Already passed 1 minute
-        if (!notifiedChannels.has(channel.id)) {
-          toast({
-            title: "🎉 " + t.myAds.adActive,
-            description: `${channel.channelName} - ${channel.giftName}`,
-            duration: 5000,
-          });
-          setNotifiedChannels(prev => new Set([...prev, channel.id]));
-        }
+        // Already passed 1 minute - show immediately
+        toast({
+          title: "🎉 " + t.myAds.adActive,
+          description: `${channel.channelName} - ${channel.giftName}`,
+          duration: 5000,
+        });
+        setNotifiedChannels(prev => new Set([...prev, channel.id]));
       } else {
         // Set timeout for remaining time
         const remainingTime = oneMinute - timeElapsed;
@@ -109,9 +109,13 @@ export default function MyAds() {
           setNotifiedChannels(prev => new Set([...prev, channel.id]));
         }, remainingTime);
         
-        return () => clearTimeout(timer);
+        timers.push(timer);
       }
     });
+    
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
   }, [channels, notifiedChannels, toast, t]);
 
   const deleteChannelMutation = useMutation({
@@ -201,7 +205,7 @@ export default function MyAds() {
             </div>
           </div>
         ) : (
-          <div className="px-4 py-6 pb-24 overflow-y-auto flex-1">
+          <div className="px-4 py-6 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="grid grid-cols-2 gap-3">
               {channels.map((channel) => {
                 return (
