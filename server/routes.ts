@@ -14,7 +14,7 @@ interface AdminRequest extends Request {
 }
 
 function getTelegramIdFromSession(req: Request): string | null {
-  const telegramData = (req as any).session?.telegramUser?.id || 
+  const telegramData = (req as any).session?.telegramUser?.id ||
                        (req as any).user?.telegramId ||
                        req.headers['x-telegram-id'] as string;
   return telegramData || null;
@@ -33,50 +33,50 @@ async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
   try {
     // Extract channel username from link or use it directly
     let channelUsername = telegramLink.trim();
-    
+
     // If it's a full link, extract username
     const channelMatch = telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
     if (channelMatch) {
       channelUsername = channelMatch[1];
     }
-    
+
     // Remove @ if present
     if (channelUsername.startsWith('@')) {
       channelUsername = channelUsername.substring(1);
     }
-    
+
     // Use Telegram Bot API to check if channel exists
     const response = await fetch(
       `https://api.telegram.org/bot${BOT_TOKEN}/getChat?chat_id=@${channelUsername}`
     );
-    
+
     const data = await response.json();
-    
+
     if (!data.ok) {
       console.error('Telegram API error:', data.description);
       return false;
     }
-    
+
     // Check if bot is an administrator
     const adminsResponse = await fetch(
       `https://api.telegram.org/bot${BOT_TOKEN}/getChatAdministrators?chat_id=@${channelUsername}`
     );
-    
+
     const adminsData = await adminsResponse.json();
-    
+
     if (!adminsData.ok) {
       console.error('Failed to get administrators:', adminsData.description);
       return false;
     }
-    
+
     // Check if our bot is in the administrators list
     const botId = BOT_TOKEN.split(':')[0];
     const isBotAdmin = adminsData.result.some((admin: any) => admin.user.id.toString() === botId);
-    
+
     if (!isBotAdmin) {
       console.error('Bot is not an administrator in this channel');
     }
-    
+
     return isBotAdmin;
   } catch (error) {
     console.error('Error verifying Telegram channel:', error);
@@ -88,40 +88,40 @@ async function checkGiftInChannel(telegramLink: string, giftName: string): Promi
   try {
     // Extract channel username from link or use it directly
     let channelUsername = telegramLink.trim();
-    
+
     // If it's a full link, extract username
     const channelMatch = telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
     if (channelMatch) {
       channelUsername = channelMatch[1];
     }
-    
+
     // Remove @ if present
     if (channelUsername.startsWith('@')) {
       channelUsername = channelUsername.substring(1);
     }
-    
+
     // Get recent messages from the channel
     const response = await fetch(
       `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?chat_id=@${channelUsername}&limit=100`
     );
-    
+
     const data = await response.json();
-    
+
     if (!data.ok) {
       console.error('Failed to get channel messages:', data.description);
       return false;
     }
-    
+
     // Search for gift name in recent messages
     const messages = data.result || [];
     const hasGift = messages.some((update: any) => {
       const message = update.message || update.channel_post;
       if (!message) return false;
-      
+
       const text = message.text || message.caption || '';
       return text.toLowerCase().includes(giftName.toLowerCase());
     });
-    
+
     return hasGift;
   } catch (error) {
     console.error('Error checking gift in channel:', error);
@@ -180,13 +180,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/channels", async (req, res) => {
     try {
       const { search } = req.query;
-      
+
       if (search && typeof search === 'string') {
         const channels = await storage.searchChannelsByGiftName(search);
         return res.json(channels);
       }
-      
+
       const channels = await storage.getAllChannels();
+      console.log('Returning channels with createdAt:', channels.map(c => ({ id: c.id, createdAt: c.createdAt })));
       res.json(channels);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch channels" });
@@ -209,12 +210,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertChannelSchema.parse(req.body);
       const channel = await storage.createChannel(validatedData);
-      
+
       // Schedule auto-purchase simulation after 5 seconds (for testing)
       setTimeout(async () => {
         try {
           console.log(`Creating simulated purchase for channel ${channel.id} after 5 seconds`);
-          
+
           // Get or create a test buyer user
           let testBuyer = await storage.getUserByTelegramId('test_buyer_auto');
           if (!testBuyer) {
@@ -223,7 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               username: 'Auto Buyer',
             });
           }
-          
+
           // Create simulated purchase
           const purchase = await storage.createPurchase({
             buyerId: testBuyer.id,
@@ -232,11 +233,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             giftId: channel.giftId,
             price: channel.price,
           });
-          
-          await storage.updatePurchase(purchase.id, { 
-            buyerDebitTxCompleted: true 
+
+          await storage.updatePurchase(purchase.id, {
+            buyerDebitTxCompleted: true
           });
-          
+
           // Set buyer notified immediately
           const now = new Date();
           const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
@@ -244,13 +245,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             buyerNotifiedAt: now,
             sellerCountdownExpiresAt: expiresAt
           });
-          
+
           console.log(`Simulated purchase created and buyer notified for channel ${channel.id}`);
         } catch (error) {
           console.error('Error creating simulated purchase:', error);
         }
       }, 5000); // 5 seconds for testing
-      
+
       res.status(201).json(channel);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -292,7 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users/:telegramId/referral-stats", async (req, res) => {
     try {
       const { telegramId } = req.params;
-      
+
       // Get user by telegram ID
       const user = await storage.getUserByTelegramId(telegramId);
       if (!user) {
@@ -301,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get referral count and earnings
       const stats = await storage.getReferralStats(user.id);
-      
+
       res.json({
         totalReferrals: stats.count,
         totalEarnings: stats.earnings,
@@ -328,7 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Expected password:', ADMIN_SECRET_PASSWORD);
 
       let user = await storage.getUserByTelegramId(telegramId);
-      
+
       // Create user if doesn't exist (for testing/admin activation)
       if (!user) {
         console.log('User not found, creating new user...');
@@ -344,22 +345,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Admin promo code matched!');
         if (!adminPassword) {
           console.log('No password provided');
-          return res.json({ 
+          return res.json({
             requirePassword: true,
             message: "Please enter admin password"
           });
         }
-        
+
         console.log('Checking password...');
         console.log('Received:', adminPassword);
         console.log('Expected:', ADMIN_SECRET_PASSWORD);
         console.log('Match:', adminPassword === ADMIN_SECRET_PASSWORD);
-        
+
         if (adminPassword === ADMIN_SECRET_PASSWORD) {
           console.log('Password correct! Granting admin access');
           await storage.setUserAdmin(user.id, true);
-          return res.json({ 
-            success: true, 
+          return res.json({
+            success: true,
             message: "Admin access granted",
             isAdmin: true,
             userId: user.id
@@ -376,7 +377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const success = await storage.updateUserBalance(telegramId, parseFloat(amount));
-      
+
       if (!success) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -392,7 +393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/verify-telegram", async (req, res) => {
     try {
       const { telegramLink, giftName } = req.body;
-      
+
       if (!telegramLink || !giftName) {
         return res.status(400).json({ error: "Telegram link and gift name are required" });
       }
@@ -401,11 +402,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // In real implementation, you would use Telegram Bot API or web scraping
       const isChannelValid = await verifyTelegramChannel(telegramLink);
       const hasGift = await checkGiftInChannel(telegramLink, giftName);
-      
+
       res.json({
         channelValid: isChannelValid,
         hasGift: hasGift,
-        message: isChannelValid 
+        message: isChannelValid
           ? (hasGift ? "Gift found in channel" : "Gift not found in channel")
           : "Invalid Telegram channel"
       });
@@ -419,13 +420,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all users and check if any admin exists
       const allUsers = await storage.getAllUsers();
       const adminUser = allUsers.find(u => u.isAdmin);
-      
+
       console.log('Admin check - found admin:', adminUser?.id);
-      
+
       if (adminUser) {
         return res.json({ isAdmin: true, user: adminUser });
       }
-      
+
       res.json({ isAdmin: false, user: null });
     } catch (error) {
       console.error('Admin check error:', error);
@@ -452,7 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const success = await storage.updateUserBalanceById(id, amount);
-      
+
       if (!success) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -492,7 +493,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/purchases", async (req, res) => {
     try {
       const validatedData = insertPurchaseSchema.parse(req.body);
-      
+
       const buyer = await storage.getUser(validatedData.buyerId);
       if (!buyer) {
         return res.status(404).json({ error: "Buyer not found" });
@@ -511,7 +512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const purchase = await storage.createPurchase(validatedData);
-      
+
       const success = await storage.updateUserBalanceById(validatedData.buyerId, -price);
       if (!success) {
         return res.status(500).json({ error: "Failed to debit buyer balance" });
