@@ -213,6 +213,17 @@ export default function CreateAd() {
             </ul>
           </div>
         </div>
+
+        <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
+          <h3 className="text-sm font-semibold text-green-400 mb-2">
+            {language === 'ru' ? '🎉 Тестовая система' : '🎉 Test System'}
+          </h3>
+          <p className="text-xs text-green-200/80">
+            {language === 'ru' 
+              ? 'После создания объявления, через 30 секунд автоматически будет создана тестовая покупка. Вы получите уведомление как продавец, а тестовый покупатель (админ) получит уведомление как покупатель. Проверьте вкладку "Мои объявления" через 30 секунд после создания!'
+              : 'After creating an ad, a test purchase will be automatically created in 30 seconds. You will receive a notification as a seller, and the test buyer (admin) will receive a notification as a buyer. Check the "My Ads" tab 30 seconds after creation!'}
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="px-4 space-y-6 pb-6">
