@@ -80,18 +80,18 @@ export default function MyAds() {
   // Show notification 1 minute after channel creation
   useEffect(() => {
     const timers: NodeJS.Timeout[] = [];
-    
+
     channels.forEach(channel => {
       if (!channel.createdAt) return;
-      
+
       // Skip if already notified
       if (notifiedChannels.has(channel.id)) return;
-      
+
       const createdAt = new Date(channel.createdAt).getTime();
       const now = Date.now();
       const oneMinute = 60 * 1000; // 1 minute in milliseconds
       const timeElapsed = now - createdAt;
-      
+
       if (timeElapsed >= oneMinute) {
         // Already passed 1 minute - show immediately
         toast({
@@ -111,11 +111,11 @@ export default function MyAds() {
           });
           setNotifiedChannels(prev => new Set([...prev, channel.id]));
         }, remainingTime);
-        
+
         timers.push(timer);
       }
     });
-    
+
     return () => {
       timers.forEach(timer => clearTimeout(timer));
     };
@@ -162,7 +162,12 @@ export default function MyAds() {
         />
       )}
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+      <div className="px-4 py-6 pb-24 overflow-y-auto" style={{ 
+            WebkitOverflowScrolling: 'touch', 
+            touchAction: 'pan-y',
+            height: 'calc(100vh - 160px)',
+            overflowY: 'scroll'
+          }}>
         <div className="flex items-center justify-between px-4 py-4 border-b border-border sticky top-0 bg-background z-10">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
             {t.myAds.title}
