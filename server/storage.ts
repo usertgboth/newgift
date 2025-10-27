@@ -351,6 +351,7 @@ export class MemStorage implements IStorage {
       buyerConfirmed: false,
       sellerConfirmed: false,
       buyerNotifiedAt: null,
+      sellerNotifiedAt: null,
       sellerCountdownExpiresAt: null,
       buyerDebitTxCompleted: false,
       sellerCreditTxCompleted: false,
@@ -416,6 +417,19 @@ export class MemStorage implements IStorage {
       ...purchase, 
       sellerConfirmed: true,
       status: purchase.buyerConfirmed ? "transfer_completed" : "transfer_in_progress"
+    };
+    this.purchases.set(id, updated);
+    return updated;
+  }
+
+  async confirmPurchaseBuyer(id: string): Promise<Purchase | undefined> {
+    const purchase = this.purchases.get(id);
+    if (!purchase) return undefined;
+
+    const updated = { 
+      ...purchase, 
+      buyerConfirmed: true,
+      status: "pending_transfer"
     };
     this.purchases.set(id, updated);
     return updated;

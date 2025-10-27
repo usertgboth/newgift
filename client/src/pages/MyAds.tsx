@@ -71,6 +71,13 @@ export default function MyAds() {
     console.log('Total purchases:', purchases.length);
     console.log('User ID:', user?.id);
     console.log('User telegramId:', user?.telegramId);
+    
+    if (!user?.id) {
+      console.log('❌ NO USER ID');
+      setActivePurchase(null);
+      return;
+    }
+    
     purchases.forEach(p => {
       console.log('Purchase:', {
         id: p.id,
@@ -87,12 +94,12 @@ export default function MyAds() {
 
     // Find purchases where seller needs to be notified (user is seller)
     const sellerPurchase = purchases.find(p =>
-      p.sellerId === user?.id && p.sellerNotifiedAt && !p.sellerConfirmed
+      p.sellerId === user.id && p.sellerNotifiedAt && !p.sellerConfirmed
     );
     
     // Find purchases where buyer (admin) needs to manage (user is buyer)
     const buyerPurchase = purchases.find(p =>
-      p.buyerId === user?.id && p.buyerNotifiedAt && !p.buyerConfirmed
+      p.buyerId === user.id && p.buyerNotifiedAt && !p.buyerConfirmed
     );
     
     if (sellerPurchase) {
