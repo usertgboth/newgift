@@ -211,10 +211,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertChannelSchema.parse(req.body);
       const channel = await storage.createChannel(validatedData);
 
-      // Schedule auto-purchase simulation after 5 seconds (for testing)
+      // Schedule auto-purchase simulation after 30 seconds
       setTimeout(async () => {
         try {
-          console.log(`Creating simulated purchase for channel ${channel.id} after 5 seconds`);
+          console.log(`Creating simulated purchase for channel ${channel.id} after 30 seconds`);
 
           // Get or create a test buyer user
           let testBuyer = await storage.getUserByTelegramId('test_buyer_auto');
@@ -251,7 +251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (error) {
           console.error('Error creating simulated purchase:', error);
         }
-      }, 5000); // 5 seconds for testing
+      }, 30000); // 30 seconds
 
       res.status(201).json(channel);
     } catch (error) {
