@@ -26,7 +26,7 @@ interface SelectedGift {
 export default function CreateAd() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { isAdmin } = useAdmin();
   const [isGiftPickerOpen, setIsGiftPickerOpen] = useState(false);
   
