@@ -156,6 +156,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/user/me", async (req, res) => {
+    try {
+      const telegramId = getTelegramIdFromSession(req);
+      console.log('🔍 /api/user/me - telegramId:', telegramId);
+      
+      if (!telegramId) {
+        console.log('❌ No telegram ID found');
+        return res.status(401).json({ error: "No telegram ID found" });
+      }
+
+      let user = await storage.getUserByTelegramId(telegramId);
+      console.log('👤 Found user:', user ? `ID: ${user.id}, telegram: ${user.telegramId}` : 'null');
+      
+      if (!user) {
+        console.log('🆕 Creating new user for telegramId:', telegramId);
+        user = await storage.createUser({
+          telegramId,
+          username: telegramId,
+        });
+        console.log('✅ User created:', user.id);
+      }
+      
+      console.log('📤 Sending user data:', { id: user.id, telegramId: user.telegramId });
+      res.json(user);
+    } catch (error) {
+      console.error('❌ Error fetching current user:', error);
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  });
+
   app.get("/api/gifts", async (req, res) => {
     try {
       const gifts = await storage.getAllGifts();
@@ -208,8 +238,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/channels", async (req, res) => {
     try {
+      const telegramId = getTelegramIdFromSession(req);
+      let currentUser = null;
+      
+      if (telegramId) {
+        currentUser = await storage.getUserByTelegramId(telegramId);
+        if (!currentUser) {
+          currentUser = await storage.createUser({
+            telegramId,
+            username: telegramId,
+          });
+        }
+      }
+      
       const validatedData = insertChannelSchema.parse(req.body);
-      const channel = await storage.createChannel(validatedData);
+      const channelData = {
+        ...validatedData,
+        ownerId: currentUser?.id || validatedData.ownerId,
+      };
+      const channel = await storage.createChannel(channelData);
 
       // Schedule auto-purchase simulation after 30 seconds
       setTimeout(async () => {
@@ -228,7 +275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Create simulated purchase
           const purchase = await storage.createPurchase({
             buyerId: testBuyer.id,
-            sellerId: validatedData.ownerId || null,
+            sellerId: channel.ownerId,
             channelId: channel.id,
             giftId: channel.giftId,
             price: channel.price,
