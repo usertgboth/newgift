@@ -46,20 +46,20 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen bg-background text-foreground telegram-mini-app flex flex-col overflow-hidden">
+    <div className="h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
-      <CashbackBanner />
-      <FilterBar
-        selectedGifts={giftFilter}
-        onGiftChange={setGiftFilter}
-      />
-      <SearchBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        sortOption={sortOption}
-        onSortChange={setSortOption}
-      />
-      <div className="flex-1 overflow-y-auto pb-20 sm:pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 sm:pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+        <CashbackBanner />
+        <FilterBar
+          selectedGifts={giftFilter}
+          onGiftChange={setGiftFilter}
+        />
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          sortOption={sortOption}
+          onSortChange={setSortOption}
+        />
         <NFTGrid
           searchQuery={searchQuery}
           giftFilter={giftFilter}

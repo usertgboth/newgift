@@ -135,8 +135,8 @@ export default function Tasks() {
         />
       )}
 
-      <div className="flex-1 flex flex-col">
-        <div className="px-4 py-4 border-b border-border flex-shrink-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+        <div className="px-4 py-4 border-b border-border sticky top-0 bg-background z-10">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
               {t.tasks.title}
@@ -146,7 +146,7 @@ export default function Tasks() {
             </div>
           </div>
 
-          <div className="bg-card border border-card-border rounded-2xl p-4 mb-6">
+          <div className="bg-card border border-card-border rounded-2xl p-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Gift className="w-6 h-6 text-primary" />
@@ -164,7 +164,7 @@ export default function Tasks() {
           </div>
         </div>
 
-        <div className="px-4 py-6 space-y-4 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+        <div className="px-4 py-6 space-y-4">
           {tasks.map((task) => (
             <div
               key={task.id}

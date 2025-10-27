@@ -162,8 +162,8 @@ export default function MyAds() {
         />
       )}
 
-      <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border flex-shrink-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+        <div className="flex items-center justify-between px-4 py-4 border-b border-border sticky top-0 bg-background z-10">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
             {t.myAds.title}
           </h1>
@@ -178,7 +178,7 @@ export default function MyAds() {
         </div>
 
         {isLoading ? (
-          <div className="px-4 py-6 overflow-y-auto flex-1">
+          <div className="px-4 py-6">
             <div className="grid grid-cols-2 gap-3">
               {[1, 2].map((i) => (
                 <div key={i} className="rounded-2xl p-3 bg-card animate-pulse">
@@ -190,7 +190,7 @@ export default function MyAds() {
             </div>
           </div>
         ) : !channels || channels.length === 0 ? (
-          <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 pb-24">
+          <div className="flex flex-col items-center justify-center px-6 py-20">
             <div className="flex flex-col items-center text-center space-y-6">
               <div className="w-24 h-24 rounded-2xl bg-card border border-card-border flex items-center justify-center">
                 <Layers3 className="w-12 h-12 text-muted-foreground" />
@@ -208,7 +208,7 @@ export default function MyAds() {
             </div>
           </div>
         ) : (
-          <div className="px-4 py-6 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+          <div className="px-4 py-6">
             <div className="grid grid-cols-2 gap-3">
               {channels.map((channel) => {
                 return (

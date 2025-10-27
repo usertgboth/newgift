@@ -61,14 +61,14 @@ export default function Profile() {
     <div className="h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
 
-      <div className="flex-1 flex flex-col">
-        <div className="px-4 py-4 border-b border-border flex-shrink-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+        <div className="px-4 py-4 border-b border-border sticky top-0 bg-background z-10">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
             {t.profile.title}
           </h1>
         </div>
 
-        <div className="px-4 py-6 space-y-6 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+        <div className="px-4 py-6 space-y-6">
           <Card className="bg-card border-card-border rounded-2xl p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
