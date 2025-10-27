@@ -160,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const telegramId = getTelegramIdFromSession(req);
       console.log('🔍 /api/user/me - telegramId:', telegramId);
-      
+
       if (!telegramId) {
         console.log('❌ No telegram ID found');
         return res.status(401).json({ error: "No telegram ID found" });
@@ -168,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let user = await storage.getUserByTelegramId(telegramId);
       console.log('👤 Found user:', user ? `ID: ${user.id}, telegram: ${user.telegramId}` : 'null');
-      
+
       if (!user) {
         console.log('🆕 Creating new user for telegramId:', telegramId);
         user = await storage.createUser({
@@ -177,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         console.log('✅ User created:', user.id);
       }
-      
+
       console.log('📤 Sending user data:', { id: user.id, telegramId: user.telegramId });
       res.json(user);
     } catch (error) {
@@ -240,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const telegramId = getTelegramIdFromSession(req);
       let currentUser = null;
-      
+
       if (telegramId) {
         currentUser = await storage.getUserByTelegramId(telegramId);
         if (!currentUser) {
@@ -250,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       const validatedData = insertChannelSchema.parse(req.body);
       const channelData = {
         ...validatedData,
@@ -277,15 +277,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.setUserAdmin(testBuyer.id, true);
           }
 
-          // Create simulated purchase
+          // Create simulated purchase using channel owner as seller
+          const channelOwner = channel.ownerId;
+
+          console.log('🎯 Creating simulated purchase:');
+          console.log('  Buyer ID:', testBuyer.id);
+          console.log('  Seller ID:', channelOwner);
+          console.log('  Channel ID:', channel.id);
+
           const purchase = await storage.createPurchase({
             buyerId: testBuyer.id,
-            sellerId: channel.ownerId || currentUser?.id || null,
+            sellerId: channelOwner,
             channelId: channel.id,
             giftId: channel.giftId,
             price: channel.price,
+            status: 'pending',
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
           });
 
+          console.log('✅ Purchase created:', purchase);
           await storage.updatePurchase(purchase.id, {
             buyerDebitTxCompleted: true
           });
