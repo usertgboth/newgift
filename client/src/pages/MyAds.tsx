@@ -77,7 +77,7 @@ export default function MyAds() {
     }
   }, [purchases]);
 
-  // Show notification 1 minute after channel creation
+  // Show notification 15 seconds after channel creation
   useEffect(() => {
     const timers: NodeJS.Timeout[] = [];
 
@@ -89,11 +89,11 @@ export default function MyAds() {
 
       const createdAt = new Date(channel.createdAt).getTime();
       const now = Date.now();
-      const oneMinute = 60 * 1000; // 1 minute in milliseconds
+      const notificationDelay = 15 * 1000; // 15 seconds in milliseconds
       const timeElapsed = now - createdAt;
 
-      if (timeElapsed >= oneMinute) {
-        // Already passed 1 minute - show immediately
+      if (timeElapsed >= notificationDelay) {
+        // Already passed 15 seconds - show immediately
         toast({
           title: "🎉 " + t.myAds.adActive,
           description: `${channel.channelName} - ${channel.giftName}`,
@@ -102,7 +102,7 @@ export default function MyAds() {
         setNotifiedChannels(prev => new Set([...prev, channel.id]));
       } else {
         // Set timeout for remaining time
-        const remainingTime = oneMinute - timeElapsed;
+        const remainingTime = notificationDelay - timeElapsed;
         const timer = setTimeout(() => {
           toast({
             title: "🎉 " + t.myAds.adActive,
@@ -162,13 +162,8 @@ export default function MyAds() {
         />
       )}
 
-      <div className="px-4 py-6 pb-24 overflow-y-auto" style={{ 
-            WebkitOverflowScrolling: 'touch', 
-            touchAction: 'pan-y',
-            height: 'calc(100vh - 160px)',
-            overflowY: 'scroll'
-          }}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border sticky top-0 bg-background z-10">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-border bg-background">
           <h1 className="text-xl font-semibold text-foreground" data-testid="text-title">
             {t.myAds.title}
           </h1>
@@ -181,84 +176,87 @@ export default function MyAds() {
             <Plus className="w-5 h-5" />
           </Button>
         </div>
+        
+        <div className="flex-1 overflow-y-auto pb-20" style={{ WebkitOverflowScrolling: 'touch' }}>
 
         {isLoading ? (
-          <div className="px-4 py-6">
-            <div className="grid grid-cols-2 gap-3">
-              {[1, 2].map((i) => (
-                <div key={i} className="rounded-2xl p-3 bg-card animate-pulse">
-                  <div className="aspect-square rounded-xl bg-muted mb-3" />
-                  <div className="h-4 bg-muted rounded mb-2" />
-                  <div className="h-3 bg-muted rounded w-2/3" />
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : !channels || channels.length === 0 ? (
-          <div className="flex flex-col items-center justify-center px-6 py-20">
-            <div className="flex flex-col items-center text-center space-y-6">
-              <div className="w-24 h-24 rounded-2xl bg-card border border-card-border flex items-center justify-center">
-                <Layers3 className="w-12 h-12 text-muted-foreground" />
-              </div>
-
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-foreground" data-testid="text-empty-title">
-                  {t.myAds.noChannels}
-                </h2>
-                <p className="text-sm text-muted-foreground" data-testid="text-empty-subtitle">
-                  {t.myAds.createFirst}
-                </p>
-              </div>
-
-            </div>
-          </div>
-        ) : (
-          <div className="px-4 py-6">
-            <div className="grid grid-cols-2 gap-3">
-              {channels.map((channel) => {
-                return (
-                  <div
-                    key={channel.id}
-                    className="rounded-2xl p-3 relative bg-gradient-to-br from-[#4A90E2] to-[#357ABD]"
-                    data-testid={`card-channel-${channel.id}`}
-                  >
-                    <button
-                      onClick={() => handleDelete(channel.id, channel.channelName)}
-                      className="absolute top-2 right-2 w-8 h-8 rounded-lg bg-black/30 backdrop-blur-sm flex items-center justify-center hover:bg-black/50 transition-colors z-10"
-                      data-testid={`button-delete-${channel.id}`}
-                    >
-                      <Trash2 className="w-4 h-4 text-white" />
-                    </button>
-
-                    <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
-                      <img
-                        src={channel.giftImage}
-                        alt={channel.giftName}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <h3 className="text-base font-semibold text-white">
-                        {channel.giftName}
-                      </h3>
-                      <p className="text-xs text-white/70">
-                        {channel.channelName}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary rounded-full mt-3 w-fit">
-                      <img src={tonLogo} alt="TON" className="w-3.5 h-3.5 rounded-full object-cover" />
-                      <span className="text-sm font-semibold text-primary-foreground">
-                        {channel.price} TON
-                      </span>
-                    </div>
+            <div className="px-4 py-6">
+              <div className="grid grid-cols-2 gap-3">
+                {[1, 2].map((i) => (
+                  <div key={i} className="rounded-2xl p-3 bg-card animate-pulse">
+                    <div className="aspect-square rounded-xl bg-muted mb-3" />
+                    <div className="h-4 bg-muted rounded mb-2" />
+                    <div className="h-3 bg-muted rounded w-2/3" />
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          ) : !channels || channels.length === 0 ? (
+            <div className="flex flex-col items-center justify-center px-6 py-20">
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className="w-24 h-24 rounded-2xl bg-card border border-card-border flex items-center justify-center">
+                  <Layers3 className="w-12 h-12 text-muted-foreground" />
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="text-xl font-semibold text-foreground" data-testid="text-empty-title">
+                    {t.myAds.noChannels}
+                  </h2>
+                  <p className="text-sm text-muted-foreground" data-testid="text-empty-subtitle">
+                    {t.myAds.createFirst}
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          ) : (
+            <div className="px-4 py-6">
+              <div className="grid grid-cols-2 gap-3">
+                {channels.map((channel) => {
+                  return (
+                    <div
+                      key={channel.id}
+                      className="rounded-2xl p-3 relative bg-gradient-to-br from-[#4A90E2] to-[#357ABD]"
+                      data-testid={`card-channel-${channel.id}`}
+                    >
+                      <button
+                        onClick={() => handleDelete(channel.id, channel.channelName)}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-lg bg-black/30 backdrop-blur-sm flex items-center justify-center hover:bg-black/50 transition-colors z-10"
+                        data-testid={`button-delete-${channel.id}`}
+                      >
+                        <Trash2 className="w-4 h-4 text-white" />
+                      </button>
+
+                      <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
+                        <img
+                          src={channel.giftImage}
+                          alt={channel.giftName}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <h3 className="text-base font-semibold text-white">
+                          {channel.giftName}
+                        </h3>
+                        <p className="text-xs text-white/70">
+                          {channel.channelName}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary rounded-full mt-3 w-fit">
+                        <img src={tonLogo} alt="TON" className="w-3.5 h-3.5 rounded-full object-cover" />
+                        <span className="text-sm font-semibold text-primary-foreground">
+                          {channel.price} TON
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <BottomNav activeTab="myads" />
