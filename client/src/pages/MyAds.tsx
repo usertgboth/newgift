@@ -53,8 +53,8 @@ export default function MyAds() {
     queryKey: ["/api/channels"],
   });
 
-  // Fetch purchases only if user data is available
-  const { data: purchases = [] } = useQuery<Purchase[]>({
+  // Fetch seller purchases
+  const { data: sellerPurchases = [] } = useQuery<Purchase[]>({
     queryKey: ['/api/purchases/seller', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -63,8 +63,24 @@ export default function MyAds() {
       return res.json();
     },
     enabled: !!user?.id,
-    refetchInterval: 3000, // Poll every 3 seconds
+    refetchInterval: 3000,
   });
+
+  // Fetch buyer purchases
+  const { data: buyerPurchases = [] } = useQuery<Purchase[]>({
+    queryKey: ['/api/purchases/buyer', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const res = await fetch(`/api/purchases/buyer/${user.id}`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!user?.id,
+    refetchInterval: 3000,
+  });
+
+  // Combine all purchases
+  const purchases = [...sellerPurchases, ...buyerPurchases];
 
   useEffect(() => {
     console.log('=== PURCHASES UPDATE ===');

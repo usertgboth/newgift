@@ -280,7 +280,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Create simulated purchase
           const purchase = await storage.createPurchase({
             buyerId: testBuyer.id,
-            sellerId: channel.ownerId,
+            sellerId: channel.ownerId || currentUser?.id || null,
             channelId: channel.id,
             giftId: channel.giftId,
             price: channel.price,
