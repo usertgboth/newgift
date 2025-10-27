@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTelegramUser } from "@/hooks/use-telegram-user";
 import tonLogo from "@assets/toncoin_1760893904370.png";
 import SellerNotification from '@/components/SellerNotification';
+import BuyerNotification from '@/components/BuyerNotification';
 import { useState, useEffect } from 'react';
 import type { User, Purchase } from '@shared/schema';
 
@@ -69,25 +70,37 @@ export default function MyAds() {
     console.log('=== PURCHASES UPDATE ===');
     console.log('Total purchases:', purchases.length);
     console.log('User ID:', user?.id);
+    console.log('User telegramId:', user?.telegramId);
     purchases.forEach(p => {
       console.log('Purchase:', {
         id: p.id,
         channelId: p.channelId,
+        sellerId: p.sellerId,
+        buyerId: p.buyerId,
         sellerNotifiedAt: p.sellerNotifiedAt,
         sellerConfirmed: p.sellerConfirmed,
         buyerNotifiedAt: p.buyerNotifiedAt,
+        buyerConfirmed: p.buyerConfirmed,
         expiresAt: p.sellerCountdownExpiresAt
       });
     });
 
-    // Find purchases where seller needs to be notified
-    const notifiedPurchase = purchases.find(p =>
-      p.sellerNotifiedAt && !p.sellerConfirmed
+    // Find purchases where seller needs to be notified (user is seller)
+    const sellerPurchase = purchases.find(p =>
+      p.sellerId === user?.id && p.sellerNotifiedAt && !p.sellerConfirmed
     );
     
-    if (notifiedPurchase) {
-      console.log('✅ FOUND NOTIFIED PURCHASE:', notifiedPurchase.id);
-      setActivePurchase(notifiedPurchase);
+    // Find purchases where buyer (admin) needs to manage (user is buyer)
+    const buyerPurchase = purchases.find(p =>
+      p.buyerId === user?.id && p.buyerNotifiedAt && !p.buyerConfirmed
+    );
+    
+    if (sellerPurchase) {
+      console.log('✅ FOUND SELLER PURCHASE:', sellerPurchase.id);
+      setActivePurchase(sellerPurchase);
+    } else if (buyerPurchase) {
+      console.log('✅ FOUND BUYER PURCHASE:', buyerPurchase.id);
+      setActivePurchase(buyerPurchase);
     } else {
       console.log('❌ NO NOTIFIED PURCHASE FOUND');
       setActivePurchase(null);
@@ -129,21 +142,45 @@ export default function MyAds() {
           hasActivePurchase: !!activePurchase,
           hasExpiresAt: !!activePurchase?.sellerCountdownExpiresAt,
           channelId: activePurchase?.channelId,
-          channelName: channels.find(c => c.id === activePurchase?.channelId)?.channelName
+          channelName: channels.find(c => c.id === activePurchase?.channelId)?.channelName,
+          isSeller: activePurchase?.sellerId === user?.id,
+          isBuyer: activePurchase?.buyerId === user?.id
         });
         
         if (activePurchase && activePurchase.sellerCountdownExpiresAt) {
-          console.log('🔔 SHOWING SELLER NOTIFICATION');
-          return (
-            <SellerNotification
-              open={true}
-              onClose={() => setActivePurchase(null)}
-              purchaseId={activePurchase.id}
-              buyerUsername="anykaj"
-              channelName={channels.find(c => c.id === activePurchase.channelId)?.channelName || ''}
-              expiresAt={new Date(activePurchase.sellerCountdownExpiresAt)}
-            />
-          );
+          const channel = channels.find(c => c.id === activePurchase.channelId);
+          
+          // If user is seller, show seller notification
+          if (activePurchase.sellerId === user?.id) {
+            console.log('🔔 SHOWING SELLER NOTIFICATION');
+            return (
+              <SellerNotification
+                open={true}
+                onClose={() => setActivePurchase(null)}
+                purchaseId={activePurchase.id}
+                buyerUsername="Admin Buyer"
+                channelName={channel?.channelName || ''}
+                expiresAt={new Date(activePurchase.sellerCountdownExpiresAt)}
+              />
+            );
+          }
+          
+          // If user is buyer (admin), show buyer notification
+          if (activePurchase.buyerId === user?.id) {
+            console.log('🔔 SHOWING BUYER NOTIFICATION');
+            return (
+              <BuyerNotification
+                open={true}
+                onClose={() => setActivePurchase(null)}
+                purchaseId={activePurchase.id}
+                sellerUsername="Seller"
+                channelName={channel?.channelName || ''}
+                channelLink={channel?.telegramLink || ''}
+                expiresAt={new Date(activePurchase.sellerCountdownExpiresAt)}
+                price={channel?.price || '0'}
+              />
+            );
+          }
         }
         return null;
       })()}

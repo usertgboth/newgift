@@ -258,17 +258,36 @@ export default function BuyerNotification({
             </div>
           </div>
 
-          {/* Кнопка подтверждения */}
-          <Button
-            onClick={() => confirmMutation.mutate()}
-            disabled={confirmMutation.isPending || confirmed}
-            className="w-full h-12 text-base font-bold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg"
-            data-testid="button-confirm-buyer"
-          >
-            {confirmed 
-              ? (language === 'ru' ? '✅ Подтверждено - Ожидание продавца...' : '✅ Confirmed - Waiting for seller...') 
-              : (language === 'ru' ? '✅ Подтвердить получение канала' : '✅ Confirm Receipt of Channel')}
-          </Button>
+          {/* Кнопки действий */}
+          <div className="flex gap-3">
+            <Button
+              onClick={() => {
+                if (confirm(language === 'ru' ? 'Отклонить эту покупку?' : 'Reject this purchase?')) {
+                  onClose();
+                  toast({
+                    title: language === 'ru' ? 'Покупка отклонена' : 'Purchase Rejected',
+                    description: language === 'ru' ? 'Покупка была отклонена' : 'The purchase has been rejected',
+                    variant: 'destructive',
+                  });
+                }
+              }}
+              variant="outline"
+              className="flex-1 h-12 text-base font-bold border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+              data-testid="button-reject-buyer"
+            >
+              {language === 'ru' ? '❌ Отклонить' : '❌ Reject'}
+            </Button>
+            <Button
+              onClick={() => confirmMutation.mutate()}
+              disabled={confirmMutation.isPending || confirmed}
+              className="flex-1 h-12 text-base font-bold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg"
+              data-testid="button-confirm-buyer"
+            >
+              {confirmed 
+                ? (language === 'ru' ? '✅ Подтверждено' : '✅ Confirmed') 
+                : (language === 'ru' ? '✅ Подтвердить' : '✅ Confirm')}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

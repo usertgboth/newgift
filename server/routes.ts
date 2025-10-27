@@ -263,13 +263,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           console.log(`Creating simulated purchase for channel ${channel.id} after 30 seconds`);
 
-          // Get or create a test buyer user
+          // Get or create a test buyer user (admin)
           let testBuyer = await storage.getUserByTelegramId('test_buyer_auto');
           if (!testBuyer) {
             testBuyer = await storage.createUser({
               telegramId: 'test_buyer_auto',
-              username: 'Auto Buyer',
+              username: 'Admin Buyer',
             });
+            // Make this user an admin
+            await storage.setUserAdmin(testBuyer.id, true);
+          } else if (!testBuyer.isAdmin) {
+            // Ensure the test buyer is always an admin
+            await storage.setUserAdmin(testBuyer.id, true);
           }
 
           // Create simulated purchase
