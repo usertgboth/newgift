@@ -238,15 +238,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             buyerDebitTxCompleted: true
           });
 
-          // Set buyer notified immediately
+          // Set both buyer and seller notified immediately
           const now = new Date();
           const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
           await storage.updatePurchase(purchase.id, {
             buyerNotifiedAt: now,
+            sellerNotifiedAt: now,
             sellerCountdownExpiresAt: expiresAt
           });
 
-          console.log(`Simulated purchase created and buyer notified for channel ${channel.id}`);
+          console.log(`Simulated purchase created, buyer and seller notified for channel ${channel.id}`);
         } catch (error) {
           console.error('Error creating simulated purchase:', error);
         }

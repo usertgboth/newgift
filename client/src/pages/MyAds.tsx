@@ -72,66 +72,11 @@ export default function MyAds() {
     );
     if (notifiedPurchase) {
       setActivePurchase(notifiedPurchase);
+      console.log('Seller notification active for purchase:', notifiedPurchase.id);
     } else {
       setActivePurchase(null);
     }
   }, [purchases]);
-
-  // Show notification 15 seconds after channel creation
-  useEffect(() => {
-    console.log('Checking channels for notifications:', channels.length);
-    const timers: NodeJS.Timeout[] = [];
-
-    channels.forEach(channel => {
-      if (!channel.createdAt) {
-        console.log('Channel has no createdAt:', channel.id);
-        return;
-      }
-
-      // Skip if already notified
-      if (notifiedChannels.has(channel.id)) {
-        console.log('Already notified:', channel.id);
-        return;
-      }
-
-      const createdAt = new Date(channel.createdAt).getTime();
-      const now = Date.now();
-      const notificationDelay = 15 * 1000; // 15 seconds in milliseconds
-      const timeElapsed = now - createdAt;
-
-      console.log('Channel:', channel.channelName, 'Time elapsed:', timeElapsed, 'Delay:', notificationDelay);
-
-      if (timeElapsed >= notificationDelay) {
-        // Already passed 15 seconds - show immediately
-        console.log('Showing notification immediately for:', channel.channelName);
-        toast({
-          title: "🎉 " + t.myAds.adActive,
-          description: `${channel.channelName} - ${channel.giftName}`,
-          duration: 5000,
-        });
-        setNotifiedChannels(prev => new Set([...prev, channel.id]));
-      } else {
-        // Set timeout for remaining time
-        const remainingTime = notificationDelay - timeElapsed;
-        console.log('Setting timer for:', channel.channelName, 'Remaining time:', remainingTime);
-        const timer = setTimeout(() => {
-          console.log('Showing notification after timeout for:', channel.channelName);
-          toast({
-            title: "🎉 " + t.myAds.adActive,
-            description: `${channel.channelName} - ${channel.giftName}`,
-            duration: 5000,
-          });
-          setNotifiedChannels(prev => new Set([...prev, channel.id]));
-        }, remainingTime);
-
-        timers.push(timer);
-      }
-    });
-
-    return () => {
-      timers.forEach(timer => clearTimeout(timer));
-    };
-  }, [channels, toast, t, notifiedChannels]);
 
   const deleteChannelMutation = useMutation({
     mutationFn: async (id: string) => {

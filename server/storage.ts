@@ -62,6 +62,7 @@ export class MemStorage implements IStorage {
   }
 
   private seedChannels() {
+    const now = new Date();
     const seedData: Channel[] = [
       {
         id: randomUUID(),
@@ -75,6 +76,7 @@ export class MemStorage implements IStorage {
           { giftId: "cherry-cake", quantity: 2 },
           { giftId: "ice-cream-cone", quantity: 1 }
         ]),
+        createdAt: now,
       },
       {
         id: randomUUID(),
@@ -87,6 +89,7 @@ export class MemStorage implements IStorage {
           { giftId: "cherry-cake", quantity: 3 },
           { giftId: "gift-bag", quantity: 1 }
         ]),
+        createdAt: now,
       },
       {
         id: randomUUID(),
@@ -101,6 +104,7 @@ export class MemStorage implements IStorage {
           { giftId: "ice-cream-cone", quantity: 3 },
           { giftId: "cherry-cake", quantity: 1 }
         ]),
+        createdAt: now,
       },
       {
         id: randomUUID(),
@@ -112,6 +116,7 @@ export class MemStorage implements IStorage {
         gifts: JSON.stringify([
           { giftId: "ice-cream-cone", quantity: 2 }
         ]),
+        createdAt: now,
       },
     ];
 
@@ -201,6 +206,7 @@ export class MemStorage implements IStorage {
       id,
       ownerId: insertChannel.ownerId ?? null,
       gifts: insertChannel.gifts ?? null,
+      createdAt: new Date(),
     };
     this.channels.set(id, channel);
 
