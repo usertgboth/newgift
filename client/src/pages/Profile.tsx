@@ -68,7 +68,7 @@ export default function Profile() {
           </h1>
         </div>
 
-        <div className="px-4 py-6 space-y-6 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="px-4 py-6 space-y-6 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
           <Card className="bg-card border-card-border rounded-2xl p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">

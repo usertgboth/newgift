@@ -82,11 +82,14 @@ export default function MyAds() {
     const timers: NodeJS.Timeout[] = [];
     
     channels.forEach(channel => {
-      if (!channel.createdAt || notifiedChannels.has(channel.id)) return;
+      if (!channel.createdAt) return;
+      
+      // Skip if already notified
+      if (notifiedChannels.has(channel.id)) return;
       
       const createdAt = new Date(channel.createdAt).getTime();
       const now = Date.now();
-      const oneMinute = 60 * 1000;
+      const oneMinute = 60 * 1000; // 1 minute in milliseconds
       const timeElapsed = now - createdAt;
       
       if (timeElapsed >= oneMinute) {
@@ -116,7 +119,7 @@ export default function MyAds() {
     return () => {
       timers.forEach(timer => clearTimeout(timer));
     };
-  }, [channels, notifiedChannels, toast, t]);
+  }, [channels, toast, t]);
 
   const deleteChannelMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -205,7 +208,7 @@ export default function MyAds() {
             </div>
           </div>
         ) : (
-          <div className="px-4 py-6 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="px-4 py-6 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
             <div className="grid grid-cols-2 gap-3">
               {channels.map((channel) => {
                 return (

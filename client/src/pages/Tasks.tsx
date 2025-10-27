@@ -164,7 +164,7 @@ export default function Tasks() {
           </div>
         </div>
 
-        <div className="px-4 py-6 space-y-4 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="px-4 py-6 space-y-4 pb-24 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
           {tasks.map((task) => (
             <div
               key={task.id}

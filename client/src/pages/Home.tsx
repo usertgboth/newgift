@@ -59,7 +59,7 @@ export default function Home() {
         sortOption={sortOption}
         onSortChange={setSortOption}
       />
-      <div className="flex-1 overflow-y-auto pb-20 sm:pb-24" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="flex-1 overflow-y-auto pb-20 sm:pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
         <NFTGrid
           searchQuery={searchQuery}
           giftFilter={giftFilter}
