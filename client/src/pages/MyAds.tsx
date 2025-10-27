@@ -66,17 +66,33 @@ export default function MyAds() {
   });
 
   useEffect(() => {
+    console.log('=== PURCHASES UPDATE ===');
+    console.log('Total purchases:', purchases.length);
+    console.log('User ID:', user?.id);
+    purchases.forEach(p => {
+      console.log('Purchase:', {
+        id: p.id,
+        channelId: p.channelId,
+        sellerNotifiedAt: p.sellerNotifiedAt,
+        sellerConfirmed: p.sellerConfirmed,
+        buyerNotifiedAt: p.buyerNotifiedAt,
+        expiresAt: p.sellerCountdownExpiresAt
+      });
+    });
+
     // Find purchases where seller needs to be notified
     const notifiedPurchase = purchases.find(p =>
       p.sellerNotifiedAt && !p.sellerConfirmed
     );
+    
     if (notifiedPurchase) {
+      console.log('✅ FOUND NOTIFIED PURCHASE:', notifiedPurchase.id);
       setActivePurchase(notifiedPurchase);
-      console.log('Seller notification active for purchase:', notifiedPurchase.id);
     } else {
+      console.log('❌ NO NOTIFIED PURCHASE FOUND');
       setActivePurchase(null);
     }
-  }, [purchases]);
+  }, [purchases, user?.id]);
 
   const deleteChannelMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -108,16 +124,29 @@ export default function MyAds() {
     <div className="h-screen bg-background text-foreground flex flex-col">
       <TopHeader />
 
-      {activePurchase && activePurchase.sellerCountdownExpiresAt && (
-        <SellerNotification
-          open={true}
-          onClose={() => setActivePurchase(null)}
-          purchaseId={activePurchase.id}
-          buyerUsername="anykaj" // This should ideally come from purchase data
-          channelName={channels.find(c => c.id === activePurchase.channelId)?.channelName || ''}
-          expiresAt={new Date(activePurchase.sellerCountdownExpiresAt)}
-        />
-      )}
+      {(() => {
+        console.log('Rendering notification check:', {
+          hasActivePurchase: !!activePurchase,
+          hasExpiresAt: !!activePurchase?.sellerCountdownExpiresAt,
+          channelId: activePurchase?.channelId,
+          channelName: channels.find(c => c.id === activePurchase?.channelId)?.channelName
+        });
+        
+        if (activePurchase && activePurchase.sellerCountdownExpiresAt) {
+          console.log('🔔 SHOWING SELLER NOTIFICATION');
+          return (
+            <SellerNotification
+              open={true}
+              onClose={() => setActivePurchase(null)}
+              purchaseId={activePurchase.id}
+              buyerUsername="anykaj"
+              channelName={channels.find(c => c.id === activePurchase.channelId)?.channelName || ''}
+              expiresAt={new Date(activePurchase.sellerCountdownExpiresAt)}
+            />
+          );
+        }
+        return null;
+      })()}
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex items-center justify-between px-4 py-4 border-b border-border bg-background">
