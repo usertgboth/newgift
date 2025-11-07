@@ -3,6 +3,8 @@ import TopHeader from "@/components/TopHeader";
 import CashbackBanner from "@/components/CashbackBanner";
 import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
+import CategoryTabs, { type CategoryTab } from "@/components/CategoryTabs";
+import GiftFilters from "@/components/GiftFilters";
 import { type SortOption } from "@/components/SortPanel";
 import NFTGrid from "@/components/NFTGrid";
 import BottomNav from "@/components/BottomNav";
@@ -14,6 +16,7 @@ type Page = "store" | "myads" | "tasks" | "profile";
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState<Page>("store");
+  const [categoryTab, setCategoryTab] = useState<CategoryTab>("gifts");
   const [searchQuery, setSearchQuery] = useState("");
   const [giftFilter, setGiftFilter] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>("newest");
@@ -50,17 +53,21 @@ export default function Home() {
       <TopHeader />
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 sm:pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
         <CashbackBanner />
-        <FilterBar
-          selectedGifts={giftFilter}
-          onGiftChange={setGiftFilter}
-        />
+        {categoryTab === "channels" && (
+          <FilterBar
+            onGiftFilterChange={setGiftFilter}
+          />
+        )}
         <SearchBar
-          searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          sortOption={sortOption}
           onSortChange={setSortOption}
         />
+        <CategoryTabs
+          activeTab={categoryTab}
+          onTabChange={setCategoryTab}
+        />
         <NFTGrid
+          categoryTab={categoryTab}
           searchQuery={searchQuery}
           giftFilter={giftFilter}
           sortOption={sortOption}

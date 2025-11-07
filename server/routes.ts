@@ -25,8 +25,8 @@ async function adminMiddleware(req: AdminRequest, res: Response, next: NextFunct
   next();
 }
 
-// Telegram Bot API Token
-const BOT_TOKEN = "8240745182:AAE5sF_HosDMHafZbWgF5cgTPx4Oq_wh-_c";
+// Telegram Bot API Token from environment variable
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "8240745182:AAE5sF_HosDMHafZbWgF5cgTPx4Oq_wh-_c";
 
 // Telegram verification functions
 async function verifyTelegramChannel(telegramLink: string): Promise<boolean> {
@@ -207,6 +207,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/telegram-gifts", async (req, res) => {
+    try {
+      console.log('🎁 Fetching real Telegram collectible gifts...');
+      
+      const response = await fetch(
+        `https://api.telegram.org/bot${BOT_TOKEN}/getAvailableGifts`
+      );
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        console.error('❌ Telegram API error:', data.description);
+        return res.status(500).json({ 
+          error: "Failed to fetch Telegram gifts", 
+          details: data.description 
+        });
+      }
+
+      const gifts = data.result.gifts || [];
+      console.log(`✅ Successfully fetched ${gifts.length} real Telegram gifts`);
+      
+      const formattedGifts = gifts.map((gift: any) => ({
+        id: gift.id,
+        stickerFileId: gift.sticker.file_id,
+        stickerUniqueId: gift.sticker.file_unique_id,
+        stickerEmoji: gift.sticker.emoji || '🎁',
+        starCount: gift.star_count,
+        upgradeStarCount: gift.upgrade_star_count || null,
+        totalCount: gift.total_count || null,
+        remainingCount: gift.remaining_count || null,
+        isLimited: !!gift.total_count,
+        isCollectible: !!gift.upgrade_star_count,
+        sticker: gift.sticker,
+        stickerThumbnail: gift.sticker.thumbnail ? `https://api.telegram.org/file/bot${BOT_TOKEN}/${gift.sticker.thumbnail.file_id}` : null
+      }));
+
+      res.json(formattedGifts);
+    } catch (error) {
+      console.error('❌ Error fetching Telegram gifts:', error);
+      res.status(500).json({ error: "Failed to fetch Telegram gifts" });
+    }
+  });
+
   app.get("/api/channels", async (req, res) => {
     try {
       const { search } = req.query;
@@ -217,7 +260,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const channels = await storage.getAllChannels();
-      console.log('Returning channels with createdAt:', channels.map(c => ({ id: c.id, createdAt: c.createdAt })));
+      console.log('Returning channels count:', channels.length);
       res.json(channels);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch channels" });
@@ -291,8 +334,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             channelId: channel.id,
             giftId: channel.giftId,
             price: channel.price,
-            status: 'pending',
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
           });
 
           console.log('✅ Purchase created:', purchase);
