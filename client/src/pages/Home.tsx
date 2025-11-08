@@ -1,6 +1,7 @@
 import { useState } from "react";
 import TopHeader from "@/components/TopHeader";
 import CashbackBanner from "@/components/CashbackBanner";
+import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
 import { type SortOption } from "@/components/SortPanel";
 import NFTGrid from "@/components/NFTGrid";
@@ -14,6 +15,7 @@ type Page = "store" | "myads" | "tasks" | "profile";
 export default function Home() {
   const [currentPage, setCurrentPage] = useState<Page>("store");
   const [searchQuery, setSearchQuery] = useState("");
+  const [giftFilter, setGiftFilter] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>("newest");
 
   if (currentPage === "myads") {
@@ -48,6 +50,9 @@ export default function Home() {
       <TopHeader />
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 sm:pb-24" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
         <CashbackBanner />
+        <FilterBar
+          onGiftFilterChange={setGiftFilter}
+        />
         <SearchBar
           onSearchChange={setSearchQuery}
           onSortChange={setSortOption}
@@ -55,7 +60,7 @@ export default function Home() {
         <NFTGrid
           categoryTab="channels"
           searchQuery={searchQuery}
-          giftFilter={[]}
+          giftFilter={giftFilter}
           sortOption={sortOption}
         />
       </div>
