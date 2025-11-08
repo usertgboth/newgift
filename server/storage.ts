@@ -62,10 +62,10 @@ export class MemStorage implements IStorage {
   }
 
   private seedChannels() {
-    const now = new Date();
     const seedData: Channel[] = [
       {
         id: randomUUID(),
+        type: "channel",
         channelName: "Bear Shop",
         telegramLink: "https://t.me/bears_shop",
         giftId: "box-of-chocolates",
@@ -76,10 +76,10 @@ export class MemStorage implements IStorage {
           { giftId: "cherry-cake", quantity: 2 },
           { giftId: "ice-cream-cone", quantity: 1 }
         ]),
-        createdAt: now,
       },
       {
         id: randomUUID(),
+        type: "channel",
         channelName: "Anna's Sweets",
         telegramLink: "https://t.me/anna_sweets",
         giftId: "cherry-cake",
@@ -89,10 +89,10 @@ export class MemStorage implements IStorage {
           { giftId: "cherry-cake", quantity: 3 },
           { giftId: "gift-bag", quantity: 1 }
         ]),
-        createdAt: now,
       },
       {
         id: randomUUID(),
+        type: "channel",
         channelName: "Holiday Gifts",
         telegramLink: "https://t.me/holiday_gifts",
         giftId: "gift-bag",
@@ -104,10 +104,10 @@ export class MemStorage implements IStorage {
           { giftId: "ice-cream-cone", quantity: 3 },
           { giftId: "cherry-cake", quantity: 1 }
         ]),
-        createdAt: now,
       },
       {
         id: randomUUID(),
+        type: "channel",
         channelName: "Ice Cream Joy",
         telegramLink: "https://t.me/icecream_joy",
         giftId: "ice-cream-cone",
@@ -116,7 +116,6 @@ export class MemStorage implements IStorage {
         gifts: JSON.stringify([
           { giftId: "ice-cream-cone", quantity: 2 }
         ]),
-        createdAt: now,
       },
     ];
 
@@ -141,6 +140,7 @@ export class MemStorage implements IStorage {
       ...insertUser,
       id,
       telegramId: insertUser.telegramId || null,
+      telegramChatId: null,
       avatarUrl: insertUser.avatarUrl || null,
       referredBy: insertUser.referredBy || null,
       language: insertUser.language || "en",
@@ -204,9 +204,10 @@ export class MemStorage implements IStorage {
     const channel: Channel = { 
       ...insertChannel,
       id,
+      type: insertChannel.type || "channel",
+      channelName: insertChannel.channelName || null,
       ownerId: insertChannel.ownerId ?? null,
       gifts: insertChannel.gifts ?? null,
-      createdAt: new Date(),
     };
     this.channels.set(id, channel);
 
@@ -261,7 +262,7 @@ export class MemStorage implements IStorage {
     const allChannels = await this.getAllChannels();
     return allChannels.filter(channel =>
       channel.giftName.toLowerCase().includes(query.toLowerCase()) ||
-      channel.channelName.toLowerCase().includes(query.toLowerCase())
+      (channel.channelName && channel.channelName.toLowerCase().includes(query.toLowerCase()))
     );
   }
 
@@ -417,19 +418,6 @@ export class MemStorage implements IStorage {
       ...purchase, 
       sellerConfirmed: true,
       status: purchase.buyerConfirmed ? "transfer_completed" : "transfer_in_progress"
-    };
-    this.purchases.set(id, updated);
-    return updated;
-  }
-
-  async confirmPurchaseBuyer(id: string): Promise<Purchase | undefined> {
-    const purchase = this.purchases.get(id);
-    if (!purchase) return undefined;
-
-    const updated = { 
-      ...purchase, 
-      buyerConfirmed: true,
-      status: "pending_transfer"
     };
     this.purchases.set(id, updated);
     return updated;
