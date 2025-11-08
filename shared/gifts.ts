@@ -58,4 +58,6 @@ export const AVAILABLE_GIFTS = [
   { id: "statue-of-liberty", name: "Statue of liberty", image: "/gifts/Statue of liberty.jpg", model: "Blue Star" as GiftModel, background: "Pattern 6" as GiftBackground },
   { id: "surfboard", name: "Surfboard", image: "/gifts/Surfboard.jpg", model: "Tropical Paradise" as GiftModel, background: "Pattern 7" as GiftBackground },
   { id: "torch-of-freedom", name: "Torch of freedom", image: "/gifts/Torch of freedom.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 8" as GiftBackground },
+  { id: "durovs-sunglasses", name: "Durov's Sunglasses", image: "/gifts/Durovs Sunglasses.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 9" as GiftBackground },
+  { id: "redo", name: "REDO", image: "/gifts/REDO.jpg", model: "Winter Magic" as GiftModel, background: "Pattern 10" as GiftBackground },
 ];
