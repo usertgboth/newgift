@@ -96,7 +96,16 @@ export default function CreateAd() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.telegramLink || selectedGifts.length === 0 || !formData.price) {
+    if (selectedGifts.length === 0 || !formData.price) {
+      toast({
+        title: t.toast.error,
+        description: t.toast.fillAllFields,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (adType === "channel" && !formData.telegramLink) {
       toast({
         title: t.toast.error,
         description: t.toast.fillAllFields,
@@ -272,41 +281,41 @@ export default function CreateAd() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="telegramLink" className="text-sm font-medium text-foreground">
-            {adType === "guarantor" 
-              ? (language === 'ru' ? 'Ссылка для связи' : 'Contact Link')
-              : t.createAd.telegramLink} *
-          </Label>
-          <Input
-            id="telegramLink"
-            value={formData.telegramLink}
-            onChange={(e) => setFormData({ ...formData, telegramLink: e.target.value })}
-            placeholder={adType === "guarantor" ? "@loot_garant" : "@channel, channel или https://t.me/channel"}
-            className="bg-card border-card-border text-foreground"
-            data-testid="input-telegram-link"
-          />
-          
-          {/* Verification Status */}
-          {adType === "channel" && telegramVerification.message && (
-            <div className={`flex items-center gap-2 p-3 rounded-lg ${
-              telegramVerification.isVerified 
-                ? 'bg-green-500/10 border border-green-500/20' 
-                : 'bg-red-500/10 border border-red-500/20'
-            }`}>
-              {telegramVerification.isVerified ? (
-                <CheckCircle className="w-5 h-5 text-green-500" />
-              ) : (
-                <AlertCircle className="w-5 h-5 text-red-500" />
-              )}
-              <span className={`text-sm ${
-                telegramVerification.isVerified ? 'text-green-600' : 'text-red-600'
+        {adType === "channel" && (
+          <div className="space-y-2">
+            <Label htmlFor="telegramLink" className="text-sm font-medium text-foreground">
+              {t.createAd.telegramLink} *
+            </Label>
+            <Input
+              id="telegramLink"
+              value={formData.telegramLink}
+              onChange={(e) => setFormData({ ...formData, telegramLink: e.target.value })}
+              placeholder="@channel, channel или https://t.me/channel"
+              className="bg-card border-card-border text-foreground"
+              data-testid="input-telegram-link"
+            />
+            
+            {/* Verification Status */}
+            {telegramVerification.message && (
+              <div className={`flex items-center gap-2 p-3 rounded-lg ${
+                telegramVerification.isVerified 
+                  ? 'bg-green-500/10 border border-green-500/20' 
+                  : 'bg-red-500/10 border border-red-500/20'
               }`}>
-                {telegramVerification.message}
-              </span>
-            </div>
-          )}
-        </div>
+                {telegramVerification.isVerified ? (
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                )}
+                <span className={`text-sm ${
+                  telegramVerification.isVerified ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {telegramVerification.message}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="space-y-3">
           <Label className="text-sm font-medium text-foreground">
