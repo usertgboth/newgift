@@ -29,6 +29,7 @@ export default function CreateAd() {
   const { t, language } = useLanguage();
   const { isAdmin } = useAdmin();
   const [isGiftPickerOpen, setIsGiftPickerOpen] = useState(false);
+  const [adType, setAdType] = useState<"channel" | "guarantor">("channel");
   
   const [formData, setFormData] = useState({
     telegramLink: "",
@@ -48,12 +49,21 @@ export default function CreateAd() {
     message: ""
   });
 
-  const { data: gifts = [] } = useQuery<Gift[]>({
+  const { data: allGifts = [] } = useQuery<Gift[]>({
     queryKey: ["/api/gifts"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/gifts");
       return res.json();
     },
+  });
+
+  // Filter gifts based on type
+  const gifts = allGifts.filter((gift: any) => {
+    if (adType === "guarantor") {
+      return gift.category === "guarantor";
+    } else {
+      return gift.category === "regular" || !gift.category;
+    }
   });
 
   const createChannelMutation = useMutation({
@@ -78,6 +88,11 @@ export default function CreateAd() {
     },
   });
 
+  useEffect(() => {
+    // Clear selected gifts when switching type
+    setSelectedGifts([]);
+  }, [adType]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -90,7 +105,7 @@ export default function CreateAd() {
       return;
     }
 
-    if (!isAdmin && !telegramVerification.isVerified) {
+    if (!isAdmin && adType === "channel" && !telegramVerification.isVerified) {
       toast({
         title: t.toast.warning,
         description: t.toast.verificationRequired,
@@ -99,12 +114,16 @@ export default function CreateAd() {
       return;
     }
 
-    // Extract channel name from telegram link
-    const channelMatch = formData.telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
-    const channelName = channelMatch ? channelMatch[1] : "Unknown Channel";
+    // Extract channel name from telegram link (only for channel type)
+    let channelName = null;
+    if (adType === "channel") {
+      const channelMatch = formData.telegramLink.match(/t\.me\/([a-zA-Z0-9_]+)/);
+      channelName = channelMatch ? channelMatch[1] : "Unknown Channel";
+    }
 
     const submitData = {
       ...formData,
+      type: adType,
       channelName,
       giftId: selectedGifts[0].giftId,
       gifts: JSON.stringify(selectedGifts),
@@ -228,30 +247,60 @@ export default function CreateAd() {
 
       <form onSubmit={handleSubmit} className="px-4 space-y-6 pb-6">
         <div className="space-y-2">
+          <Label className="text-sm font-medium text-foreground">
+            {language === 'ru' ? 'Тип объявления' : 'Ad Type'} *
+          </Label>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant={adType === "channel" ? "default" : "outline"}
+              className="flex-1"
+              onClick={() => setAdType("channel")}
+              data-testid="button-type-channel"
+            >
+              {t.home.typeChannel}
+            </Button>
+            <Button
+              type="button"
+              variant={adType === "guarantor" ? "default" : "outline"}
+              className="flex-1"
+              onClick={() => setAdType("guarantor")}
+              data-testid="button-type-guarantor"
+            >
+              {t.home.typeGuarantor}
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="telegramLink" className="text-sm font-medium text-foreground">
-            {t.createAd.telegramLink} *
+            {adType === "guarantor" 
+              ? (language === 'ru' ? 'Ссылка для связи' : 'Contact Link')
+              : t.createAd.telegramLink} *
           </Label>
           <div className="flex gap-2">
             <Input
               id="telegramLink"
               value={formData.telegramLink}
               onChange={(e) => setFormData({ ...formData, telegramLink: e.target.value })}
-              placeholder="@channel, channel или https://t.me/channel"
+              placeholder={adType === "guarantor" ? "@loot_garant" : "@channel, channel или https://t.me/channel"}
               className="bg-card border-card-border text-foreground flex-1"
               data-testid="input-telegram-link"
             />
-            <Button
-              type="button"
-              onClick={verifyTelegramChannel}
-              disabled={telegramVerification.isVerifying}
-              className="px-4 bg-primary hover:bg-primary/90 whitespace-nowrap"
-            >
-              {telegramVerification.isVerifying ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                t.createAd.verify
-              )}
-            </Button>
+            {adType === "channel" && (
+              <Button
+                type="button"
+                onClick={verifyTelegramChannel}
+                disabled={telegramVerification.isVerifying}
+                className="px-4 bg-primary hover:bg-primary/90 whitespace-nowrap"
+              >
+                {telegramVerification.isVerifying ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  t.createAd.verify
+                )}
+              </Button>
+            )}
           </div>
           
           {/* Verification Status */}

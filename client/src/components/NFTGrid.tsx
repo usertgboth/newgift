@@ -19,6 +19,7 @@ interface Channel {
   price: string;
   ownerId: string | null;
   parsedGifts?: GiftItem[];
+  type?: string;
 }
 
 interface TelegramGift {
@@ -178,6 +179,13 @@ export default function NFTGrid({
   });
 
   filteredChannels = [...filteredChannels].sort((a, b) => {
+    // Sort guarantor type first
+    const aType = a.type || "channel";
+    const bType = b.type || "channel";
+    if (aType === "guarantor" && bType !== "guarantor") return -1;
+    if (aType !== "guarantor" && bType === "guarantor") return 1;
+    
+    // Then sort by price if specified
     if (sortOption === "price-low") {
       return parseFloat(a.price) - parseFloat(b.price);
     } else if (sortOption === "price-high") {
@@ -246,6 +254,7 @@ export default function NFTGrid({
               image={channel.giftImage}
               locked={false}
               gifts={enrichedGifts(channel)}
+              type={channel.type || "channel"}
             />
           );
         })}

@@ -1,7 +1,8 @@
-import { Lock } from "lucide-react";
+import { Lock, Shield, MessageSquare } from "lucide-react";
 import tonLogo from "@assets/toncoin_1760893904370.png";
 import { useState } from "react";
 import ChannelDetailsModal from "./ChannelDetailsModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface GiftItem {
   giftId: string;
@@ -17,9 +18,11 @@ interface NFTCardProps {
   image: string;
   locked?: boolean;
   gifts?: GiftItem[];
+  type?: string;
 }
 
-export default function NFTCard({ giftName, channelName, telegramLink, price, image, locked = false, gifts = [] }: NFTCardProps) {
+export default function NFTCard({ giftName, channelName, telegramLink, price, image, locked = false, gifts = [], type = "channel" }: NFTCardProps) {
+  const { t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const mainGift = gifts.find(g => g.giftName === giftName) || gifts[0];
   const otherGifts = gifts.filter(g => g.giftName !== giftName);
@@ -58,6 +61,19 @@ export default function NFTCard({ giftName, channelName, telegramLink, price, im
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           data-testid={`img-gift-${giftName}`}
         />
+        <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-background/90 backdrop-blur-sm rounded-lg border border-border">
+          {type === "guarantor" ? (
+            <>
+              <Shield className="w-3 h-3 text-amber-500" />
+              <span className="text-xs font-medium text-foreground">{t.home.typeGuarantor}</span>
+            </>
+          ) : (
+            <>
+              <MessageSquare className="w-3 h-3 text-blue-500" />
+              <span className="text-xs font-medium text-foreground">{t.home.typeChannel}</span>
+            </>
+          )}
+        </div>
         {locked && (
           <div className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-background/90 rounded-full border border-border">
             <Lock className="w-3 h-3 text-muted-foreground" />
