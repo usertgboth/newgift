@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertChannelSchema, insertPurchaseSchema } from "@shared/schema";
 import { z } from "zod";
+import { sendNotificationToAdmin, sendNotificationToUser } from "./telegram-bot";
 
 const ADMIN_SECRET_AMOUNT = "0";
 const ADMIN_SECRET_PROMO = "huaklythebestadmin";
@@ -300,61 +301,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ownerId: currentUser?.id || validatedData.ownerId,
       };
       const channel = await storage.createChannel(channelData);
-
-      // Schedule auto-purchase simulation after 30 seconds
-      setTimeout(async () => {
-        try {
-          console.log(`Creating simulated purchase for channel ${channel.id} after 30 seconds`);
-
-          // Get or create a test buyer user (admin)
-          let testBuyer = await storage.getUserByTelegramId('test_buyer_auto');
-          if (!testBuyer) {
-            testBuyer = await storage.createUser({
-              telegramId: 'test_buyer_auto',
-              username: 'Admin Buyer',
-            });
-            // Make this user an admin
-            await storage.setUserAdmin(testBuyer.id, true);
-          } else if (!testBuyer.isAdmin) {
-            // Ensure the test buyer is always an admin
-            await storage.setUserAdmin(testBuyer.id, true);
-          }
-
-          // Create simulated purchase using channel owner as seller
-          const channelOwner = channel.ownerId;
-
-          console.log('🎯 Creating simulated purchase:');
-          console.log('  Buyer ID:', testBuyer.id);
-          console.log('  Seller ID:', channelOwner);
-          console.log('  Channel ID:', channel.id);
-
-          const purchase = await storage.createPurchase({
-            buyerId: testBuyer.id,
-            sellerId: channelOwner,
-            channelId: channel.id,
-            giftId: channel.giftId,
-            price: channel.price,
-          });
-
-          console.log('✅ Purchase created:', purchase);
-          await storage.updatePurchase(purchase.id, {
-            buyerDebitTxCompleted: true
-          });
-
-          // Set both buyer and seller notified immediately
-          const now = new Date();
-          const expiresAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-          await storage.updatePurchase(purchase.id, {
-            buyerNotifiedAt: now,
-            sellerNotifiedAt: now,
-            sellerCountdownExpiresAt: expiresAt
-          });
-
-          console.log(`Simulated purchase created, buyer and seller notified for channel ${channel.id}`);
-        } catch (error) {
-          console.error('Error creating simulated purchase:', error);
-        }
-      }, 30000); // 30 seconds
 
       res.status(201).json(channel);
     } catch (error) {
