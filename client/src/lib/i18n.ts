@@ -25,6 +25,9 @@ export const translations = {
       includes: 'Includes',
       cashback: 'Cashback',
       youGet: 'You get back',
+      typeChannel: 'Channel',
+      typeGuarantor: 'Guarantor',
+      guarantorContact: 'Your guarantor',
     },
     createAd: {
       title: 'Create Channel',
@@ -164,6 +167,9 @@ export const translations = {
       includes: 'Включает',
       cashback: 'Кешбэк',
       youGet: 'Вы получите обратно',
+      typeChannel: 'Канал',
+      typeGuarantor: 'Гарант',
+      guarantorContact: 'Ваш гарант',
     },
     createAd: {
       title: 'Создать канал',

@@ -54,13 +54,15 @@ export const gifts = pgTable("gifts", {
   id: varchar("id").primaryKey(),
   name: text("name").notNull().unique(),
   image: text("image").notNull(),
+  category: text("category").notNull().default("regular"),
 });
 
 export type Gift = typeof gifts.$inferSelect;
 
 export const channels = pgTable("channels", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  channelName: text("channel_name").notNull(),
+  type: text("type").notNull().default("channel"),
+  channelName: text("channel_name"),
   telegramLink: text("telegram_link").notNull(),
   giftId: varchar("gift_id").notNull().references(() => gifts.id),
   price: text("price").notNull(),
