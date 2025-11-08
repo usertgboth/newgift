@@ -66,8 +66,8 @@ export default function NFTCard({ giftName, channelName, telegramLink, price, im
           />
           
           {totalGiftsCount > 1 && (
-            <div className="absolute top-2 left-2 px-2 py-1 bg-background/90 backdrop-blur-sm rounded-lg border border-border">
-              <span className="text-xs font-bold text-foreground">{totalGiftsCount}</span>
+            <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 backdrop-blur-sm rounded">
+              <span className="text-sm font-bold text-white">x{totalGiftsCount}</span>
             </div>
           )}
           
