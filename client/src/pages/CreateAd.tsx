@@ -278,33 +278,17 @@ export default function CreateAd() {
               ? (language === 'ru' ? 'Ссылка для связи' : 'Contact Link')
               : t.createAd.telegramLink} *
           </Label>
-          <div className="flex gap-2">
-            <Input
-              id="telegramLink"
-              value={formData.telegramLink}
-              onChange={(e) => setFormData({ ...formData, telegramLink: e.target.value })}
-              placeholder={adType === "guarantor" ? "@loot_garant" : "@channel, channel или https://t.me/channel"}
-              className="bg-card border-card-border text-foreground flex-1"
-              data-testid="input-telegram-link"
-            />
-            {adType === "channel" && (
-              <Button
-                type="button"
-                onClick={verifyTelegramChannel}
-                disabled={telegramVerification.isVerifying}
-                className="px-4 bg-primary hover:bg-primary/90 whitespace-nowrap"
-              >
-                {telegramVerification.isVerifying ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  t.createAd.verify
-                )}
-              </Button>
-            )}
-          </div>
+          <Input
+            id="telegramLink"
+            value={formData.telegramLink}
+            onChange={(e) => setFormData({ ...formData, telegramLink: e.target.value })}
+            placeholder={adType === "guarantor" ? "@loot_garant" : "@channel, channel или https://t.me/channel"}
+            className="bg-card border-card-border text-foreground"
+            data-testid="input-telegram-link"
+          />
           
           {/* Verification Status */}
-          {telegramVerification.message && (
+          {adType === "channel" && telegramVerification.message && (
             <div className={`flex items-center gap-2 p-3 rounded-lg ${
               telegramVerification.isVerified 
                 ? 'bg-green-500/10 border border-green-500/20' 
@@ -432,11 +416,11 @@ export default function CreateAd() {
           <Button
             type="submit"
             className="flex-1 bg-primary hover-elevate active-elevate-2"
-            disabled={createChannelMutation.isPending || !telegramVerification.isVerified}
+            disabled={createChannelMutation.isPending || (adType === "channel" && !telegramVerification.isVerified)}
             data-testid="button-submit"
           >
             {createChannelMutation.isPending ? t.createAd.creating : 
-             !telegramVerification.isVerified ? t.createAd.verifyFirst : t.createAd.create}
+             (adType === "channel" && !telegramVerification.isVerified) ? t.createAd.verifyFirst : t.createAd.create}
           </Button>
         </div>
       </form>

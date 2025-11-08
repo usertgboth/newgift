@@ -31,16 +31,16 @@ export type GiftModel = typeof GIFT_MODELS[number];
 export type GiftBackground = typeof GIFT_BACKGROUNDS[number];
 
 export const AVAILABLE_GIFTS = [
-  { id: "jason-mask", name: "Jason Mask", image: "@assets/Jason mask_1762595339717.jpg", model: "Ruby Heart" as GiftModel, background: "Pattern 1" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "tombstone", name: "Tombstone", image: "@assets/Tombstone_1762595341176.jpg", model: "Winter Magic" as GiftModel, background: "Pattern 2" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "coffin", name: "Coffin", image: "@assets/Coffin_1762595343665.jpg", model: "Blue Star" as GiftModel, background: "Pattern 3" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "durovs-sneakers", name: "Durov's Sneakers", image: "@assets/Durov's Sneakers_1762595346479.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 4" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "durovs-longsleeve", name: "Durov's Longsleeve", image: "@assets/Durov's Longsleeve_1762595349212.jpg", model: "Blue Star" as GiftModel, background: "Pattern 5" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "backpack", name: "Backpack", image: "@assets/Backpack_1762595351980.jpg", model: "Blue Star" as GiftModel, background: "Pattern 6" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "book", name: "Book", image: "@assets/Book_1762595354495.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 7" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "durov-figure", name: "Durov", image: "@assets/Durov_1762595356480.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 8" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "golden-lock-case", name: "Golden Lock Case", image: "@assets/Golden Lock Case_1762595359226.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 9" as GiftBackground, category: "guarantor" as GiftCategory },
-  { id: "golden-fountain-pen", name: "Golden Fountain Pen", image: "@assets/Golden Fountain Pen_1762595361330.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 10" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "jason-mask", name: "Jason Mask", image: "/gifts/Jason mask.jpg", model: "Ruby Heart" as GiftModel, background: "Pattern 1" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "tombstone", name: "Tombstone", image: "/gifts/Tombstone.jpg", model: "Winter Magic" as GiftModel, background: "Pattern 2" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "coffin", name: "Coffin", image: "/gifts/Coffin.jpg", model: "Blue Star" as GiftModel, background: "Pattern 3" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "durovs-sneakers", name: "Durov's Sneakers", image: "/gifts/Durovs Sneakers.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 4" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "durovs-longsleeve", name: "Durov's Longsleeve", image: "/gifts/Durovs Longsleeve.jpg", model: "Blue Star" as GiftModel, background: "Pattern 5" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "backpack", name: "Backpack", image: "/gifts/Backpack.jpg", model: "Blue Star" as GiftModel, background: "Pattern 6" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "book", name: "Book", image: "/gifts/Book.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 7" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "durov-figure", name: "Durov", image: "/gifts/Durov.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 8" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "golden-lock-case", name: "Golden Lock Case", image: "/gifts/Golden Lock Case.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 9" as GiftBackground, category: "guarantor" as GiftCategory },
+  { id: "golden-fountain-pen", name: "Golden Fountain Pen", image: "/gifts/Golden Fountain Pen.jpg", model: "Golden Crown" as GiftModel, background: "Pattern 10" as GiftBackground, category: "guarantor" as GiftCategory },
   
   { id: "1-may", name: "1 May", image: "/gifts/1 May.jpg", model: "Red Star" as GiftModel, background: "Pattern 1" as GiftBackground, category: "regular" as GiftCategory },
   { id: "8-march-cake", name: "8 March Cake", image: "/gifts/8 March Cake.jpg", model: "Delicious Cake" as GiftModel, background: "Pattern 2" as GiftBackground, category: "regular" as GiftCategory },
