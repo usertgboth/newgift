@@ -7,6 +7,8 @@ import { type CategoryTab } from "./CategoryTabs";
 interface GiftItem {
   giftId: string;
   quantity: number;
+  giftName?: string;
+  giftImage?: string;
 }
 
 interface Channel {
@@ -236,6 +238,7 @@ export default function NFTGrid({
       return {
         ...gift,
         giftName: giftData?.name || "",
+        giftImage: giftData?.image || "",
       };
     });
   };
