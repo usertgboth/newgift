@@ -9,24 +9,35 @@ async function throwIfResNotOk(res: Response) {
 
 export async function apiRequest(
   method: string,
-  url: string,
-  data?: unknown | undefined,
-  customHeaders?: Record<string, string>,
+  path: string,
+  body?: any
 ): Promise<Response> {
-  const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
-  if (customHeaders) {
-    Object.assign(headers, customHeaders);
+  // Get Telegram WebApp initData for authentication
+  let initData = '';
+  if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
+    initData = (window as any).Telegram.WebApp.initData;
   }
-  
-  const res = await fetch(url, {
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Send initData in Authorization header
+  if (initData) {
+    headers['Authorization'] = `tma ${initData}`;
+  }
+
+  const options: RequestInit = {
     method,
     headers,
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+    credentials: 'include',
+  };
 
-  await throwIfResNotOk(res);
-  return res;
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  return fetch(path, options);
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -36,13 +47,13 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const headers: Record<string, string> = {};
-    
+
     const tg = (window as any).Telegram?.WebApp;
     const telegramId = tg?.initDataUnsafe?.user?.id?.toString() || 'johndoe';
     if (telegramId) {
       headers['x-telegram-id'] = telegramId;
     }
-    
+
     const res = await fetch(queryKey.join("/") as string, {
       credentials: "include",
       headers,

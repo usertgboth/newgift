@@ -1,4 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { telegramBot } from "./telegram-bot";
@@ -6,6 +9,48 @@ import { telegramBot } from "./telegram-bot";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// PostgreSQL-backed sessions
+const PgSession = connectPgSimple(session);
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL must be set for session storage");
+}
+
+app.use(
+  session({
+    store: new PgSession({
+      conString: process.env.DATABASE_URL,
+      tableName: 'session',
+      createTableIfMissing: true,
+    }),
+    secret: process.env.SESSION_SECRET || 'lootgifts-secret-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite: 'lax',
+    },
+  })
+);
+
+// Rate limiting for admin endpoints
+export const adminRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting for auth endpoints
+export const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: 'Too many authentication attempts, please try again later',
+});
 
 app.use((req, res, next) => {
   const start = Date.now();

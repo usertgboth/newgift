@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertChannelSchema, insertPurchaseSchema } from "@shared/schema";
 import { z } from "zod";
 import { sendNotificationToAdmin, sendNotificationToUser } from "./telegram-bot";
+import { adminRateLimiter, authRateLimiter } from "./index";
 
 // Helper function for activity logging
 async function logActivity(params: {
@@ -41,19 +42,18 @@ interface AdminRequest extends Request {
   telegramId?: string;
 }
 
+import { getTelegramUserFromRequest } from "./telegram-auth";
+
 function getTelegramIdFromSession(req: Request): string | null {
-  // Only trust server-managed session data, not arbitrary headers
-  // For production: implement Telegram WebApp initData signature verification
-  const telegramData = (req as any).session?.telegramUser?.id ||
-                       (req as any).user?.telegramId;
+  // Get verified Telegram user from session or verify initData
+  const telegramUser = getTelegramUserFromRequest(req);
   
-  // DEVELOPMENT ONLY: Fallback to header for testing
-  // WARNING: This is insecure and should be replaced with proper Telegram auth
-  if (!telegramData && process.env.NODE_ENV === 'development') {
-    return req.headers['x-telegram-id'] as string || null;
+  if (!telegramUser) {
+    console.error('❌ No verified Telegram user found');
+    return null;
   }
   
-  return telegramData || null;
+  return telegramUser.id.toString();
 }
 
 async function adminMiddleware(req: AdminRequest, res: Response, next: NextFunction) {
@@ -455,7 +455,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update user balance after deposit
-  app.post("/api/users/:telegramId/deposit", async (req, res) => {
+  app.post("/api/users/:telegramId/deposit", authRateLimiter, async (req, res) => {
     try {
       const { telegramId } = req.params;
       const { amount, promoCode, adminPassword } = req.body;
@@ -596,7 +596,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/users", adminMiddleware, async (_req, res) => {
+  app.get("/api/admin/users", adminRateLimiter, adminMiddleware, async (_req, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -605,7 +605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/admin/users/:id/balance", adminMiddleware, async (req, res) => {
+  app.patch("/api/admin/users/:id/balance", adminRateLimiter, adminMiddleware, async (req, res) => {
     try {
       const { id } = req.params;
       const { amount } = req.body;
@@ -627,7 +627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/admin/channels/:id", adminMiddleware, async (req, res) => {
+  app.delete("/api/admin/channels/:id", adminRateLimiter, adminMiddleware, async (req, res) => {
     try {
       const channel = await storage.getChannelById(req.params.id);
       const success = await storage.deleteChannel(req.params.id);
@@ -651,7 +651,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/channels", adminMiddleware, async (req, res) => {
+  app.post("/api/admin/channels", adminRateLimiter, adminMiddleware, async (req, res) => {
     try {
       const validatedData = insertChannelSchema.parse(req.body);
       const channel = await storage.createChannel(validatedData);
@@ -665,7 +665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get activity logs (admin only)
-  app.get("/api/admin/activity-logs", adminMiddleware, async (req, res) => {
+  app.get("/api/admin/activity-logs", adminRateLimiter, adminMiddleware, async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
       const action = req.query.action as string | undefined;
