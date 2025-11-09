@@ -47,8 +47,9 @@ class TelegramBotService {
           { parse_mode: 'HTML' }
         );
       } else {
-        // Real Telegram Mini App link
-        const appUrl = 'https://t.me/loot_garant_bot/app';
+        // Use Replit URL for the web app
+        const replSlug = process.env.REPL_SLUG || '4a6a4d09-c68b-481c-9974-30fc162da62a-00-35hnxvckxlwnb.riker';
+        const appUrl = `https://${replSlug}.replit.dev`;
         
         await this.bot.sendMessage(
           chatId,
