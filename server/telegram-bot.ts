@@ -97,23 +97,34 @@ class TelegramBotService {
       const chatId = msg.chat.id;
       const telegramId = msg.from?.id.toString();
       
+      console.log(`📊 /balance command from user ${telegramId}`);
+      
       if (!telegramId) {
         await this.bot.sendMessage(chatId, '❌ Не удалось определить ваш ID');
         return;
       }
       
       try {
+        // First check if user exists by telegramId
         const user = await storage.getUserByTelegramId(telegramId);
+        
         if (!user) {
-          await this.bot.sendMessage(chatId, '❌ Пользователь не найден. Пожалуйста, зайдите на платформу.');
+          console.log(`⚠️  User with telegramId ${telegramId} not found in database`);
+          await this.bot.sendMessage(
+            chatId, 
+            '❌ Пользователь не найден в системе.\n\nПожалуйста, откройте приложение LootGifts хотя бы один раз, чтобы создать аккаунт:\nhttps://t.me/LootGifts_bot/app',
+            { parse_mode: 'HTML' }
+          );
           return;
         }
+        
+        console.log(`✅ User found: ${user.username}, balance: ${user.balance}`);
         
         const balanceText = `💰 <b>Ваш баланс</b>\n\n💵 ${user.balance} TON\n👤 ${user.username}`;
         await this.bot.sendMessage(chatId, balanceText, { parse_mode: 'HTML' });
       } catch (error) {
-        console.error('Error fetching balance:', error);
-        await this.bot.sendMessage(chatId, '❌ Ошибка при получении баланса');
+        console.error('❌ Error fetching balance:', error);
+        await this.bot.sendMessage(chatId, '❌ Ошибка при получении баланса. Попробуйте позже.');
       }
     });
 

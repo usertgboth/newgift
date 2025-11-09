@@ -272,9 +272,29 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByTelegramId(telegramId: string): Promise<User | null> {
-    return Array.from(this.users.values()).find(
-      (user) => user.telegramId === telegramId,
-    ) || null;
+    try {
+      // Try to get from database first
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.telegramId, telegramId))
+        .limit(1);
+      
+      if (user) {
+        return user;
+      }
+      
+      // Fallback to in-memory storage
+      return Array.from(this.users.values()).find(
+        (user) => user.telegramId === telegramId,
+      ) || null;
+    } catch (error) {
+      console.error('Error getting user by telegram ID:', error);
+      // Fallback to in-memory storage on error
+      return Array.from(this.users.values()).find(
+        (user) => user.telegramId === telegramId,
+      ) || null;
+    }
   }
 
   async getReferralStats(userId: string): Promise<{ count: number; earnings: string }> {
