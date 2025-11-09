@@ -158,6 +158,42 @@ class TelegramBotService {
       }
     });
 
+    // Handle /admin command (only for @huakly)
+    this.bot.onText(/\/admin/, async (msg) => {
+      const chatId = msg.chat.id;
+      const username = msg.from?.username;
+      
+      if (username !== ADMIN_USERNAME) {
+        await this.bot.sendMessage(chatId, '❌ У вас нет доступа к админ-панели');
+        return;
+      }
+      
+      try {
+        const users = await storage.getAllUsers();
+        const channels = await storage.getAllChannels();
+        const activityLogs = await storage.getAllActivityLogs(5);
+        
+        let adminText = `🔐 <b>Админ-панель</b>\n\n`;
+        adminText += `👥 Всего пользователей: ${users.length}\n`;
+        adminText += `📢 Всего объявлений: ${channels.length}\n\n`;
+        adminText += `📋 <b>Последние действия:</b>\n\n`;
+        
+        activityLogs.forEach((log, idx) => {
+          const date = new Date(log.createdAt).toLocaleString('ru-RU');
+          adminText += `${idx + 1}. ${log.action}\n`;
+          adminText += `   ${log.description}\n`;
+          adminText += `   🕐 ${date}\n\n`;
+        });
+        
+        adminText += `\n💻 Админ-панель: ${process.env.REPL_SLUG || 'https://your-app.replit.dev'}/admin`;
+        
+        await this.bot.sendMessage(chatId, adminText, { parse_mode: 'HTML' });
+      } catch (error) {
+        console.error('Error fetching admin data:', error);
+        await this.bot.sendMessage(chatId, '❌ Ошибка при получении данных админ-панели');
+      }
+    });
+
     // Handle errors
     this.bot.on('polling_error', (error) => {
       console.error('Telegram bot polling error:', error);
