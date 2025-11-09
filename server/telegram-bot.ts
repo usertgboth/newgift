@@ -47,9 +47,8 @@ class TelegramBotService {
           { parse_mode: 'HTML' }
         );
       } else {
-        const appUrl = process.env.REPL_SLUG 
-          ? `https://${process.env.REPL_SLUG}.replit.app`
-          : 'https://t.me/LootGifts_bot/app';
+        // Real Telegram Mini App link
+        const appUrl = 'https://t.me/loot_garant_bot/app';
         
         await this.bot.sendMessage(
           chatId,
