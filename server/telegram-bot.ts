@@ -47,9 +47,8 @@ class TelegramBotService {
           { parse_mode: 'HTML' }
         );
       } else {
-        // Use Replit URL for the web app
-        const replSlug = process.env.REPL_SLUG || '4a6a4d09-c68b-481c-9974-30fc162da62a-00-35hnxvckxlwnb.riker';
-        const appUrl = `https://${replSlug}.replit.dev`;
+        // Use actual Replit URL for the web app
+        const appUrl = 'https://843fdf3e-24a4-42fa-82a7-8bba8287ccec-00-7ahmoon4gkqo.worf.replit.dev';
         
         await this.bot.sendMessage(
           chatId,
