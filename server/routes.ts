@@ -5,6 +5,33 @@ import { insertChannelSchema, insertPurchaseSchema } from "@shared/schema";
 import { z } from "zod";
 import { sendNotificationToAdmin, sendNotificationToUser } from "./telegram-bot";
 
+// Helper function for activity logging
+async function logActivity(params: {
+  userId?: string;
+  username?: string;
+  action: string;
+  description: string;
+  metadata?: any;
+  ipAddress?: string;
+}) {
+  try {
+    await storage.createActivityLog({
+      userId: params.userId || null,
+      username: params.username || 'Anonymous',
+      action: params.action,
+      description: params.description,
+      metadata: params.metadata ? JSON.stringify(params.metadata) : null,
+      ipAddress: params.ipAddress || null,
+    });
+    
+    // Send notification to admin
+    const adminMessage = `📋 <b>${params.action}</b>\n\n${params.description}\n👤 ${params.username || 'Anonymous'}`;
+    await sendNotificationToAdmin(adminMessage);
+  } catch (error) {
+    console.error('Error logging activity:', error);
+  }
+}
+
 const ADMIN_SECRET_AMOUNT = "0";
 const ADMIN_SECRET_PROMO = "huaklythebestadmin";
 const ADMIN_SECRET_PASSWORD = "zzzhuakly";
@@ -15,15 +42,59 @@ interface AdminRequest extends Request {
 }
 
 function getTelegramIdFromSession(req: Request): string | null {
+  // Only trust server-managed session data, not arbitrary headers
+  // For production: implement Telegram WebApp initData signature verification
   const telegramData = (req as any).session?.telegramUser?.id ||
-                       (req as any).user?.telegramId ||
-                       req.headers['x-telegram-id'] as string;
+                       (req as any).user?.telegramId;
+  
+  // DEVELOPMENT ONLY: Fallback to header for testing
+  // WARNING: This is insecure and should be replaced with proper Telegram auth
+  if (!telegramData && process.env.NODE_ENV === 'development') {
+    return req.headers['x-telegram-id'] as string || null;
+  }
+  
   return telegramData || null;
 }
 
 async function adminMiddleware(req: AdminRequest, res: Response, next: NextFunction) {
-  // Skip middleware - allow all admin requests after activation
-  next();
+  try {
+    // Get telegram ID from session or headers (dev only)
+    const telegramId = getTelegramIdFromSession(req);
+    
+    if (!telegramId) {
+      console.log('❌ Admin access denied: No telegram ID in session');
+      return res.status(401).json({ 
+        error: "Unauthorized",
+        message: "No authentication found. Please log in through Telegram."
+      });
+    }
+    
+    const user = await storage.getUserByTelegramId(telegramId);
+    
+    if (!user) {
+      console.log('❌ Admin access denied: User not found for telegramId:', telegramId);
+      return res.status(401).json({ 
+        error: "Unauthorized",
+        message: "User not found. Please register first."
+      });
+    }
+    
+    if (!user.isAdmin) {
+      console.log('❌ Admin access denied: User is not admin:', user.username);
+      return res.status(403).json({ 
+        error: "Forbidden",
+        message: "Admin access required. You do not have admin privileges."
+      });
+    }
+    
+    console.log('✅ Admin access granted:', user.username);
+    req.userId = user.id;
+    req.telegramId = telegramId;
+    next();
+  } catch (error) {
+    console.error('❌ Admin middleware error:', error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 }
 
 // Telegram Bot API Token from environment variable
@@ -177,6 +248,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           username: telegramId,
         });
         console.log('✅ User created:', user.id);
+        
+        // Log new user registration
+        await logActivity({
+          userId: user.id,
+          username: user.username,
+          action: 'USER_REGISTERED',
+          description: `Новый пользователь зарегистрирован: ${user.username}`,
+          metadata: { telegramId },
+          ipAddress: req.ip,
+        });
       }
 
       console.log('📤 Sending user data:', { id: user.id, telegramId: user.telegramId });
@@ -302,6 +383,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       const channel = await storage.createChannel(channelData);
 
+      // Log channel creation
+      await logActivity({
+        userId: currentUser?.id,
+        username: currentUser?.username || 'Anonymous',
+        action: 'CHANNEL_CREATED',
+        description: `Создано новое объявление: ${channel.channelName || 'Без названия'} за ${channel.price} TON`,
+        metadata: { channelId: channel.id, price: channel.price, giftId: channel.giftId },
+        ipAddress: req.ip,
+      });
+
       res.status(201).json(channel);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -409,6 +500,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (adminPassword === ADMIN_SECRET_PASSWORD) {
           console.log('Password correct! Granting admin access');
           await storage.setUserAdmin(user.id, true);
+          
+          // Log admin activation
+          await logActivity({
+            userId: user.id,
+            username: user.username,
+            action: 'ADMIN_ACTIVATED',
+            description: `Пользователь ${user.username} получил права администратора`,
+            metadata: { telegramId },
+            ipAddress: req.ip,
+          });
+          
           return res.json({
             success: true,
             message: "Admin access granted",
@@ -431,6 +533,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!success) {
         return res.status(404).json({ error: "User not found" });
       }
+
+      // Log deposit
+      await logActivity({
+        userId: user.id,
+        username: user.username,
+        action: 'BALANCE_DEPOSIT',
+        description: `Пополнение баланса на ${amount} TON`,
+        metadata: { amount, telegramId },
+        ipAddress: req.ip,
+      });
 
       res.json({ success: true, message: "Balance updated successfully" });
     } catch (error) {
@@ -517,10 +629,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/channels/:id", adminMiddleware, async (req, res) => {
     try {
+      const channel = await storage.getChannelById(req.params.id);
       const success = await storage.deleteChannel(req.params.id);
       if (!success) {
         return res.status(404).json({ error: "Channel not found" });
       }
+      
+      // Log channel deletion
+      if (channel) {
+        await logActivity({
+          action: 'CHANNEL_DELETED',
+          description: `Админ удалил объявление: ${channel.channelName || 'Без названия'}`,
+          metadata: { channelId: req.params.id },
+          ipAddress: req.ip,
+        });
+      }
+      
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete channel" });
@@ -537,6 +661,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid channel data", details: error.errors });
       }
       res.status(500).json({ error: "Failed to create channel" });
+    }
+  });
+
+  // Get activity logs (admin only)
+  app.get("/api/admin/activity-logs", adminMiddleware, async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+      const action = req.query.action as string | undefined;
+      
+      let logs;
+      if (action) {
+        logs = await storage.getActivityLogsByAction(action, limit);
+      } else {
+        logs = await storage.getAllActivityLogs(limit);
+      }
+      
+      res.json(logs);
+    } catch (error) {
+      console.error('Error fetching activity logs:', error);
+      res.status(500).json({ error: "Failed to fetch activity logs" });
     }
   });
 
@@ -569,6 +713,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       await storage.updatePurchase(purchase.id, { buyerDebitTxCompleted: true });
+
+      // Log purchase
+      await logActivity({
+        userId: buyer.id,
+        username: buyer.username,
+        action: 'PURCHASE_CREATED',
+        description: `Покупка объявления "${channel.channelName || 'Без названия'}" за ${price} TON`,
+        metadata: { 
+          purchaseId: purchase.id, 
+          channelId: channel.id, 
+          price,
+          sellerId: validatedData.sellerId 
+        },
+        ipAddress: req.ip,
+      });
 
       // Schedule buyer notification after 5 seconds (for testing)
       setTimeout(async () => {

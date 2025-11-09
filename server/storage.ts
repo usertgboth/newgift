@@ -1,9 +1,9 @@
-import { type User, type InsertUser, type Gift, type Channel, type InsertChannel, type Purchase, type InsertPurchase } from "@shared/schema";
+import { type User, type InsertUser, type Gift, type Channel, type InsertChannel, type Purchase, type InsertPurchase, type ActivityLog, type InsertActivityLog } from "@shared/schema";
 import { AVAILABLE_GIFTS } from "@shared/gifts";
 import { randomUUID } from "crypto";
 import { db } from "../db/index";
-import { gifts, channels, users, referrals, referralEarnings, purchases } from "@shared/schema";
-import { eq, ilike, or } from "drizzle-orm";
+import { gifts, channels, users, referrals, referralEarnings, purchases, activityLogs } from "@shared/schema";
+import { eq, ilike, or, desc } from "drizzle-orm";
 
 
 export interface IStorage {
@@ -38,6 +38,11 @@ export interface IStorage {
   confirmPurchaseBuyer(id: string): Promise<Purchase | undefined>;
   confirmPurchaseSeller(id: string): Promise<Purchase | undefined>;
   setPurchaseBuyerNotified(id: string): Promise<Purchase | undefined>;
+  
+  createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
+  getAllActivityLogs(limit?: number): Promise<ActivityLog[]>;
+  getActivityLogsByUser(userId: string, limit?: number): Promise<ActivityLog[]>;
+  getActivityLogsByAction(action: string, limit?: number): Promise<ActivityLog[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -437,6 +442,60 @@ export class MemStorage implements IStorage {
     };
     this.purchases.set(id, updated);
     return updated;
+  }
+
+  async createActivityLog(log: InsertActivityLog): Promise<ActivityLog> {
+    try {
+      const [newLog] = await db.insert(activityLogs).values(log).returning();
+      return newLog;
+    } catch (error) {
+      console.error('Error creating activity log:', error);
+      throw error;
+    }
+  }
+
+  async getAllActivityLogs(limit: number = 100): Promise<ActivityLog[]> {
+    try {
+      const logs = await db
+        .select()
+        .from(activityLogs)
+        .orderBy(desc(activityLogs.createdAt))
+        .limit(limit);
+      return logs;
+    } catch (error) {
+      console.error('Error fetching activity logs:', error);
+      return [];
+    }
+  }
+
+  async getActivityLogsByUser(userId: string, limit: number = 50): Promise<ActivityLog[]> {
+    try {
+      const logs = await db
+        .select()
+        .from(activityLogs)
+        .where(eq(activityLogs.userId, userId))
+        .orderBy(desc(activityLogs.createdAt))
+        .limit(limit);
+      return logs;
+    } catch (error) {
+      console.error('Error fetching user activity logs:', error);
+      return [];
+    }
+  }
+
+  async getActivityLogsByAction(action: string, limit: number = 50): Promise<ActivityLog[]> {
+    try {
+      const logs = await db
+        .select()
+        .from(activityLogs)
+        .where(eq(activityLogs.action, action))
+        .orderBy(desc(activityLogs.createdAt))
+        .limit(limit);
+      return logs;
+    } catch (error) {
+      console.error('Error fetching activity logs by action:', error);
+      return [];
+    }
   }
 }
 

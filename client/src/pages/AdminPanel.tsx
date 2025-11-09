@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft, Users, MessageSquare, Trash2, Plus, Minus } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, Trash2, Activity } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAdmin } from "@/contexts/AdminContext";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { User, Channel } from "@shared/schema";
+import type { User, Channel, ActivityLog } from "@shared/schema";
 
 export default function AdminPanel() {
   const [, navigate] = useLocation();
@@ -31,6 +31,16 @@ export default function AdminPanel() {
   const { data: channels = [], isLoading: channelsLoading } = useQuery<Channel[]>({
     queryKey: ['/api/channels'],
     enabled: isAdmin,
+  });
+
+  const { data: activityLogs = [], isLoading: logsLoading } = useQuery<ActivityLog[]>({
+    queryKey: ['/api/admin/activity-logs'],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const res = await apiRequest('GET', '/api/admin/activity-logs?limit=50');
+      return res.json();
+    },
+    refetchInterval: 10000, // Refresh every 10 seconds
   });
 
   const updateBalanceMutation = useMutation({
@@ -119,7 +129,7 @@ export default function AdminPanel() {
           </Card>
         ) : (
           <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="users" data-testid="tab-users">
               <Users className="w-4 h-4 mr-2" />
               Users
@@ -127,6 +137,10 @@ export default function AdminPanel() {
             <TabsTrigger value="channels" data-testid="tab-channels">
               <MessageSquare className="w-4 h-4 mr-2" />
               Channels
+            </TabsTrigger>
+            <TabsTrigger value="logs" data-testid="tab-logs">
+              <Activity className="w-4 h-4 mr-2" />
+              Logs
             </TabsTrigger>
           </TabsList>
 
@@ -221,6 +235,64 @@ export default function AdminPanel() {
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete Channel
                     </Button>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="logs" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Activity Logs</CardTitle>
+                <CardDescription className="text-xs">
+                  Real-time platform activity (auto-refreshes every 10s)
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            
+            {logsLoading ? (
+              <Card>
+                <CardContent className="p-6 text-center text-muted-foreground">
+                  Loading logs...
+                </CardContent>
+              </Card>
+            ) : activityLogs.length === 0 ? (
+              <Card>
+                <CardContent className="p-6 text-center text-muted-foreground">
+                  No activity logs yet
+                </CardContent>
+              </Card>
+            ) : (
+              activityLogs.map((log) => (
+                <Card key={log.id} data-testid={`card-log-${log.id}`} className="border-l-4 border-l-primary">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-sm font-semibold text-foreground truncate">
+                          {log.action.replace(/_/g, ' ')}
+                        </CardTitle>
+                        <CardDescription className="text-xs text-muted-foreground mt-1">
+                          {log.username || 'Anonymous'} • {new Date(log.createdAt).toLocaleString('ru-RU')}
+                        </CardDescription>
+                      </div>
+                      <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md whitespace-nowrap">
+                        {log.action.split('_')[0]}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-sm text-foreground">{log.description}</p>
+                    {log.metadata && (
+                      <details className="mt-2 text-xs">
+                        <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                          Metadata
+                        </summary>
+                        <pre className="mt-1 p-2 bg-muted rounded text-xs overflow-x-auto">
+                          {JSON.stringify(JSON.parse(log.metadata), null, 2)}
+                        </pre>
+                      </details>
+                    )}
                   </CardContent>
                 </Card>
               ))
