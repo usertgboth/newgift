@@ -47,10 +47,8 @@ class TelegramBotService {
           { parse_mode: 'HTML' }
         );
       } else {
-        // TODO: Replace 'YOUR_BOT_USERNAME' with actual bot username (without @)
-        // For example: 'loot_garant_bot' or 'LootGifts_bot'
-        const botUsername = process.env.BOT_USERNAME || 'loot_garant_bot';
-        const appUrl = `https://t.me/${botUsername}/app`;
+        // Use actual Replit URL for the web app
+        const appUrl = 'https://843fdf3e-24a4-42fa-82a7-8bba8287ccec-00-7ahmoon4gkqo.worf.replit.dev';
         
         await this.bot.sendMessage(
           chatId,
