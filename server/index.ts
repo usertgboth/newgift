@@ -107,12 +107,8 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  server.listen(port, "0.0.0.0", () => {
+    log(`🚀 Server is running on http://0.0.0.0:${port}`);
     log(`🤖 Telegram Bot initialized - waiting for @huakly to start the bot`);
   });
 })();
