@@ -43,27 +43,39 @@ class TelegramBotService {
         console.log(`✅ Admin chat ID found: ${chatId}`);
         await this.bot.sendMessage(
           chatId,
-          `👋 Добро пожаловать, администратор!\n\n✅ Вы будете получать уведомления о всех действиях на платформе.\n\n📋 Доступные команды:\n/help - Список команд\n/stats - Статистика платформы\n/balance - Ваш баланс\n/myads - Ваши объявления`,
+          `👋 Welcome, Administrator!\n\n✅ You will receive notifications about all platform activities.\n\n📋 Available commands:\n/help - Command list\n/stats - Platform statistics\n/balance - Your balance\n/myads - Your listings\n/admin - Admin panel`,
           { parse_mode: 'HTML' }
         );
       } else {
+        const appUrl = process.env.REPL_SLUG 
+          ? `https://${process.env.REPL_SLUG}.replit.app`
+          : 'https://t.me/LootGifts_bot/app';
+        
         await this.bot.sendMessage(
           chatId,
-          `👋 Добро пожаловать в LootGifts!\n\n✅ Вы будете получать уведомления о ваших покупках и объявлениях.\n\n📋 Доступные команды:\n/help - Помощь\n/balance - Мой баланс\n/myads - Мои объявления`,
-          { parse_mode: 'HTML' }
+          `🚀 Welcome to Telegram Marketplace!\n\n📱 Buy and sell channels\n💰 Secure transactions with guarantee\n🛡️ Protection for buyers and sellers`,
+          {
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '🌐 Open Marketplace', url: appUrl }]
+              ]
+            }
+          }
         );
       }
     });
 
-    // Handle /help command
+    // Handle /help command (admin only)
     this.bot.onText(/\/help/, async (msg) => {
       const chatId = msg.chat.id;
       const username = msg.from?.username;
       
-      const isAdmin = username === ADMIN_USERNAME;
-      const helpText = isAdmin
-        ? `📚 <b>Помощь - Администратор</b>\n\n/start - Начать работу с ботом\n/help - Показать эту помощь\n/stats - Статистика платформы\n/balance - Проверить баланс\n/myads - Мои объявления\n\n🔑 Вы получаете уведомления о всех действиях на платформе.`
-        : `📚 <b>Помощь</b>\n\n/start - Начать работу с ботом\n/help - Показать эту помощь\n/balance - Проверить баланс\n/myads - Мои объявления\n\n✨ Покупайте и продавайте подарки на LootGifts!`;
+      if (username !== ADMIN_USERNAME) {
+        return; // Ignore for non-admin users
+      }
+      
+      const helpText = `📚 <b>Help - Administrator</b>\n\n/start - Start working with bot\n/help - Show this help\n/stats - Platform statistics\n/balance - Check balance\n/myads - My listings\n/admin - Admin panel\n\n🔑 You receive notifications about all platform activities.`;
       
       await this.bot.sendMessage(chatId, helpText, { parse_mode: 'HTML' });
     });
@@ -74,8 +86,7 @@ class TelegramBotService {
       const username = msg.from?.username;
       
       if (username !== ADMIN_USERNAME) {
-        await this.bot.sendMessage(chatId, '❌ Эта команда доступна только администраторам.');
-        return;
+        return; // Ignore for non-admin users
       }
       
       try {
@@ -83,36 +94,40 @@ class TelegramBotService {
         const channels = await storage.getAllChannels();
         const activityLogs = await storage.getAllActivityLogs(10);
         
-        const statsText = `📊 <b>Статистика платформы</b>\n\n👥 Пользователей: ${users.length}\n📢 Объявлений: ${channels.length}\n📝 Последних действий: ${activityLogs.length}\n\n🕐 Обновлено: ${new Date().toLocaleString('ru-RU')}`;
+        const statsText = `📊 <b>Platform Statistics</b>\n\n👥 Users: ${users.length}\n📢 Listings: ${channels.length}\n📝 Recent activities: ${activityLogs.length}\n\n🕐 Updated: ${new Date().toLocaleString('en-US')}`;
         
         await this.bot.sendMessage(chatId, statsText, { parse_mode: 'HTML' });
       } catch (error) {
         console.error('Error fetching stats:', error);
-        await this.bot.sendMessage(chatId, '❌ Ошибка при получении статистики');
+        await this.bot.sendMessage(chatId, '❌ Error fetching statistics');
       }
     });
 
-    // Handle /balance command
+    // Handle /balance command (admin only)
     this.bot.onText(/\/balance/, async (msg) => {
       const chatId = msg.chat.id;
+      const username = msg.from?.username;
       const telegramId = msg.from?.id.toString();
+      
+      if (username !== ADMIN_USERNAME) {
+        return; // Ignore for non-admin users
+      }
       
       console.log(`📊 /balance command from user ${telegramId}`);
       
       if (!telegramId) {
-        await this.bot.sendMessage(chatId, '❌ Не удалось определить ваш ID');
+        await this.bot.sendMessage(chatId, '❌ Unable to determine your ID');
         return;
       }
       
       try {
-        // First check if user exists by telegramId
         const user = await storage.getUserByTelegramId(telegramId);
         
         if (!user) {
           console.log(`⚠️  User with telegramId ${telegramId} not found in database`);
           await this.bot.sendMessage(
             chatId, 
-            '❌ Пользователь не найден в системе.\n\nПожалуйста, откройте приложение LootGifts хотя бы один раз, чтобы создать аккаунт:\nhttps://t.me/LootGifts_bot/app',
+            '❌ User not found in system.\n\nPlease open the LootGifts app at least once to create an account.',
             { parse_mode: 'HTML' }
           );
           return;
@@ -120,28 +135,33 @@ class TelegramBotService {
         
         console.log(`✅ User found: ${user.username}, balance: ${user.balance}`);
         
-        const balanceText = `💰 <b>Ваш баланс</b>\n\n💵 ${user.balance} TON\n👤 ${user.username}`;
+        const balanceText = `💰 <b>Your Balance</b>\n\n💵 ${user.balance} TON\n👤 ${user.username}`;
         await this.bot.sendMessage(chatId, balanceText, { parse_mode: 'HTML' });
       } catch (error) {
         console.error('❌ Error fetching balance:', error);
-        await this.bot.sendMessage(chatId, '❌ Ошибка при получении баланса. Попробуйте позже.');
+        await this.bot.sendMessage(chatId, '❌ Error fetching balance. Please try again later.');
       }
     });
 
-    // Handle /myads command
+    // Handle /myads command (admin only)
     this.bot.onText(/\/myads/, async (msg) => {
       const chatId = msg.chat.id;
+      const username = msg.from?.username;
       const telegramId = msg.from?.id.toString();
       
+      if (username !== ADMIN_USERNAME) {
+        return; // Ignore for non-admin users
+      }
+      
       if (!telegramId) {
-        await this.bot.sendMessage(chatId, '❌ Не удалось определить ваш ID');
+        await this.bot.sendMessage(chatId, '❌ Unable to determine your ID');
         return;
       }
       
       try {
         const user = await storage.getUserByTelegramId(telegramId);
         if (!user) {
-          await this.bot.sendMessage(chatId, '❌ Пользователь не найден');
+          await this.bot.sendMessage(chatId, '❌ User not found');
           return;
         }
         
@@ -149,23 +169,23 @@ class TelegramBotService {
         const myChannels = allChannels.filter(ch => ch.ownerId === user.id);
         
         if (myChannels.length === 0) {
-          await this.bot.sendMessage(chatId, '📭 У вас пока нет объявлений');
+          await this.bot.sendMessage(chatId, '📭 You have no listings yet');
           return;
         }
         
-        let adsText = `📢 <b>Ваши объявления (${myChannels.length})</b>\n\n`;
+        let adsText = `📢 <b>Your Listings (${myChannels.length})</b>\n\n`;
         myChannels.slice(0, 5).forEach((channel, idx) => {
-          adsText += `${idx + 1}. ${channel.channelName || 'Без названия'}\n💰 ${channel.price} TON\n\n`;
+          adsText += `${idx + 1}. ${channel.channelName || 'No name'}\n💰 ${channel.price} TON\n\n`;
         });
         
         if (myChannels.length > 5) {
-          adsText += `... и еще ${myChannels.length - 5} объявлений`;
+          adsText += `... and ${myChannels.length - 5} more listings`;
         }
         
         await this.bot.sendMessage(chatId, adsText, { parse_mode: 'HTML' });
       } catch (error) {
         console.error('Error fetching ads:', error);
-        await this.bot.sendMessage(chatId, '❌ Ошибка при получении объявлений');
+        await this.bot.sendMessage(chatId, '❌ Error fetching listings');
       }
     });
 
